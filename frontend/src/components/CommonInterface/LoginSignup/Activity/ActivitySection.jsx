@@ -18,6 +18,9 @@ function ActivitySection() {
   const [passMatched, setPassMatched] = useState(false);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
   const [recaptchaVerifiedRegister, setRecaptchaVerifiedRegister] = useState(false);
+  const [captchaSize, setCaptchaSize] = useState(
+    window.innerWidth <= 420 ? "compact" : "normal"
+  );
 
   const [signUpDetails, setSignUpDetails] = useState({
     email: "", firstname: "", lastname: "",
@@ -33,6 +36,15 @@ function ActivitySection() {
 
   useEffect(() => {
     if (window.location.pathname.split("-")[1] === "signup") setActivity(true);
+  }, []);
+
+  useEffect(() => {
+    const updateCaptchaSize = () => {
+      setCaptchaSize(window.innerWidth <= 420 ? "compact" : "normal");
+    };
+
+    window.addEventListener("resize", updateCaptchaSize);
+    return () => window.removeEventListener("resize", updateCaptchaSize);
   }, []);
 
   useEffect(() => {
@@ -153,7 +165,13 @@ function ActivitySection() {
 
             <Link to="/forgotpassword" className="auth-forgot">Forgot password?</Link>
 
-            <HCaptcha sitekey="979e4300-1752-49e6-8e58-1388e9befe64" onVerify={() => setRecaptchaVerified(true)} />
+            <div className="auth-captcha">
+              <HCaptcha
+                sitekey="979e4300-1752-49e6-8e58-1388e9befe64"
+                size={captchaSize}
+                onVerify={() => setRecaptchaVerified(true)}
+              />
+            </div>
             {errorMsg.type === "Captcha not verified" && <span className="auth-error">{errorMsg.msg}</span>}
 
             <button type="submit" className={`auth-submit${loading ? " auth-submit--loading" : ""}`} disabled={loading}>
@@ -215,7 +233,13 @@ function ActivitySection() {
                 <span className="auth-error">Passwords don't match</span>}
             </div>
 
-            <HCaptcha sitekey="342a82a4-2f5c-4348-942e-999cd9eccc3a" onVerify={() => setRecaptchaVerifiedRegister(true)} />
+            <div className="auth-captcha">
+              <HCaptcha
+                sitekey="342a82a4-2f5c-4348-942e-999cd9eccc3a"
+                size={captchaSize}
+                onVerify={() => setRecaptchaVerifiedRegister(true)}
+              />
+            </div>
             {errorMsg.type === "Captcha not verified while registration" && <span className="auth-error">{errorMsg.msg}</span>}
 
             <button type="submit"

@@ -23,13 +23,17 @@ const logger = createLogger({
                 logFormat
             ),
         }),
-        new transports.File({
-            filename: "logs/error.log",
-            level: "error",
-        }),
-        new transports.File({
-            filename: "logs/combined.log",
-        }),
+        ...(process.env.VERCEL === "1"
+            ? []
+            : [
+                  new transports.File({
+                      filename: "logs/error.log",
+                      level: "error",
+                  }),
+                  new transports.File({
+                      filename: "logs/combined.log",
+                  }),
+              ]),
     ],
 });
 

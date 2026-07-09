@@ -78,6 +78,10 @@ app.get("/health", (req, res) => {
 });
 
 
-app.listen(PORT,()=>{
-    logger.info("server running on port %d", PORT);
-})
+if (process.env.VERCEL !== "1") {
+    app.listen(PORT,()=>{
+        logger.info("server running on port %d", PORT);
+    })
+}
+
+module.exports = app;
