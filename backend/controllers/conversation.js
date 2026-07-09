@@ -1,11 +1,10 @@
 const logger=require("../utils/logger");
 const Profile = require("../models/Profile");
-const User=require("../models/User");
 const Shedule =require("../models/Shedule");
 const Request= require("../models/Request");
 const Product=require("../models/Product");
-const {cloudinaryuploader}=require("../utils/cloudinaryuploader");
 const {mailsender}=require("../utils/SendMail");
+const {sendEmailWithRetry}=require("../utils/EmailQueue");
 const {requestproduct}=require("../mailtemplates/Request");
 const {shedulevenue}=require("../mailtemplates/Shedule");
 require("dotenv").config();
@@ -17,9 +16,9 @@ require("dotenv").config();
 exports.productrequest=async (req,res)=>{
     try{
         const {id,email}=req.user;
-        const {buyername, selleremail, productid, quantity}=req.body;
+        const {buyername, productid, quantity}=req.body;
         const buyeremail=email;
-        if(!buyeremail || !selleremail || !productid || !buyername || !quantity){
+        if(!buyeremail || !productid || !buyername || !quantity){
             return res.json({
                 success:false,
                 message:"All Fields are required"
@@ -33,30 +32,37 @@ exports.productrequest=async (req,res)=>{
                 message:"Request has been Already sent, kindly wait for Response from the Owner or delete the request and again make new request"
             })
         }
-     
-        const sellerdata=await User.findOne({email:selleremail});
-        if(!sellerdata){
-            return res.json({
-                success:false, 
-                message:"Seller Does not exist "
-            })
-        }
        
-        const productdata=await Product.findById(productid);
+        const productdata=await Product.findById(productid).populate("owner", "firstname lastname email");
         if(!productdata){
             return res.json({
                 success:false,
                 message:"Product Has been deleted , Kindly delete the request"
             })
         }
+        const sellerdata=productdata.owner;
+        if(!sellerdata?.email){
+            return res.json({
+                success:false, 
+                message:"Seller Does not exist "
+            })
+        }
     
-        const mailresposne=await mailsender(selleremail,"Request to Sell",requestproduct(buyername, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, productid, quantity));
         const saverequest=await Request.create({
             buyer:id,
             seller:sellerdata._id,
             product:productdata._id,
             quantity:quantity
         })
+
+        logger.info("queueing product request email to seller: %s", sellerdata.email);
+        sendEmailWithRetry(
+            sellerdata.email,
+            "Request to Sell",
+            requestproduct(buyername, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, productid, quantity)
+        ).catch((mailError) => {
+            logger.error("failed to queue product request email: %s", mailError.message);
+        });
 
         res.json({
             success:true,
@@ -311,5 +317,3 @@ catch(err){
     })
 }
 }
-
-

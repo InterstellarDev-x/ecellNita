@@ -65,7 +65,6 @@ exports.sendotp=async (req,res)=>{
         res.json({
             success:true,
             message:"OTP generated successfully. Please check your email (may take a few moments).",
-            data:otpdata,
         })
     }
     catch(err){

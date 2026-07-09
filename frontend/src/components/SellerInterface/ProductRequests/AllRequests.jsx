@@ -6,8 +6,10 @@ import ProductrequestListItem from './ProductrequestListItem';
 
 function AllRequests() {
     const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const fetchAllProductrequests = async() => {
+        setLoading(true);
         try {
             const api_header = { 
               Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
@@ -20,10 +22,12 @@ function AllRequests() {
             console.log(response.data);
             if (response.data.success) {
                 console.log("Requests fetched successfully");
-                setRequests(response.data.data);
+                setRequests(response.data.data || []);
             }
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -55,11 +59,18 @@ function AllRequests() {
         <div className="heading">
             <h4>All Requests</h4>
         </div>
-        {
+        {loading ? (
+            <div className="empty-state">Loading requests...</div>
+        ) : requests.length === 0 ? (
+            <div className="empty-state">
+                <h5>No product requests yet</h5>
+                <p>New buyer requests for your listed products will appear here.</p>
+            </div>
+        ) : (
             requests.map((request, i)=>{
                return <ProductrequestListItem key={i} request={request} handleDeleteProductRequest={handleDeleteProductRequest} />
             })
-        }
+        )}
     </div>
   )
 }

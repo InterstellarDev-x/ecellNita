@@ -22,7 +22,7 @@ const productschema=new mongoose.Schema({
     },
     status:{
         type:String,
-        enum:["Sold","Purchased","For Sale"],
+        enum:["Sold","Purchased","Forsale"],
     },
     
     quantity:{

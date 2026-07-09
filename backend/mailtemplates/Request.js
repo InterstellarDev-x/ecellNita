@@ -1,5 +1,5 @@
 exports.requestproduct=(buyername ,sellername, productname,  productid, quantity)=>{
-    return `<DOCTYPE html>
+    return `<!DOCTYPE html>
     <html>
         <head>
 
@@ -13,10 +13,11 @@ exports.requestproduct=(buyername ,sellername, productname,  productid, quantity
 
         <body>
             <div>
-            Quantities ${quantity}
-            Hey ${sellername} you got a request from ${buyername} to sell your product ${productname}
-            Product id ${productid}
-            Kindly visit to the website to sell it.
+                <p>Hey ${sellername},</p>
+                <p>You got a request from ${buyername} to buy your product <strong>${productname}</strong>.</p>
+                <p>Quantity requested: <strong>${quantity}</strong></p>
+                <p>Product id: ${productid}</p>
+                <p>Kindly visit the website to review this request.</p>
             </div>
         </body>
     </html>

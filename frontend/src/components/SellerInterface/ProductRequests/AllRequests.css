@@ -37,6 +37,31 @@
     margin: 2rem 0px;
 }
 
+.all-product-requests .empty-state{
+    width: 100%;
+    min-height: 220px;
+    border: 1px dashed #d4d4d4;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+}
+
+.all-product-requests .empty-state h5{
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.all-product-requests .empty-state p{
+    margin: 0;
+    max-width: 420px;
+}
+
 .all-product-requests .requested-product-item{
     display: flex;
     justify-content: space-between;

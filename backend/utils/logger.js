@@ -1,5 +1,5 @@
 const { createLogger, format, transports } = require("winston");
-const { combine, timestamp, printf, colorize, errors } = format;
+const { combine, timestamp, printf, colorize, errors, splat } = format;
 
 const logFormat = printf(({ level, message, timestamp, stack }) => {
     return `${timestamp} [${level}]: ${stack || message}`;
@@ -10,6 +10,7 @@ const logger = createLogger({
     format: combine(
         timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
         errors({ stack: true }),
+        splat(),
         logFormat
     ),
     transports: [
@@ -18,6 +19,7 @@ const logger = createLogger({
                 colorize(),
                 timestamp({ format: "HH:mm:ss" }),
                 errors({ stack: true }),
+                splat(),
                 logFormat
             ),
         }),

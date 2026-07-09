@@ -12,6 +12,7 @@ export const authroutes={
     DELETE_PRODUCT:BASE_URL+"/product/deleteproduct",
     PRODUCT_REQUEST:BASE_URL+"/conversation/productrequest",
     GET_ALL_PRODUCT_REQUESTS:BASE_URL+"/conversation/all_received_request",
+    GET_ALL_PRODUCTS:BASE_URL+"/product/getallproduct",
     DELETE_PRODUCT_REQUEST:BASE_URL+"/conversation/deleterequest",
     SCHEDULE_MEET:BASE_URL+"/conversation/shedulemeet",
     GET_SCHEDULE_DATA:BASE_URL+"/conversation/get_shedule_data",

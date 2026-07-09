@@ -46,6 +46,31 @@
     width: 100%;
 }
 
+.seller-product-list .empty-state{
+    grid-column: 1 / -1;
+    min-height: 260px;
+    border: 1px dashed #d4d4d4;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+}
+
+.seller-product-list .empty-state h5{
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.seller-product-list .empty-state p{
+    margin: 0;
+    max-width: 420px;
+}
+
 .seller-product-list .list .list-item{
     display: flex;
     flex-direction: column;

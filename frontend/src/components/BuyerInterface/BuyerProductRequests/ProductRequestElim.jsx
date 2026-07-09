@@ -5,6 +5,9 @@ import { authroutes } from "../../../apis/apis";
 import Spinner from "react-bootstrap/Spinner";
 
 function ProductRequestElim({ request, handleDeleteProductRequest }) {
+  const hasProduct = Boolean(request?.product);
+  const productImage = request?.product?.images?.[0] || "https://via.placeholder.com/120x70?text=Deleted";
+
   const numToMonthMap = new Map([
     [1, "Jan"],
     [2, "Feb"],
@@ -62,6 +65,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
 
   const handleScheduleMeet = async (e) => {
     e.preventDefault();
+    if (!hasProduct) return;
     setIsLoading(true);
     try {
       const api_header = {
@@ -153,6 +157,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
   };
 
   const submitCompleteOTP = async () => {
+    if (!hasProduct) return;
     try {
       const api_header = {
         Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
@@ -198,11 +203,11 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
       </div> */}
       <div className="requested-product-item">
         <div className="requested-product-item-img">
-          <img src={request.product.images[0]} alt="" />
+          <img src={productImage} alt="" />
           <div className="product-info">
-            <b>{request.product.productname}</b>
-            <p>{request.product.productdescription}</p>
-            <b>&#8377; {request.product.price}</b>
+            <b>{request.product?.productname || "Product no longer available"}</b>
+            <p>{request.product?.productdescription || "This product was deleted by the seller."}</p>
+            {hasProduct && <b>&#8377; {request.product.price}</b>}
           </div>
         </div>
         <div className="requested-product-item-status">
@@ -228,7 +233,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
           </p>
         </div>
         <div className="requested-product-item-btns">
-          {isScheduled && (
+          {hasProduct && isScheduled && (
             <button
               className="schedule-btn"
               data-bs-toggle="modal"
@@ -240,7 +245,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
               )}
             </button>
           )}
-          {isScheduled && (
+          {hasProduct && isScheduled && (
             <button
               className="schedule-btn"
               data-bs-toggle="modal"
@@ -249,7 +254,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
               Complete
             </button>
           )}
-          {isScheduled && (
+          {hasProduct && isScheduled && (
             <button
               className="delete-btn"
               data-bs-toggle="modal"

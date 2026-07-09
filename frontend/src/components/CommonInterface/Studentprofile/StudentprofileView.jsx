@@ -1,17 +1,32 @@
 import React, { useEffect, useState } from "react";
 import "./StudentprofileView.css";
-import { Pencil } from "lucide-react";
+import { Camera, Pencil } from "lucide-react";
 import Spinner from "react-bootstrap/Spinner";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
-import { useNavigate } from "react-router-dom";
+
+const getProfileDetails = (user) => user?.additionaldetails || {};
+
+const buildProfileFormData = (user) => {
+  const profile = getProfileDetails(user);
+
+  return {
+    firstname: user?.firstname || '',
+    lastname: user?.lastname || '',
+    gender: profile.gender || user?.gender || '',
+    enrollmentno: profile.enrollmentno || user?.enrollmentno || '',
+    contactno: profile.contactno || user?.contactno || '',
+    about: profile.about || user?.about || '',
+    graduationyr: profile.graduationyr || user?.graduationyr || '',
+  };
+};
 
 function StudentprofileView() {
-  const navigate = useNavigate();
-
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState("");
   const [updateProfileFormdata, setUpdateProfileFormdata] = useState({
     firstname: '',
     lastname: '',
@@ -26,35 +41,44 @@ function StudentprofileView() {
     const user = JSON.parse(localStorage.getItem('campusrecycleuser'));
     setUserDetails(user);
     if (user) {
-      setUpdateProfileFormdata({
-        firstname: user.firstname || '',
-        lastname: user.lastname || '',
-        gender: user.gender || '',
-        enrollmentno: user.enrollmentno || '',
-        contactno: user.contactno || '',
-        about: user.about || '',
-        graduationyr: user.graduationyr || '',
-      });
+      setUpdateProfileFormdata(buildProfileFormData(user));
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (profileImagePreview) {
+        URL.revokeObjectURL(profileImagePreview);
+      }
+    };
+  }, [profileImagePreview]);
+
   const handleCancel = () => {
     if (userDetails) {
-      setUpdateProfileFormdata({
-        firstname: userDetails.firstname || '',
-        lastname: userDetails.lastname || '',
-        gender: userDetails.gender || '',
-        enrollmentno: userDetails.enrollmentno || '',
-        contactno: userDetails.contactno || '',
-        about: userDetails.about || '',
-        graduationyr: userDetails.graduationyr || '',
-      });
+      setUpdateProfileFormdata(buildProfileFormData(userDetails));
     }
+    if (profileImagePreview) {
+      URL.revokeObjectURL(profileImagePreview);
+    }
+    setProfileImageFile(null);
+    setProfileImagePreview("");
     setIsEditing(false);
   };
 
   const updateProfileFormdataOnchange = (e) => {
     setUpdateProfileFormdata({ ...updateProfileFormdata, [e.target.name]: e.target.value });
+  };
+
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (profileImagePreview) {
+      URL.revokeObjectURL(profileImagePreview);
+    }
+
+    setProfileImageFile(file);
+    setProfileImagePreview(URL.createObjectURL(file));
   };
 
   const updateUser = async () => {
@@ -63,11 +87,23 @@ function StudentprofileView() {
         Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
         "Content-Type": "multipart/form-data",
       };
-      const responseObj = await apiConnector("POST", authroutes.UPDATE_USER, updateProfileFormdata, api_header);
+      const userFormData = new FormData();
+      userFormData.append("firstname", updateProfileFormdata.firstname);
+      userFormData.append("lastname", updateProfileFormdata.lastname);
+      if (profileImageFile) {
+        userFormData.append("userimage", profileImageFile);
+      }
+
+      const responseObj = await apiConnector("POST", authroutes.UPDATE_USER, userFormData, api_header);
       if (responseObj.data.success) {
         const updatedUser = responseObj.data.data;
         localStorage.setItem('campusrecycleuser', JSON.stringify(updatedUser));
         setUserDetails(updatedUser);
+        if (profileImagePreview) {
+          URL.revokeObjectURL(profileImagePreview);
+        }
+        setProfileImageFile(null);
+        setProfileImagePreview("");
         setLoading(false);
         setIsEditing(false);
       } else {
@@ -100,6 +136,7 @@ function StudentprofileView() {
   };
 
   const YEAR_LABELS = { '1': '1st Year', '2': '2nd Year', '3': '3rd Year', '4': '4th Year' };
+  const profileDetails = getProfileDetails(userDetails);
 
   return (
     <div className="profile-view">
@@ -140,24 +177,24 @@ function StudentprofileView() {
               </div>
               <div className="profile-info-item">
                 <span className="info-label">Gender</span>
-                <span className="info-value">{userDetails?.gender || '—'}</span>
+                <span className="info-value">{profileDetails.gender || '—'}</span>
               </div>
               <div className="profile-info-item">
                 <span className="info-label">Enrollment No.</span>
-                <span className="info-value">{userDetails?.enrollmentno || '—'}</span>
+                <span className="info-value">{profileDetails.enrollmentno || '—'}</span>
               </div>
               <div className="profile-info-item">
                 <span className="info-label">Contact No.</span>
-                <span className="info-value">{userDetails?.contactno || '—'}</span>
+                <span className="info-value">{profileDetails.contactno || '—'}</span>
               </div>
               <div className="profile-info-item">
                 <span className="info-label">Graduation Year</span>
-                <span className="info-value">{YEAR_LABELS[userDetails?.graduationyr] || userDetails?.graduationyr || '—'}</span>
+                <span className="info-value">{YEAR_LABELS[profileDetails.graduationyr] || profileDetails.graduationyr || '—'}</span>
               </div>
-              {userDetails?.about && (
+              {profileDetails.about && (
                 <div className="profile-info-item full-width">
                   <span className="info-label">About</span>
-                  <span className="info-value">{userDetails.about}</span>
+                  <span className="info-value">{profileDetails.about}</span>
                 </div>
               )}
             </div>
@@ -167,6 +204,28 @@ function StudentprofileView() {
             <h3 className="edit-form-title">Edit Profile</h3>
             <form onSubmit={handleSubmit}>
               <div className="edit-profile-input-1">
+                <div className="profile-image-upload">
+                  <img
+                    src={profileImagePreview || userDetails?.image || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}
+                    alt="Profile preview"
+                  />
+                  <div>
+                    <label htmlFor="userimage">Profile image</label>
+                    <input
+                      type="file"
+                      id="userimage"
+                      name="userimage"
+                      accept="image/*"
+                      onChange={handleProfileImageChange}
+                    />
+                    <span>Upload a square image for the best fit.</span>
+                  </div>
+                  <label className="profile-image-upload-btn" htmlFor="userimage">
+                    <Camera size={16} />
+                    Change
+                  </label>
+                </div>
+
                 <div className="form-row">
                   <div>
                     <label htmlFor="firstname">First Name</label>

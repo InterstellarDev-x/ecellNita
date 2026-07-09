@@ -4,10 +4,17 @@ require("dotenv").config();
 
 exports.mailsender=async (email,title,body)=>{
     try{
+        const mailPort = Number(process.env.MAIL_PORT || 465);
+        const mailSecure = process.env.MAIL_SECURE
+            ? process.env.MAIL_SECURE === "true"
+            : mailPort === 465;
+        const fromEmail = process.env.MAIL_FROM_EMAIL || process.env.MAIL_USER;
+        const fromName = process.env.MAIL_FROM_NAME || "NITASPACE";
+
         let transporter=nodemailer.createTransport({
             host:process.env.MAIL_HOST,
-            port: 465,
-            secure: true,
+            port: mailPort,
+            secure: mailSecure,
             auth:{
                 user:process.env.MAIL_USER,
                 pass:process.env.MAIL_PASS,
@@ -26,7 +33,7 @@ exports.mailsender=async (email,title,body)=>{
         // Send email with increased timeout
         const info = await Promise.race([
             transporter.sendMail({
-                from: `"NITASPACE" <${process.env.MAIL_USER}>`,
+                from: `"${fromName}" <${fromEmail}>`,
                 to: `${email}`,
                 subject: `${title}`,
                 html: `${body}`

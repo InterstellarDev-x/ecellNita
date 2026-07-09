@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
-import axios from "axios";
+import { authroutes } from "../apis/apis";
+import { apiConnector } from "../utils/Apiconnecter";
 
 const ProductContext = createContext(null);
 
@@ -15,10 +16,11 @@ export const ProductProvider = (props) => {
   const getAllProducts = async(force = false) => {
     if (!force && allProducts.length > 0) return;
     try {
-      const response = await axios.post(
-        'https://api.recycool.ecellnita.in/api/v1/product/getallproduct',
+      const response = await apiConnector(
+        "POST",
+        authroutes.GET_ALL_PRODUCTS,
         {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}` } }
+        { Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}` }
       );
       if(response.data.success){
         setAllProducts(response.data.data);

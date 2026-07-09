@@ -8,6 +8,7 @@ import { authroutes } from "../../../apis/apis";
 function SellerProductList() {
   const navigate = useNavigate();
   const [productIds, setProductIds] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
   const handleDeleteProduct = async (idToDelete) => {
     console.log("id to delete: ", idToDelete);
@@ -45,17 +46,28 @@ function SellerProductList() {
 
   useEffect(() => {
     const user = localStorage.getItem("campusrecycleuser");
-    if (!user) navigate("/");
+    if (!user) {
+      navigate("/");
+      return;
+    }
 
     const userObj = JSON.parse(user);
-    const allProductIds = userObj.products;
+    const allProductIds = userObj.products || [];
     console.log(allProductIds);
     setProductIds(allProductIds);
+    setLoaded(true);
   }, []);
   return (
     <div className="seller-product-list">
       <div className="list">
-        {productIds.map((productId, i) => {
+        {!loaded ? (
+          <div className="empty-state">Loading products...</div>
+        ) : productIds.length === 0 ? (
+          <div className="empty-state">
+            <h5>No products listed yet</h5>
+            <p>Add your first product to start receiving buyer requests.</p>
+          </div>
+        ) : productIds.map((productId, i) => {
           return (
             <SellerProductCard
               key={i}

@@ -1,28 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
 import "./SellerOverview.css";
-import DasboardCardImg from '../../../images/dashboard-card-img.png';
-import { ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 
-const modalContents = [
-  {
-    title: 'Add New Product',
-    body: 'Use this action to add new items to your catalog. Provide all details such as images, description, and price to attract more buyers!',
-  },
-  {
-    title: 'View My Products',
-    body: 'Here you can review, edit, or delete your listed products. Maintaining up-to-date listings helps attract more customers.',
-  },
-  {
-    title: 'Manage Profile',
-    body: 'Update your profile and account details so buyers can easily reach you and trust your store.',
-  }
-];
-
 function SellerOverview() {
-  const navigate = useNavigate();
   const user = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("campusrecycleuser"));
@@ -34,12 +15,8 @@ function SellerOverview() {
   const sellerName = user?.firstname || 'Seller';
   const profileInfo = user?.additionaldetails || {};
 
-  const [modalIdx, setModalIdx] = useState(null);
   const [soldCount, setSoldCount] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  const handleOpenModal = (idx) => setModalIdx(idx);
-  const handleCloseModal = () => setModalIdx(null);
 
   useEffect(() => {
     const fetchSoldProducts = async () => {
@@ -131,59 +108,8 @@ function SellerOverview() {
           )}
         </div>
       </div>
-
-      <div className="overview-body">
-        <h5>Quick Actions</h5>
-        <div className="overview-body-cards">
-          <div className="overview-body-card">
-            <img src={DasboardCardImg} alt="Add Product" />
-            <span className="overview-body-card-badge">
-              &#9733; {productCount} Product{productCount === 1 ? '' : 's'}
-            </span>
-            <h4>Add New Product</h4>
-            <p>Add new items for sale to your inventory easily.</p>
-            <div className="card-footer">
-              <span style={{cursor:'pointer'}} onClick={() => handleOpenModal(0)}>Learn more <ChevronDown size={15} style={{rotate: '-90deg'}}/></span>
-              <button onClick={() => navigate('/seller/add-product')}>Add Product</button>
-            </div>
-          </div>
-          <div className="overview-body-card">
-            <img src={DasboardCardImg} alt="View Products" />
-            <span className="overview-body-card-badge">
-              &#9733; View
-            </span>
-            <h4>View My Products</h4>
-            <p>See and manage all your listed products.</p>
-            <div className="card-footer">
-              <span style={{cursor:'pointer'}} onClick={() => handleOpenModal(1)}>Learn more <ChevronDown size={15} style={{rotate: '-90deg'}}/></span>
-              <button onClick={() => navigate('/seller/view-product')}>View Products</button>
-            </div>
-          </div>
-          <div className="overview-body-card">
-            <img src={DasboardCardImg} alt="Go to Settings" />
-            <span className="overview-body-card-badge">&#9881; Settings</span>
-            <h4>Manage Profile</h4>
-            <p>Update your seller profile and account preferences.</p>
-            <div className="card-footer">
-              <span style={{cursor:'pointer'}} onClick={() => handleOpenModal(2)}>Learn more <ChevronDown size={15} style={{rotate: '-90deg'}}/></span>
-              <button onClick={() => navigate('/student-profile')}>Settings</button>
-            </div>
-          </div>
-        </div>
-        {/* Modal for Learn More */}
-        {modalIdx !== null && (
-          <div className="seller-dashboard-modal-overlay" onClick={handleCloseModal}>
-            <div className="seller-dashboard-modal" onClick={(e) => e.stopPropagation()}>
-              <h3>{modalContents[modalIdx].title}</h3>
-              <p>{modalContents[modalIdx].body}</p>
-              <button className="modal-close-btn" onClick={handleCloseModal}>Close</button>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
 
 export default SellerOverview;
-

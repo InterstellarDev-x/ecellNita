@@ -31,7 +31,7 @@ To contribute to this project follow the guide.
   MAIL_USER=  --user your email id--
   
 
-  MAIL_PASS=  --use your mail password--
+  MAIL_PASS=  --use a Gmail App Password, not your normal Google password--
   
   
   

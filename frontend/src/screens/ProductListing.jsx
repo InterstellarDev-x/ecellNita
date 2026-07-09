@@ -25,6 +25,7 @@ function ProductListing() {
   const [activeAplhabeticalSort, setAplhabeticalSortActive] = useState(false);
   const [priceFilterValue, setPriceFilterValue] = useState(0);
   const [isFilter, setIsFilter] = useState(false);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   const fuseOptions = { includeScore: true, keys: ["productname"] };
 
@@ -117,13 +118,20 @@ function ProductListing() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAllCategories();
-    console.log(allProducts);
-    getAllProducts();
-
     if(!localStorage.getItem('campusrecycletoken')){
       navigate('/');
+      return;
     }
+
+    const loadPageData = async () => {
+      setProductsLoading(true);
+      fetchAllCategories();
+      console.log(allProducts);
+      await getAllProducts();
+      setProductsLoading(false);
+    };
+
+    loadPageData();
   }, []);
 
   return (
@@ -245,6 +253,7 @@ function ProductListing() {
         categoryFilter={categoryFilter}
         isFilter={isFilter}
         priceFilterValue={priceFilterValue}
+        isLoading={productsLoading}
       />
     </>
   );

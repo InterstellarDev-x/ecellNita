@@ -5,6 +5,9 @@ import { authroutes } from "../../../apis/apis";
 import Spinner from "react-bootstrap/Spinner";
 
 function ProductrequestListItem({ request, handleDeleteProductRequest }) {
+  const hasProduct = Boolean(request?.product);
+  const productImage = request?.product?.images?.[0] || "https://via.placeholder.com/120x70?text=Deleted";
+
   const numToMonthMap = new Map([
     [1, "Jan"],
     [2, "Feb"],
@@ -39,6 +42,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
 
   const handleScheduleMeet = async (e) => {
     e.preventDefault();
+    if (!hasProduct) return;
     setIsLoading(true);
     try {
       const api_header = {
@@ -130,6 +134,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
   };
 
   const sendTransactionOTP = async (buyeremail, productid) => {
+    if (!hasProduct) return;
     setIsLoadingOTP(true);
     console.log('OTP Details: ', buyeremail, productid);
     try {
@@ -171,11 +176,11 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
       </div> */}
       <div className="requested-product-item">
         <div className="requested-product-item-img">
-          <img src={request.product.images[0]} alt="" />
+          <img src={productImage} alt="" />
           <div className="product-info">
-            <b>{request.product.productname}</b>
-            <p>{request.product.productdescription}</p>
-            <b>&#8377; {request.product.price}</b>
+            <b>{request.product?.productname || "Product no longer available"}</b>
+            <p>{request.product?.productdescription || "This product was deleted by the seller."}</p>
+            {hasProduct && <b>&#8377; {request.product.price}</b>}
           </div>
         </div>
         <div className="requested-product-item-status">
@@ -201,7 +206,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
           </p>
         </div>
         <div className="requested-product-item-btns">
-          {!isScheduled && (
+          {hasProduct && !isScheduled && (
             <button
               className="schedule-btn"
               data-bs-toggle="modal"
@@ -213,7 +218,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
               )}
             </button>
           )}
-          {isScheduled && (
+          {hasProduct && isScheduled && (
             <button
               className="schedule-btn"
               data-bs-toggle="modal"
@@ -225,7 +230,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
               )}
             </button>
           )}
-          {isScheduled && (
+          {hasProduct && isScheduled && (
             <button
               className="schedule-btn"
               onClick={() => sendTransactionOTP(request.buyer.email, request.product._id)}
