@@ -1,0 +1,60 @@
+.landing-numbers{
+    padding: 0px 15%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.landing-numbers div{
+    display: flex;
+    width: 90%;
+    justify-content: center;
+}
+
+.landing-numbers-element{
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+}
+
+.landing-numbers-element-number{
+    font-size: 32px;
+    font-weight: 500;
+    margin: 5px 1px;
+}
+
+.landing-numbers-element-subject{
+    font-size: larger;
+    font-weight: 500;
+    margin: 5px 1px;
+}
+
+.landing-numbers-element-underline{
+    margin: 5px 0px;
+    height: 3px;
+    width: 70% !important;
+    background-color: #19A741;
+}
+
+@media (max-width: 820px) {
+    .landing-numbers{
+        padding: 0px 5%;
+        flex-direction: column;
+    }
+    .landing-numbers div{
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 540px) {
+    .landing-numbers{
+        padding: 0px 5%;
+        flex-direction: column;
+    }
+    .landing-numbers div{
+        margin-top: 20px;
+    }
+    .landing-numbers-element-number{
+        font-size: 25px;
+    }
+}

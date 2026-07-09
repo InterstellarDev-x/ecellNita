@@ -1,0 +1,123 @@
+.seller-top-navbar-hamburger {
+    display: none;
+    background: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 6px 8px;
+    cursor: pointer;
+    margin-right: auto;
+    line-height: 0;
+    color: #333;
+}
+
+@media (max-width: 991.98px) {
+    .seller-top-navbar-hamburger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.seller-top-navbar {
+    height: 64px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #fefefe;
+    box-shadow: rgba(0, 0, 0, 0.08) 0px 1px 3px 0px;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.seller-top-navbar .profile {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.seller-top-navbar .profile img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.seller-top-navbar .profile div h6 {
+    font-weight: 600;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.seller-top-navbar .profile div p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* Dropdown */
+.seller-top-navbar .dropdown {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 16px;
+    min-width: 175px;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 200;
+}
+
+.seller-top-navbar .dropdown a,
+.seller-top-navbar .dropdown button {
+    padding: 11px 16px;
+    text-align: left;
+    text-decoration: none;
+    color: #333;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.seller-top-navbar .dropdown a:hover,
+.seller-top-navbar .dropdown button:hover {
+    background-color: #f5f5f5;
+    color: #111;
+}
+
+.seller-top-navbar .dropdown .logout-button {
+    border: none;
+    background: none;
+    color: #333;
+    cursor: pointer;
+}
+
+.seller-top-navbar .dropdown .logout-button:hover {
+    color: #e53935;
+    background-color: #fff5f5;
+}
+
+@media (max-width: 575.98px) {
+    .seller-top-navbar {
+        padding: 0 12px;
+    }
+
+    .seller-top-navbar .profile div p {
+        display: none;
+    }
+
+    .seller-top-navbar .dropdown {
+        right: 8px;
+        min-width: 155px;
+    }
+}

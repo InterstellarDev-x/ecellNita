@@ -1,0 +1,46 @@
+.seller-dashboard-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Main area (right of sidebar) */
+.seller-dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 247px;
+    transition: margin-left 0.3s ease;
+    min-width: 0;
+}
+
+.seller-dashboard-content {
+    flex: 1;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Backdrop for mobile sidebar */
+.seller-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 994;
+}
+
+@media (max-width: 1200px) {
+    .seller-dashboard-main {
+        margin-left: 200px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .seller-dashboard-main {
+        margin-left: 0;
+    }
+
+    .seller-sidebar-backdrop {
+        display: block;
+    }
+}

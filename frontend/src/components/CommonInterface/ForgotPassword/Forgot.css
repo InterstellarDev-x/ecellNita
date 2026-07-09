@@ -1,0 +1,186 @@
+.forgot-pass-main-contanier {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f7fa;
+  font-family: 'Noto Sans', sans-serif;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.forgot-pass-form-container {
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100%);
+  justify-content: center;
+  align-items: center;
+}
+
+.forgot-pass-form-container form {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.form-top {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.form-top h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.form-subject {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px 0 16px;
+}
+
+.form-subject h3 {
+  font-size: 15px;
+  font-weight: 400;
+  color: #666;
+  text-align: center;
+}
+
+.form-body {
+  width: 100%;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 32px 28px;
+  box-sizing: border-box;
+}
+
+.form-components {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.form-components label {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.form-components input {
+  background-color: #f8fafb;
+  border: 1px solid #dcdcdc;
+  padding: 10px 14px;
+  margin: 4px 0;
+  width: 100%;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-components input:focus {
+  border-color: #19A741;
+  box-shadow: 0 0 0 3px rgba(25, 167, 65, 0.1);
+  background-color: #fff;
+}
+
+.form-components button {
+  border-radius: 10px;
+  border: none;
+  background-color: #19A741;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 30px;
+  transition: background-color 0.2s, transform 0.15s;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.form-components button:hover:not(:disabled) {
+  background-color: #15923a;
+  transform: translateY(-1px);
+}
+
+.form-components button:active {
+  transform: scale(0.98);
+}
+
+.forgot-pass-password-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.forgot-pass-password-div input {
+  padding-right: 44px;
+}
+
+.forgot-pass-password-div svg {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  color: #888;
+}
+
+.forgot-pass-success-msg {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.forgot-pass-success-msg img {
+  width: 32px;
+}
+
+.forgot-pass-success-msg span {
+  font-size: 14px;
+  color: #19A741;
+  font-weight: 500;
+}
+
+.forgot-pass-error-msg {
+  font-size: 13px;
+  color: #e53935;
+  text-align: left;
+  width: 100%;
+  padding: 0 2px;
+  margin-top: 4px;
+}
+
+.forgot-pass-btn-spinner {
+  margin: 0 10px;
+}
+
+.forgot-pass-btn-disabled {
+  background-color: #8de8a4 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}

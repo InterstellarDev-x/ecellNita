@@ -1,0 +1,71 @@
+.accessLogin{
+    display: flex;
+}
+.access-account{
+ padding: 12rem 8rem 0 8rem;
+    width: 50%;
+    height: 95vh;
+    justify-content: center;
+    text-align: center;
+}
+.access-account-head{
+  
+    font-size: 36px;
+    line-height: 48px;
+    font-weight: 400;
+   
+
+}
+.access-account-head span{
+    color: #068932;
+    background: -webkit-linear-gradient(right, #32C766, #068932);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-style: normal;
+}
+.access-account button{
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+   
+    background: #068932;
+    text-decoration: none;
+    border: 1px solid #1BA94C;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 185px;
+    padding: 13px 0;
+ 
+  
+    line-height: 20px;
+    display: inline-block;
+}
+.access-account-text{
+    padding: 2rem ;
+    font-size: 20px;
+}
+.access-account-below{
+    text-align: center;
+    margin: 40px auto 0 auto;
+    font-size: 18px;
+    line-height: 20px;
+    color: #050C1B;
+    font-weight: 300;
+    max-width: 415px;
+}
+.access-link a {
+        color: #0E141E;
+        font-weight: bold;
+        font-size: 16px;
+       
+        outline: none;
+        
+        text-decoration: none;
+    }
+    .access-link a:hover{
+        text-decoration: underline;
+    }
+    
+.buyer-account{
+    background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}

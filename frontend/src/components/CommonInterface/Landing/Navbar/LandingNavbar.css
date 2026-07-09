@@ -1,0 +1,35 @@
+.landing-navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.landing-navbar-left-logo img {
+  width: 120px;
+  cursor: pointer;
+}
+
+.landing-navbar-right-btn-login {
+  background: #111;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 9px 22px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.landing-navbar-right-btn-login:hover {
+  background: #333;
+  transform: translateY(-1px);
+}

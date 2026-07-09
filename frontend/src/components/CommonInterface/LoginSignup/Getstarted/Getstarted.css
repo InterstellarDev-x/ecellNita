@@ -1,0 +1,241 @@
+.getstarted-page{
+    display: flex;
+    
+}
+.getstarted-button{
+    display: grid;
+
+    margin-top: 2rem;
+}
+
+.sidebar{
+    padding: 2rem 4rem;
+}
+.sidebar-button-icon{
+    padding: 0 20px;
+    font-size: 40px;
+}
+.sidebar-button-text{
+    padding: 8px 20px;
+}
+
+.sidebar-button-subtext{
+    font-weight: 600;
+}
+.getstarted-page-headtext{
+    line-height: 50px;
+    padding-top: 40px;
+    font-size: 40px;
+    font-weight: 900;
+    max-width: 470px;
+    color: #068932;
+    background: -webkit-linear-gradient(right, #32C766, #068932);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-style: normal;
+}
+.getstarted-page-subheadtext{
+    font-weight: 500;
+    padding-top: 20px;
+    letter-spacing: 2px;
+}
+.sidebar-button {
+    border-radius: 10px;
+    width: 50%;
+    text-align: left;
+    padding: 20px;
+    display: flex;
+    margin-top: 2rem;
+    border: none;
+    background-color: #fff;
+   
+}
+
+.sidebar-button.active {
+    border: 2px solid #48a539; /* Add the border for active state */
+}
+
+.sidebar-button:hover {
+  
+    border: 1px solid #94AAAD;
+}
+
+.sidebar-button p{
+    font-size: 18px;
+    margin: 0;
+}
+.create_account_button{
+    margin: 3rem 0;
+}
+/* Button.css */
+/* Button.css */
+
+.defbutton {
+    --primary-color1: #E7EEEF;
+    --secondary-color1: #94AAAD;
+   
+    --arrow-width: 10px;
+    --arrow-stroke: 2px;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 10px;
+    color: var(--secondary-color1);
+    padding: 1em 1.8em;
+    background: var(--primary-color1);
+    display: flex;
+    transition: 0.2s background;
+    align-items: center;
+    gap: 0.6em;
+    font-weight: bold;
+  }
+  
+  .defbutton .arrow-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .defbutton .arrow {
+    margin-top: 1px;
+    width: var(--arrow-width);
+    background: var(--primary-color1);
+    height: var(--arrow-stroke);
+    position: relative;
+    transition: 0.2s;
+  }
+  
+  .defbutton .arrow::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    border: solid var(--secondary-color1);
+    border-width: 0 var(--arrow-stroke) var(--arrow-stroke) 0;
+    display: inline-block;
+    top: -3px;
+    right: 3px;
+    transition: 0.2s;
+    padding: 3px;
+    transform: rotate(-45deg);
+  }
+  .defbutton:hover{
+    cursor:not-allowed;
+  }
+ 
+ 
+  
+
+  
+.button {
+    --primary-color: #068932;
+    --secondary-color: #fff;
+    --hover-color: #2a6122;
+    --arrow-width: 10px;
+    --arrow-stroke: 2px;
+    box-sizing: border-box;
+    border: 2px solid #1BA94C;
+    border-radius: 10px;
+    color: var(--secondary-color);
+    padding: 1em 1.8em;
+    background: var(--primary-color);
+    display: flex;
+    transition: 0.2s background;
+    align-items: center;
+    gap: 0.6em;
+    font-weight: bold;
+  }
+  
+  .button .arrow-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .button .arrow {
+    margin-top: 1px;
+    width: var(--arrow-width);
+    background: var(--primary-color);
+    height: var(--arrow-stroke);
+    position: relative;
+    transition: 0.2s;
+  }
+  
+  .button .arrow::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    border: solid var(--secondary-color);
+    border-width: 0 var(--arrow-stroke) var(--arrow-stroke) 0;
+    display: inline-block;
+    top: -3px;
+    right: 3px;
+    transition: 0.2s;
+    padding: 3px;
+    transform: rotate(-45deg);
+  }
+  
+  .button:hover {
+    background-color: var(--hover-color);
+  }
+  
+  .button:hover .arrow {
+    background: var(--secondary-color);
+  }
+  
+  .button:hover .arrow:before {
+    right: 0;
+  }
+  
+.content1{
+    height: 100vh;
+    width: 30%;
+    color: #fff;
+    background-color:#48a539;
+}
+.sidebar{
+    width: 70%;
+}
+.content-button1{
+height: 550px;
+width: 650px;
+  position: absolute;
+  top: 14%;
+right: 5%;
+border: 2px solid #38802c;
+
+border-radius: 20px;
+}
+
+@media (max-width: 768px) {
+    .getstarted-page {
+        flex-direction: column;
+    }
+    .content1 {
+        width: 100%;
+        height: auto;
+        padding: 2rem 1.5rem;
+    }
+    .sidebar {
+        width: 100%;
+        padding: 1.5rem;
+    }
+    .content-button1 {
+        position: static;
+        width: 100%;
+        height: auto;
+    }
+    .sidebar-button {
+        width: 100%;
+    }
+    .getstarted-page-headtext {
+        font-size: 28px;
+        line-height: 36px;
+    }
+}
+
+.landing-navbar-left-logo-getstarted{
+  width: 30%;
+}
+
+.landing-navbar-left-logo-getstarted img{
+  width: 50%;
+}

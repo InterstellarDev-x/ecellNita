@@ -1,0 +1,385 @@
+.seller-dashboard-overview{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.seller-dashboard-overview .top{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 20px;
+    align-items: start;
+    margin: 1rem 0px;
+}
+
+.seller-dashboard-overview .top p{
+    color: rgb(97, 97, 97);
+    font-size: large;
+    font-weight: 400;
+}
+
+.seller-dashboard-overview .overview-body{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    width: 100%;
+    padding: 20px;
+}
+
+.seller-dashboard-overview .overview-body h5{
+    margin-bottom: 2rem;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-cards{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    padding: 20px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 10px;
+    width: calc(33.333% - 0.67rem);
+    min-width: 280px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card img{
+    width: 100%;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card .overview-body-card-badge{
+    background-color: rgb(232, 232, 232);
+    color: rgb(151, 151, 151);
+    font-size: smaller;
+    padding: 2px 5px;
+    font-weight: 500;
+    margin: 5px 0px;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card h4{
+    margin: 0.5rem 0px;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card p{
+    font-size: medium;
+    color: rgb(97, 97, 97);
+    margin: 0.5rem 0px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgb(235, 232, 232);
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card .card-footer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card .card-footer{
+    font-weight: 500;
+}
+
+.seller-dashboard-overview .overview-body .overview-body-card .card-footer button{
+    background-color: black;
+    color: white;
+    font-weight: 500;
+    border-radius: 10px;
+    font-size: small;
+    padding: 8px 20px;
+}
+
+.seller-dashboard-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.seller-dashboard-modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  max-width: 340px;
+  width: 90vw;
+  padding: 2rem 1.5rem;
+  position: relative;
+  text-align: center;
+  animation: fadein 0.16s;
+}
+
+.seller-dashboard-modal h3 {
+  margin-bottom: .8rem;
+  margin-top: 0;
+}
+
+.modal-close-btn {
+  margin-top: 1.8rem;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: .98rem;
+}
+
+@keyframes fadein {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Profile Information Section */
+.profile-info-section {
+  width: 100%;
+  max-width: 100%;
+  padding: 20px;
+  margin: 1rem 0px;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.profile-info-section h5 {
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-info-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 2px 8px 0px;
+}
+
+.profile-info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.profile-label {
+  font-size: 0.85rem;
+  color: rgb(97, 97, 97);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-value {
+  font-size: 1rem;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .seller-dashboard-overview {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card {
+    width: calc(33.333% - 0.67rem);
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .seller-dashboard-overview {
+    width: 100%;
+    padding: 10px 5px;
+    margin-left: 0;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-cards {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card {
+    width: 100%;
+  }
+
+  .profile-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .seller-dashboard-overview .top {
+    padding: 10px 15px;
+  }
+
+  .seller-dashboard-overview .overview-body {
+    padding: 15px;
+  }
+
+  .profile-info-section {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .seller-dashboard-overview {
+    width: 100%;
+    padding: 5px;
+  }
+
+  .seller-dashboard-overview .top h2 {
+    font-size: 1.5rem;
+  }
+
+  .seller-dashboard-overview .top p {
+    font-size: 0.95rem;
+  }
+
+  .seller-dashboard-overview .overview-body h5,
+  .profile-info-section h5 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card {
+    padding: 15px;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card h4 {
+    font-size: 1rem;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card p {
+    font-size: 0.9rem;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card .card-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card .card-footer span {
+    width: 100%;
+    text-align: left;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card .card-footer button {
+    width: 100%;
+    padding: 10px 20px;
+  }
+
+  .profile-info-section {
+    padding: 12px;
+  }
+
+  .profile-info-item {
+    padding: 0.6rem;
+  }
+
+  .profile-label {
+    font-size: 0.75rem;
+  }
+
+  .profile-value {
+    font-size: 0.9rem;
+  }
+
+  .seller-dashboard-modal {
+    max-width: 90vw;
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .seller-dashboard-overview .top {
+    padding: 10px;
+    margin: 0.5rem 0px;
+  }
+
+  .seller-dashboard-overview .top h2 {
+    font-size: 1.3rem;
+  }
+
+  .seller-dashboard-overview .top p {
+    font-size: 0.85rem;
+  }
+
+  .seller-dashboard-overview .overview-body {
+    padding: 10px;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card {
+    padding: 12px;
+  }
+
+  .seller-dashboard-overview .overview-body .overview-body-card img {
+    max-height: 150px;
+    object-fit: cover;
+  }
+
+  .profile-info-section {
+    padding: 10px;
+    margin: 0.5rem 0px;
+  }
+
+  .profile-info-section h5 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .seller-dashboard-modal {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .seller-dashboard-modal h3 {
+    font-size: 1.1rem;
+  }
+
+  .seller-dashboard-modal p {
+    font-size: 0.9rem;
+  }
+
+  .modal-close-btn {
+    width: 100%;
+    padding: 0.6rem 1.5rem;
+  }
+}

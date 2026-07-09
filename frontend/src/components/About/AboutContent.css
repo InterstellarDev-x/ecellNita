@@ -1,0 +1,32 @@
+.about-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 10%;
+    text-align: center;
+}
+
+.about-content h2 {
+    margin: 1.5rem 0;
+    font-size: clamp(1.6rem, 3vw, 2.8rem);
+    font-weight: bold;
+}
+
+.about-content p {
+    width: min(80%, 700px);
+    text-align: justify;
+    font-size: 1rem;
+    line-height: 1.9rem;
+    color: #566474;
+}
+
+@media (max-width: 768px) {
+    .about-content {
+        padding: 40px 6%;
+    }
+
+    .about-content p {
+        width: 100%;
+    }
+}

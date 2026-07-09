@@ -1,0 +1,177 @@
+.all-product-requests{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .all-product-requests {
+        width: 100%;
+    }
+    .all-product-requests .requested-product-item {
+        flex-direction: column;
+        height: auto;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+    .all-product-requests .requested-product-item .requested-product-item-img {
+        width: 100%;
+    }
+    .all-product-requests .requested-product-item .requested-product-item-btns {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+.all-product-requests .heading{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding: 5px;
+    margin: 2rem 0px;
+}
+
+.all-product-requests .requested-product-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    min-height: 90px;
+    width: 100%;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    border-radius: 8px;
+    margin: 0.5rem 0px;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-img{
+    width: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-img p{
+    margin: 0;
+    font-size: small;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-img b{
+    font-size: medium;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-img img{
+    width: 120px;
+    height: 70px;
+    border-radius: 5px;
+    margin-right: 1rem;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-status{
+    color: rgb(114, 114, 114);
+}
+
+.all-product-requests .requested-product-item .requested-product-item-status p{
+    margin: 0;
+    font-size: 15px;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-btns{
+    width: 35%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-btns button{
+    margin: 0px 5px;
+    height: 40px;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-btns .delete-btn{
+    color: red;
+    background-color: transparent !important;
+    border: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-btns .schedule-btn{
+    background-color: black;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 5px 20px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.all-product-requests .requested-product-item .requested-product-item-btns .schedule-btn .product-meet-schedule-spinner{
+    scale: 0.4;
+}
+
+.schedule-product-request-form-btn-section{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.modal-body .schedule-data-view-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-component{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-component .schedule-data-view-component-content{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-component .schedule-data-view-component-content b{
+    font-size: 14px;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-component .schedule-data-view-component-content p{
+    font-size: 14px;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-buttons{
+    display: flex;
+    width: 100%;
+    padding: 5px;
+    justify-content: end;
+    align-items: center;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-buttons button{
+    background: black;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 5px 20px;
+    color: white;
+}
+
+.item-badge-product-request{
+    position: absolute;
+    
+}

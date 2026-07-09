@@ -1,0 +1,60 @@
+.about-benifits {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 10%;
+    min-height: 60svh;
+}
+
+.about-benifits div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+.about-benifits div .about-benifits-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+}
+
+.about-benifits div .about-benifits-right .about-benifits-right-point {
+    display: flex;
+    align-items: start;
+    width: 100%;
+    margin: 0.8rem 0;
+    gap: 0.75rem;
+}
+
+.about-benifits div .about-benifits-right .about-benifits-right-point p {
+    margin-bottom: 0;
+}
+
+.about-benifits div .about-benifits-right h2 {
+    font-weight: bold;
+    font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+    margin: 1.5rem 0;
+}
+
+.about-benifits div .about-benifits-left {
+    flex: 1;
+}
+
+.about-benifits div .about-benifits-left img {
+    width: 100%;
+    border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+    .about-benifits {
+        padding: 40px 6%;
+    }
+
+    .about-benifits div {
+        flex-direction: column-reverse;
+    }
+}

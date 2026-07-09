@@ -1,0 +1,54 @@
+.landing-faqs {
+    display: flex;
+    flex-direction: column;
+    margin: 60px auto;
+    padding: 0 10%;
+    max-width: 900px;
+    box-sizing: border-box;
+}
+
+.landing-faqs h4 {
+    font-size: clamp(24px, 3vw, 35px);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.faq-blocks {
+    border: 2px solid #7dffa2;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.question {
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 12px;
+}
+
+.answer {
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    color: #566474;
+    line-height: 1.6;
+}
+
+.rotate-90 {
+    rotate: 90deg;
+    transition: rotate 0.2s;
+}
+
+@media (max-width: 768px) {
+    .landing-faqs {
+        padding: 0 5%;
+        margin: 40px auto;
+    }
+}

@@ -1,0 +1,251 @@
+.seller-product-list{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .seller-product-list {
+        padding: 12px;
+    }
+    .seller-product-list .list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .seller-product-list {
+        padding: 8px;
+    }
+    .seller-product-list .list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .seller-product-list .list .list-item .item-contents {
+        padding: 12px 12px 0px 12px;
+    }
+    .seller-product-list .list .list-item .item-contents-specs {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    .seller-product-list .list .list-item .item-actions {
+        justify-content: center;
+        gap: 8px;
+    }
+}
+
+.seller-product-list .list{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 10px;
+    width: 100%;
+}
+
+.seller-product-list .list .list-item{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 10px;
+}
+
+.seller-product-list .list .list-item .feature-image{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+}
+
+.seller-product-list .list .list-item .feature-image img{
+    border-radius: 10px;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.seller-product-list .list .list-item .item-contents{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+    padding: 20px 20px 0px 20px;
+    width: 100%;
+}
+
+.seller-product-list .list .list-item .item-contents .item-contents-specs{
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.seller-product-list .list .list-item .item-actions{
+    display: flex;
+    width: 95%;
+    justify-content: end;
+    align-items: center;
+    padding: 5px 0px;
+}
+
+.seller-product-list .list .list-item .item-actions .edit-product-btn{
+    margin: 0px 5px;
+    background-color: black;
+    border: 2px solid black;
+    color: white;
+    padding: 5px 20px;
+    border-radius: 5px;
+}
+
+.seller-product-list .list .list-item .item-actions .delete-product-btn{
+    margin: 0px 5px;
+    background-color: red;
+    border: 2px solid red;
+    color: white;
+    padding: 5px 20px;
+    border-radius: 5px;
+}
+
+.edit-product-modal-btn{
+    background-color: black !important;
+    border: 2px solid black !important;
+    color: white !important;
+    border-radius: 5px !important;
+    padding: 5px 20px !important;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    max-height: 80svh;
+    overflow-y: auto;
+}
+
+.modal-body form{
+    width: 95%;
+}
+
+.modal-body .edit-product-form-section{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    margin: 0.8rem 0px;
+}
+
+.modal-body .edit-product-form-section input{
+    width: 100%;
+    border-radius: 5px;
+    padding: 5px 10px;
+    border: 1px solid rgb(181, 181, 181);
+}
+
+.modal-body .edit-product-form-section label{
+    margin-bottom: 0.5rem;
+}
+
+.modal-body .edit-product-form-btn-section{
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    padding: 10px 0px;
+}
+
+.modal-body .edit-product-form-btn-section button{
+    margin-left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-body .edit-product-form-btn-section button .edit-product-modal-btn-spinner{
+    scale: 0.5;
+}
+
+.modal-body .edit-product-form-image-section{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.modal-body .edit-product-form-image-section .image-upload-container{
+    height: 10svh;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px dashed rgb(181, 181, 181);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-body .edit-product-form-image-section .image-upload-container label{
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modal-body .edit-product-form-image-section .image-holder{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0.5rem 0px;
+}
+
+.modal-body .edit-product-form-image-section .image-holder .product-edit-img{
+    width: 22%;
+    margin: 5px;
+}
+
+.modal-body .edit-product-form-image-section .image-holder .product-edit-img img{
+    width: 100%;
+    height: 60px;
+    border-radius: 10px;
+}
+
+.modal-body .edit-product-form-image-section .image-holder .product-edit-img svg{
+    position: absolute;
+    background-color: gray;
+    border-radius: 50%;
+    color: white;
+    transform: translate(-15px, -5px);
+    cursor: pointer;
+}
+
+.modal-body .delete-action-edit-product{
+    display: flex;
+    width: 95%;
+    justify-content: space-around;
+    align-items: center;
+    margin: 1rem 0px;
+}
+
+.modal-body .delete-action-edit-product button{
+    padding: 5px 20px;
+    border-radius: 5px;
+    border: 2px solid black;
+    width: 45%;
+    font-size: medium;
+}
+
+.delete-btn{
+    background-color: black;
+    color: white;
+}
+
+.cancel-btn{
+    background-color: white;
+    color: black;
+}

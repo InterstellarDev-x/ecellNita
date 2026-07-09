@@ -1,0 +1,136 @@
+{
+    "data": [
+        {
+            "_id": "665c267491b488b8b13572eb",
+            "productname": "cardboard",
+            "productdescription": "This is cardboard description",
+            "price": 100,
+            "images": [
+                "https://res.cloudinary.com/dfgfyouxx/image/upload/v1717315171/nitaspace/dp0fzlmr9xbuk4gwcwyu.png",
+                "https://res.cloudinary.com/dfgfyouxx/image/upload/v1717315176/nitaspace/djbyndubpunl9exxwjlv.png",
+                "https://res.cloudinary.com/dfgfyouxx/video/upload/v1717315180/nitaspace/cxpjghybyarekillhikp.mp4",
+                "https://res.cloudinary.com/dfgfyouxx/video/upload/v1717315185/nitaspace/szoxjzem1edkurdahck1.mp4"
+            ],
+            "status": "Forsale",
+            "quantity": 2,
+            "owner": {
+                "_id": "665b8d6b6c8c6a9129b942cf",
+                "firstname": "himanshu",
+                "lastname": "sachan",
+                "email": "hs5050407@gmail.com",
+                "hashedpassword": "$2b$10$7aL6okPtJi8z2OMrVQCpa.revwccIe7X7eIpVyUGpiznlXrDd0H5a",
+                "accounttype": "Buyer",
+                "image": "https://api.dicebear.com/5.x/initials/svg?seed=himanshu sachan",
+                "products": [
+                    "665c267491b488b8b13572eb",
+                    "665c268e91b488b8b13572f0",
+                    "665c26a791b488b8b13572f5"
+                ],
+                "additionaldetails": "665b8d6b6c8c6a9129b942cd",
+                "__v": 0,
+                "forgotpasswordlink": "de858151-efc1-4242-85d5-13718916dcee",
+                "forgotpasswordlinkexpires": "2024-06-14T03:41:00.737Z"
+            },
+            "category": {
+                "_id": "665b8daa79c6f997593c55a0",
+                "name": "accessories",
+                "products": [
+                    "665c267491b488b8b13572eb",
+                    "665c268e91b488b8b13572f0",
+                    "665c26a791b488b8b13572f5"
+                ],
+                "__v": 0
+            },
+            "createdat": "2024-06-02T07:59:48.722Z",
+            "__v": 0
+        },
+        {
+            "_id": "665c268e91b488b8b13572f0",
+            "productname": "pens",
+            "productdescription": "This is pens description",
+            "price": 100,
+            "images": [
+                "https://res.cloudinary.com/dfgfyouxx/image/upload/v1717315196/nitaspace/q1tptareeoask3q03hsx.png",
+                "https://res.cloudinary.com/dfgfyouxx/image/upload/v1717315201/nitaspace/sdnjxp55gosxaqrpksab.png",
+                "https://res.cloudinary.com/dfgfyouxx/video/upload/v1717315205/nitaspace/eyjzoddn4lhuthyo5ps9.mp4",
+                "https://res.cloudinary.com/dfgfyouxx/video/upload/v1717315210/nitaspace/cenx3tcvo9acqgmbhv8u.mp4"
+            ],
+            "status": "Forsale",
+            "quantity": 2,
+            "owner": {
+                "_id": "665b8d6b6c8c6a9129b942cf",
+                "firstname": "himanshu",
+                "lastname": "sachan",
+                "email": "hs5050407@gmail.com",
+                "hashedpassword": "$2b$10$7aL6okPtJi8z2OMrVQCpa.revwccIe7X7eIpVyUGpiznlXrDd0H5a",
+                "accounttype": "Buyer",
+                "image": "https://api.dicebear.com/5.x/initials/svg?seed=himanshu sachan",
+                "products": [
+                    "665c267491b488b8b13572eb",
+                    "665c268e91b488b8b13572f0",
+                    "665c26a791b488b8b13572f5"
+                ],
+                "additionaldetails": "665b8d6b6c8c6a9129b942cd",
+                "__v": 0,
+                "forgotpasswordlink": "de858151-efc1-4242-85d5-13718916dcee",
+                "forgotpasswordlinkexpires": "2024-06-14T03:41:00.737Z"
+            },
+            "category": {
+                "_id": "665b8daa79c6f997593c55a0",
+                "name": "accessories",
+                "products": [
+                    "665c267491b488b8b13572eb",
+                    "665c268e91b488b8b13572f0",
+                    "665c26a791b488b8b13572f5"
+                ],
+                "__v": 0
+            },
+            "createdat": "2024-06-02T08:00:14.115Z",
+            "__v": 0
+        },
+        {
+            "_id": "665c26a791b488b8b13572f5",
+            "productname": "cycles",
+            "productdescription": "This is cycles description",
+            "price": 100,
+            "images": [
+                "https://res.cloudinary.com/dfgfyouxx/image/upload/v1717315221/nitaspace/av9hnrhmicusgzhgwyrn.png",
+                "https://res.cloudinary.com/dfgfyouxx/image/upload/v1717315226/nitaspace/ouyupgrphyaizdshwyl2.png",
+                "https://res.cloudinary.com/dfgfyouxx/video/upload/v1717315230/nitaspace/zal7ituu6stgbgshbwrk.mp4",
+                "https://res.cloudinary.com/dfgfyouxx/video/upload/v1717315235/nitaspace/qi1yi23kzh8wf4ktcumf.mp4"
+            ],
+            "status": "Forsale",
+            "quantity": 2,
+            "owner": {
+                "_id": "665b8d6b6c8c6a9129b942cf",
+                "firstname": "himanshu",
+                "lastname": "sachan",
+                "email": "hs5050407@gmail.com",
+                "hashedpassword": "$2b$10$7aL6okPtJi8z2OMrVQCpa.revwccIe7X7eIpVyUGpiznlXrDd0H5a",
+                "accounttype": "Buyer",
+                "image": "https://api.dicebear.com/5.x/initials/svg?seed=himanshu sachan",
+                "products": [
+                    "665c267491b488b8b13572eb",
+                    "665c268e91b488b8b13572f0",
+                    "665c26a791b488b8b13572f5"
+                ],
+                "additionaldetails": "665b8d6b6c8c6a9129b942cd",
+                "__v": 0,
+                "forgotpasswordlink": "de858151-efc1-4242-85d5-13718916dcee",
+                "forgotpasswordlinkexpires": "2024-06-14T03:41:00.737Z"
+            },
+            "category": {
+                "_id": "665b8daa79c6f997593c55a0",
+                "name": "inventory",
+                "products": [
+                    "665c267491b488b8b13572eb",
+                    "665c268e91b488b8b13572f0",
+                    "665c26a791b488b8b13572f5"
+                ],
+                "__v": 0
+            },
+            "createdat": "2024-06-02T08:00:39.673Z",
+            "__v": 0
+        }
+    ]
+}

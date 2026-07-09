@@ -1,0 +1,59 @@
+.landing-start-applying{
+   
+    padding: 50px 10px;
+    background-color: #26c453;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.landing-start-applying h2{
+    color: white;
+    font-size: clamp(26px, 4vw, 45px);
+    width: min(480px, 90%);
+    text-align: center;
+    font-weight: 600;
+    margin: 20px 0;
+}
+
+.landing-start-applying-signup{
+    padding-bottom: 5px;
+    margin: 5px 0px;
+    display: inline-block;
+    position: relative;
+    color: #c5ffd5;
+    font-weight: bold;
+    font-size: larger;
+    cursor: pointer;
+}
+
+.landing-start-applying-signup::after{
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #19A741;
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+.landing-start-applying-signup:hover::after{
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+.landing-start-applying-btn{
+    background-color: #007220;
+    color: #c5ffd5;
+    margin: 10px 0px;
+    padding: 12px 20px;
+    border: 2px solid #007220;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+

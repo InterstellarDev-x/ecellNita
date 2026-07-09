@@ -1,0 +1,228 @@
+.buyer-product-request {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    justify-content: start;
+    align-items: start;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.buyer-product-request .buyer-product-request-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+}
+
+/* Request item */
+.requested-product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    width: 100%;
+    box-shadow: rgba(50, 50, 93, 0.12) 0px 2px 5px -1px, rgba(0, 0, 0, 0.12) 0px 1px 3px -1px;
+    border-radius: 10px;
+    margin: 0.5rem 0;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.requested-product-item .requested-product-item-img {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.requested-product-item .requested-product-item-img p {
+    margin: 0;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.requested-product-item .requested-product-item-img b {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.requested-product-item .requested-product-item-img img {
+    width: 90px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.requested-product-item .requested-product-item-status {
+    color: rgb(114, 114, 114);
+    flex-shrink: 0;
+}
+
+.requested-product-item .requested-product-item-status p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.requested-product-item .requested-product-item-btns {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.requested-product-item .requested-product-item-btns .delete-btn {
+    color: red;
+    background-color: transparent;
+    border: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.requested-product-item .requested-product-item-btns .schedule-btn {
+    background-color: #111;
+    border: 2px solid #111;
+    border-radius: 8px;
+    padding: 7px 16px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.requested-product-item .requested-product-item-btns .schedule-btn .product-meet-schedule-spinner {
+    scale: 0.5;
+}
+
+/* Modal styles */
+.schedule-product-request-form-btn-section {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    gap: 8px;
+}
+
+.modal-body .schedule-data-view-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-component {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-component .schedule-data-view-component-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-component .schedule-data-view-component-content b,
+.modal-body .schedule-data-view-container .schedule-data-view-component .schedule-data-view-component-content p {
+    font-size: 14px;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-buttons {
+    display: flex;
+    width: 100%;
+    padding: 5px;
+    justify-content: end;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-body .schedule-data-view-container .schedule-data-view-buttons button {
+    background: #111;
+    border: 2px solid #111;
+    border-radius: 8px;
+    padding: 6px 20px;
+    color: white;
+    cursor: pointer;
+}
+
+/* OTP inputs */
+.modal-body .complete-transaction-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    gap: 6px;
+}
+
+.modal-body .complete-transaction-container .otp-input {
+    padding: 8px 4px;
+    border: 1.5px solid rgb(210, 210, 210);
+    border-radius: 8px;
+    width: 44px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.modal-body .complete-transaction-container .otp-input:focus {
+    border-color: #19A741;
+    outline: none;
+}
+
+.modal-body .complete-transaction-container .otp-input::-webkit-outer-spin-button,
+.modal-body .complete-transaction-container .otp-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.modal-body .complete-transaction-footer button {
+    padding: 8px 20px;
+    color: white;
+    background-color: #111;
+    border-radius: 8px;
+    border: 2px solid #111;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+.modal-body .complete-transaction-footer-err-box {
+    color: red;
+    font-size: small;
+}
+
+.modal-body .report-container textarea {
+    border: 1px solid rgb(210, 210, 210);
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 600px) {
+    .requested-product-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .requested-product-item .requested-product-item-btns {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
