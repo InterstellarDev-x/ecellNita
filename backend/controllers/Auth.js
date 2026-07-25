@@ -99,12 +99,9 @@ exports.signup=async (req,res)=>{
                 message:"Password and ConfirmPassword are not Same",
             })
         }
-        const latestotp=await Otp.find({email}).sort({createdAt:"desc"}).limit(1);
+        const latestotp=await Otp.find({email}).sort({cretedat:"desc"}).limit(1);
         logger.debug("latest OTP record: %o", latestotp);
-        // removed debug
-        // removed debug
-        // removed debug
-        if(!latestotp || latestotp[0].otp!==otp){
+        if(!latestotp.length || latestotp[0].otp!==otp){
             return res.json({
                 success:false,
                 message:"OTP Not Found"
@@ -155,9 +152,9 @@ exports.login=async (req,res)=>{
         // console.log(req.body);
         const {email,password}=req.body;
         if(!email||!password){
-            return res.json({
-                success:true,
-                message:"All Field are Required"
+            return res.status(400).json({
+                success:false,
+                message:"Email and password are required"
             })
         }
         const user=await User.findOne({email}).populate("additionaldetails").exec();
@@ -214,6 +211,14 @@ exports.login=async (req,res)=>{
 exports.forgotpasswordtoken=async (req,res)=>{
     try{
         const {email}=req.body;
+
+    if(!email){
+        return res.status(400).json({
+            success:false,
+            message:"Email is required",
+        })
+    }
+
     const user=await User.findOne({email});
 
     if(!user){
@@ -233,7 +238,6 @@ exports.forgotpasswordtoken=async (req,res)=>{
     res.json({
         success:true,
         message:"Reset password link is send to your email id",
-        data:token,
     })
 
     }
@@ -252,10 +256,10 @@ exports.forgotpassword=async (req,res)=>{
     try{
 
         const {password,confirmpassword,token}=req.body;
-        if(!password || !confirmpassword ){
-            return res.json({
+        if(!password || !confirmpassword || !token){
+            return res.status(400).json({
                 success:false,
-                message:"All Fields are required",
+                message:"Password, confirm password, and token are required",
             })
         }
 
@@ -285,6 +289,8 @@ exports.forgotpassword=async (req,res)=>{
         
         await User.findOneAndUpdate({forgotpasswordlink:token},{
             hashedpassword,
+            forgotpasswordlink:undefined,
+            forgotpasswordlinkexpires:undefined,
         })
 
         res.json({

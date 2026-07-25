@@ -32,6 +32,12 @@ exports.createcategory=async (req,res)=>{
                 message:"User Not Registered",
             })
         }
+        if(user.accounttype!=="Admin"){
+            return res.json({
+                success:false,
+                message:"You are not authorized to create categories",
+            })
+        }
 
         const catedata=await Category.create({
             name
@@ -74,6 +80,20 @@ exports.deletecategory=async (req,res)=>{
             return res.json({
                 success:false,
                 message:"User Not Registered",
+            })
+        }
+        if(user.accounttype!=="Admin"){
+            return res.json({
+                success:false,
+                message:"You are not authorized to delete categories",
+            })
+        }
+
+        const category=await Category.findById(cateid);
+        if(!category){
+            return res.json({
+                success:false,
+                message:"Category not found",
             })
         }
 

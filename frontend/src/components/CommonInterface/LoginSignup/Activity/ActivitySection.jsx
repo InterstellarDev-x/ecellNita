@@ -64,7 +64,6 @@ function ActivitySection() {
     try {
       const res = await apiConnector("POST", authroutes.SEND_OTP_API, { email: signUpDetails.email });
       if (res.data.success) {
-        setSignUpDetails({ ...signUpDetails, otp: res.data.data.otp });
         setVerificationStage(true);
       } else {
         if (res.data.message === "User already Registered")
@@ -77,12 +76,8 @@ function ActivitySection() {
   const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (signUpDetails.otp !== otp) {
-      setLoading(false);
-      return setErrorMsg({ msg: "Incorrect OTP", type: "otp did not matched" });
-    }
     try {
-      const res = await apiConnector("POST", authroutes.SIGNUP_API, signUpDetails);
+      const res = await apiConnector("POST", authroutes.SIGNUP_API, { ...signUpDetails, otp });
       if (res.data.success) { setLoading(false); navigate("/getstarted"); }
       else {
         if (res.data.message === "User already Registered")

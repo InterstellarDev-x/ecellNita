@@ -4,6 +4,8 @@ const {checktransactiontemplate}=require("../mailtemplates/Checktransaction");
 require("dotenv").config();
 const otpgenerator=require("otp-generator");
 const Checktransaction=require("../models/Checktransaction");
+const Product=require("../models/Product");
+const Request=require("../models/Request");
 
 
 
@@ -11,10 +13,32 @@ exports.sendtransotp=async (req,res)=>{
     try{
         const {id,email}=req.user;
         const {buyermail,productid}=req.body;
-        if(!buyermail){
+        if(!buyermail || !productid){
             return res.json({
                 success:false,
-                message:"buyer email not found"
+                message:"Buyer email and product id are required"
+            })
+        }
+
+        const product=await Product.findById(productid);
+        if(!product){
+            return res.json({
+                success:false,
+                message:"Product not found"
+            })
+        }
+        if(product.owner.toString()!==id){
+            return res.json({
+                success:false,
+                message:"You are not authorized to send transaction OTP for this product"
+            })
+        }
+
+        const request=await Request.findOne({product:productid, seller:id}).populate("buyer", "email");
+        if(!request || request.buyer?.email!==buyermail){
+            return res.json({
+                success:false,
+                message:"No matching buyer request found for this product"
             })
         } 
 
@@ -64,8 +88,15 @@ exports.sendtransotp=async (req,res)=>{
 exports.verifytransotp=async (req,res)=>{
     try{
         const {buyermail,productid,otp}=req.body;
+        if(!buyermail || !productid || !otp){
+            return res.status(400).json({
+                success:false,
+                message:"Buyer email, product id, and OTP are required"
+            })
+        }
+
         const latestotp=await Checktransaction.find({buyermail:buyermail, productid:productid}).sort({cretedat:"desc"}).limit(1);
-        if(!latestotp || latestotp[0].otp!==otp){
+        if(!latestotp.length || latestotp[0].otp!==otp){
             return res.json({
                 success:false,
                 message:"OTP Not Found"

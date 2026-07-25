@@ -11,7 +11,7 @@ exports.createproduct=async (req,res)=>{
     logger.debug("createproduct body: %o", req.body);
     try{
         const {id,email}=req.user;
-        const imagearr=req.files.images;
+        const imagearr=req.files?.images || req.files?.['images[]'];
         logger.debug("createproduct files: %o", req.files)
 
         const {productname,productdescription,price,status,quantity,categoryid}=req.body;
@@ -19,6 +19,12 @@ exports.createproduct=async (req,res)=>{
             return res.json({
                 success:false,
                 message:"All fields are required"
+            })
+        }
+        if(!imagearr){
+            return res.json({
+                success:false,
+                message:"At least one product image is required"
             })
         }
 
@@ -29,8 +35,9 @@ exports.createproduct=async (req,res)=>{
                 message:"User Not Registered",
             })
         }
+        const files=Array.isArray(imagearr) ? imagearr : [imagearr];
         const images = await Promise.all(
-            imagearr.map(file =>
+            files.map(file =>
                 cloudinaryuploader(file, process.env.FOLDER_NAME, 1000, 1000)
                     .then(result => result.secure_url)
             )
@@ -78,21 +85,45 @@ exports.updateproduct=async (req,res)=>{
     
         
         const {id,email}=req.user;
-    
-         const imagearr =  req.files['images[]']
         
         const {productid,productname,productdescription,price,status,quantity}=req.body;
 
         logger.debug("updateproduct body: %o", req.body)
 
-        let images=[];
-        // console.log("productdetails are =>",productdetails)
+        if(!productid){
+            return res.json({
+                success:false,
+                message:"Product id is required"
+            })
+        }
 
+        const productdetails=await Product.findById(productid);
+        if(!productdetails){
+            return res.json({
+                success:false,
+                message:"Product not found"
+            })
+        }
 
+        if(productdetails.owner.toString()!==id){
+            return res.json({
+                success:false,
+                message:"You are not authorized to update this product"
+            })
+        }
 
+        const updateData={};
+        if(productname!==undefined) updateData.productname=productname;
+        if(productdescription!==undefined) updateData.productdescription=productdescription;
+        if(price!==undefined) updateData.price=price;
+        if(status!==undefined) updateData.status=status;
+        if(quantity!==undefined) updateData.quantity=quantity;
+
+        const imagearr = req.files?.['images[]'] || req.files?.images;
         if(imagearr){
-            images = await Promise.all(
-                imagearr.map(file =>
+            const files=Array.isArray(imagearr) ? imagearr : [imagearr];
+            updateData.images = await Promise.all(
+                files.map(file =>
                     cloudinaryuploader(file, process.env.FOLDER_NAME, 1000, 1000)
                         .then(result => result.secure_url)
                 )
@@ -100,17 +131,11 @@ exports.updateproduct=async (req,res)=>{
         }
  
 
-         logger.debug("uploaded image URLs: %o", images)
+         logger.debug("uploaded image URLs: %o", updateData.images)
 
     
 
-    const respones =     await Product.findByIdAndUpdate( productid , {
-            productname,
-            productdescription,
-            price,
-            status,
-            quantity,
-            images}
+    const respones =     await Product.findByIdAndUpdate( productid , updateData,{new:true}
         )
 
 
@@ -143,6 +168,28 @@ exports.deleteproduct=async (req,res)=>{
         
         const {id,email}=req.user;
         const {productid}=req.body;
+        if(!productid){
+            return res.json({
+                success:false,
+                message:"Product id is required"
+            })
+        }
+
+        const product=await Product.findById(productid);
+        if(!product){
+            return res.json({
+                success:false,
+                message:"Product not found"
+            })
+        }
+
+        if(product.owner.toString()!==id){
+            return res.json({
+                success:false,
+                message:"You are not authorized to delete this product"
+            })
+        }
+
         const prodel=await Product.findByIdAndDelete(productid);
         await User.findByIdAndUpdate(id,
             {$pull:{products:productid}}
@@ -181,6 +228,12 @@ exports.getproductsviacategory=async (req,res)=>{
         }
 
         const products=await Category.findById(categoryid).populate("products");
+        if(!products){
+            return res.json({
+                success:false,
+                message:"Category not found"
+            })
+        }
 
         res.json({
             success:true,
@@ -212,6 +265,12 @@ exports.getproductpagedetails=async (req,res)=>{
             .populate("category","name")
             .populate("owner","firstname lastname email image")
             .lean();
+        if(!productpage){
+            return res.json({
+                success:false,
+                message:"Product not found"
+            })
+        }
         res.json({
             success:true,
             message:"Product details fetched successfully",

@@ -111,7 +111,13 @@ exports.shedulemeet=async (req,res)=>{
                 message:"No such request exist."
             })
         }
-        const productdata=await Product.findById(productid);
+        if(requestdata.seller.toString()!==id){
+            return res.json({
+                success:false,
+                message:"You are not authorized to schedule this meeting"
+            })
+        }
+        const productdata=await Product.findById(productid || requestdata.product);
         if(!productdata){
             return res.json({
                 success:false,
@@ -166,6 +172,12 @@ exports.deleterequest=async (req,res)=>{
             return res.json({
                 success:false,
                 message:"No such request exist"
+            })
+        }
+        if(requestdata.buyer.toString()!==id && requestdata.seller.toString()!==id){
+            return res.json({
+                success:false,
+                message:"You are not authorized to delete this request"
             })
         }
 
@@ -251,12 +263,24 @@ exports.get_shedule_data=async (req,res)=>{
     try{
         const {id}=req.user;
         const {requestid}=req.body;
+        if(!requestid){
+            return res.status(400).json({
+                success:false,
+                message:"Request id is required"
+            })
+        }
         
         const reqdata=await Request.findById(requestid);
         if(!reqdata){
             return res.json({
                 success:false,
                 message:"No request found"
+            })
+        }
+        if(reqdata.buyer.toString()!==id && reqdata.seller.toString()!==id){
+            return res.json({
+                success:false,
+                message:"You are not authorized to view this schedule"
             })
         }
 
@@ -292,12 +316,24 @@ exports.delete_shedule_data=async (req,res)=>{
     try{
         const {id}=req.user;
         const {requestid}=req.body;
+        if(!requestid){
+            return res.status(400).json({
+                success:false,
+                message:"Request id is required"
+            })
+        }
         
         const reqdata=await Request.findById(requestid);
         if(!reqdata){
             return res.json({
                 success:false,
                 message:"No request found"
+            })
+        }
+        if(reqdata.buyer.toString()!==id && reqdata.seller.toString()!==id){
+            return res.json({
+                success:false,
+                message:"You are not authorized to delete this schedule"
             })
         }
 

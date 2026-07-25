@@ -17,20 +17,26 @@ exports.updateprofile=async (req,res)=>{
                     message:"User Not Registered"
                 })
             }
-            if(!gender){
+            if(!user.additionaldetails){
+                return res.json({
+                    success:false,
+                    message:"User profile not found"
+                })
+            }
+            if(gender===undefined){
                 gender=user.additionaldetails.gender;
             }
-            if(!enrollmentno){
+            if(enrollmentno===undefined){
                 enrollmentno=user.additionaldetails.enrollmentno;
             }
-            if(!graduationyr){
+            if(graduationyr===undefined){
                 graduationyr=user.additionaldetails.graduationyr;
             }
             
-            if(!contactno){
+            if(contactno===undefined){
                 contactno=user.additionaldetails.contactno;
             }
-            if(!about){
+            if(about===undefined){
                 about=user.additionaldetails.about;
             }
             logger.debug("userdata: %s", user?._id);
@@ -77,8 +83,10 @@ exports.updateuser=async (req,res)=>{
         }
         let image=null;
         logger.debug("user details: %s", user?._id)
-        if(!firstname){
+        if(firstname===undefined){
             firstname=user.firstname;
+        }
+        if(lastname===undefined){
             lastname=user.lastname;
         }
         if(!imagefile){
