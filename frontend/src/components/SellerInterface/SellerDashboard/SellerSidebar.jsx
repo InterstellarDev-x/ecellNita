@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, PackagePlus, CircleGauge, Package, PackageSearch, ChevronDown, Globe } from 'lucide-react';
+import { LogOut, PackagePlus, CircleGauge, Package, PackageSearch, ChevronDown } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './SellerSidebar.css';

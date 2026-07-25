@@ -15,8 +15,14 @@ function BuyerNavbar() {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("campusrecycleuser"));
-    setProfilePicture(user?.image);
+    const syncProfilePicture = () => {
+      const user = JSON.parse(localStorage.getItem("campusrecycleuser"));
+      setProfilePicture(user?.image);
+    };
+
+    syncProfilePicture();
+    window.addEventListener("campusrecycleuser-updated", syncProfilePicture);
+    return () => window.removeEventListener("campusrecycleuser-updated", syncProfilePicture);
   }, []);
 
   useEffect(() => {

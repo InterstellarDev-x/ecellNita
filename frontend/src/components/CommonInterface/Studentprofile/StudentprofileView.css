@@ -79,7 +79,9 @@
 /* ── Section wrapper ── */
 .edit-profile-section {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
     padding: 28px 16px 48px;
 }
 
@@ -133,11 +135,72 @@
     box-shadow: 0 2px 16px rgba(0,0,0,0.07);
 }
 
+.edit-form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
 .edit-form-title {
     font-size: 17px;
     font-weight: 700;
     color: #1a1a1a;
-    margin: 0 0 20px;
+    margin: 0 0 4px;
+}
+
+.edit-form-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #777;
+}
+
+.unsaved-badge {
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: #fff7e6;
+    color: #9a6400;
+    border: 1px solid #ffe0a3;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.profile-alert {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 14px;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+.edit-profile-form .profile-alert {
+    max-width: none;
+    margin-bottom: 18px;
+}
+
+.profile-alert-success {
+    background: #ecfdf2;
+    border: 1px solid #b8efca;
+    color: #137333;
+}
+
+.profile-alert-error {
+    background: #fff0f0;
+    border: 1px solid #ffc7c7;
+    color: #b42318;
+}
+
+.profile-alert-info {
+    background: #eef5ff;
+    border: 1px solid #c7dcff;
+    color: #1d4ed8;
 }
 
 .edit-profile-input-1 {
@@ -186,6 +249,19 @@
     border-color: #19A741;
     box-shadow: 0 0 0 3px rgba(25, 167, 65, 0.1);
     background: #fff;
+}
+
+.edit-profile-input-1 input:disabled,
+.edit-profile-input-1 select:disabled,
+.edit-profile-input-1 textarea:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
+.field-hint {
+    align-self: flex-end;
+    font-size: 12px;
+    color: #777;
 }
 
 .edit-profile-input-1 textarea {
@@ -269,10 +345,19 @@
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
-.btn-cancel:hover {
+.btn-cancel:hover:not(:disabled) {
     background: #e0e0e0;
+}
+
+.btn-cancel:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .btn-save {
@@ -329,6 +414,10 @@
 
     .edit-profile-form {
         padding: 20px 16px;
+    }
+
+    .edit-form-header {
+        flex-direction: column;
     }
 
     .form-row {

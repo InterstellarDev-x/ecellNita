@@ -1,287 +1,214 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import Spinner from "react-bootstrap/Spinner";
-import { CircleX } from "lucide-react";
-import axios from "axios";
+import { Edit3, ImagePlus, IndianRupee, Package, Save, Trash2, X } from "lucide-react";
 
-function SellerProductCard(props) {
-  const [product, setProduct] = useState(null);
+const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
+const MAX_IMAGE_SIZE_MB = 3;
+
+function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
   const [editFormData, setEditFormData] = useState({
-    productid: '',
-    productname: '',
-    productdescription: '',
-    status: '',
-    price: 0,
-    quantity: 0,
+    productid: product._id,
+    productname: product.productname || "",
+    productdescription: product.productdescription || "",
+    status: product.status || "Forsale",
+    price: product.price || "",
+    quantity: product.quantity || "",
     images: [],
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [editError, setEditError] = useState("");
+
+  const imagePreviews = useMemo(
+    () => editFormData.images.map((file) => ({ file, preview: URL.createObjectURL(file) })),
+    [editFormData.images]
+  );
+
+  React.useEffect(() => {
+    return () => imagePreviews.forEach((item) => URL.revokeObjectURL(item.preview));
+  }, [imagePreviews]);
 
   const handleEditProductOnChange = (e) => {
+    setEditError("");
     if (e.target.name === "images") {
-      const productImages = editFormData.images;
-      for (let file of e.target.files) {
-        productImages.push(file);
+      const selectedFiles = Array.from(e.target.files || []);
+      const validFiles = [];
+
+      for (const file of selectedFiles) {
+        if (!file.type.startsWith("image/")) {
+          setEditError("Only image files are allowed.");
+          continue;
+        }
+        if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+          setEditError(`Each image must be smaller than ${MAX_IMAGE_SIZE_MB}MB.`);
+          continue;
+        }
+        validFiles.push(file);
       }
-      console.log("images after onchange: ", productImages);
-      setEditFormData({ ...editFormData, images: productImages });
+
+      setEditFormData((prev) => ({ ...prev, images: [...prev.images, ...validFiles] }));
+      e.target.value = "";
     } else {
       setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
     }
   };
 
   const handleRemoveProductImage = (imageToRemove) => {
-    const newProductIamges = editFormData.images.filter(
-      (image) => image !== imageToRemove
-    );
-    setEditFormData({ ...editFormData, images: newProductIamges });
+    setEditFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((image) => image !== imageToRemove),
+    }));
+  };
+
+  const resetEditForm = () => {
+    setEditError("");
+    setEditFormData({
+      productid: product._id,
+      productname: product.productname || "",
+      productdescription: product.productdescription || "",
+      status: product.status || "Forsale",
+      price: product.price || "",
+      quantity: product.quantity || "",
+      images: [],
+    });
   };
 
   const handleSubmitEditProductForm = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log("product id: ", editFormData.productid);
-    console.log(editFormData)
+    setEditError("");
+
     try {
-      const api_header = {
+      const formData = new FormData();
+      formData.append("productid", editFormData.productid);
+      formData.append("productname", editFormData.productname.trim());
+      formData.append("productdescription", editFormData.productdescription.trim());
+      formData.append("status", editFormData.status);
+      formData.append("price", editFormData.price);
+      formData.append("quantity", editFormData.quantity);
+      editFormData.images.forEach((file) => formData.append("images", file, file.name));
+
+      const apiHeader = {
         Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
         "Content-Type": "multipart/form-data",
       };
-      const response = await apiConnector(
-        "POST",
-        authroutes.EDIT_PRODUCT,
-        editFormData,
-        api_header
-      );
-      console.log(response.data);
+
+      const response = await apiConnector("POST", authroutes.EDIT_PRODUCT, formData, apiHeader);
       if (response.data.success) {
-        fetchProductDetails();
-        console.log("product edited successfully");
+        onProductUpdated(response.data.data);
+        setEditFormData((prev) => ({ ...prev, images: [] }));
       } else {
-        setIsLoading(false);
+        setEditError(response.data.message || "Could not update product.");
       }
     } catch (error) {
       console.log(error);
+      setEditError("Something went wrong while updating product.");
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const urlToImageFile = async (imageUrl, fileName) => {
-    try {
-      const response = await axios.get(imageUrl, {
-        responseType: "blob", // Important to get the image as a Blob
-      });
-
-      const file = new File([response.data], fileName, {
-        type: response.data.type,
-      });
-
-      return file;
-    } catch (error) {
-      console.error("Error fetching image:", error);
-      throw error;
-    }
-  };
-
-  const fetchProductDetails = async () => {
-    try {
-      const api_header = {
-        Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-        "Content-Type": "multipart/form-data",
-      };
-      const response = await apiConnector(
-        "POST",
-        authroutes.GET_PRODUCT_DETAILS,
-        { productid: props.id },
-        api_header
-      );
-      if (response.data.success) {
-        const data = response.data.data;
-        setProduct(data);
-        setEditFormData({
-          productid: data._id,
-          productname: data.productname,
-          productdescription: data.productdescription,
-          status: data.status,
-          price: data.price,
-          quantity: data.quantity,
-          images: [],
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const loadImagesForEdit = async () => {
-    if (!product || editFormData.images.length > 0) return;
-    try {
-      const imageFiles = await Promise.all(
-        product.images.map((url, i) => urlToImageFile(url, `${i}.png`))
-      );
-      setEditFormData(prev => ({ ...prev, images: imageFiles }));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(()=>{
-    fetchProductDetails();
-  }, []);
+  const statusClass = product.status === "Sold" ? "sold" : product.status === "Purchased" ? "purchased" : "active";
+  const modalId = `edit_product_modal-${product._id}`;
+  const deleteModalId = `delete_product_modal-${product._id}`;
 
   return (
-    <div className="list-item">
-      <div className="feature-image">
-        <img src={product && product.images[0]} alt="" />
+    <div className="seller-product-card">
+      <div className="seller-product-image-wrap">
+        <img src={product.images?.[0] || DEFAULT_PRODUCT_IMAGE} alt={product.productname} />
+        <span className={`product-status-badge ${statusClass}`}>{product.status || "Forsale"}</span>
       </div>
-      <div className="item-contents">
-        <h5>{product && product.productname}</h5>
-        <p>{product && product.productdescription}</p>
-        <div className="item-contents-specs">
-          <p>
-            <b>Status: </b>
-            {product && product.status}
-          </p>
-          <p>
-            <b>Qty: </b>
-            {product && product.quantity}
-          </p>
+
+      <div className="seller-product-content">
+        <div>
+          <span className="seller-product-category">{product.category?.name || "Uncategorized"}</span>
+          <h5>{product.productname}</h5>
+          <p>{product.productdescription}</p>
         </div>
-        <p>&#8377; {product && product.price}</p>
+
+        <div className="seller-product-info-row">
+          <span><IndianRupee size={15} /> {product.price}</span>
+          <span><Package size={15} /> Qty {product.quantity}</span>
+        </div>
       </div>
-      <div className="item-actions">
-        <button
-          className="edit-product-btn"
-          data-bs-toggle="modal"
-          data-bs-target={`#edit_product_modal-${props.id}`}
-          onClick={loadImagesForEdit}
-        >
-          Edit
+
+      <div className="seller-product-actions">
+        <button className="edit-product-btn" data-bs-toggle="modal" data-bs-target={`#${modalId}`} onClick={resetEditForm}>
+          <Edit3 size={15} /> Edit
         </button>
-        <button 
-          className="delete-product-btn" 
-          data-bs-toggle="modal"
-          data-bs-target={`#delete_product_modal-${props.id}`}
-        >
-          Delete
+        <button className="delete-product-btn" data-bs-toggle="modal" data-bs-target={`#${deleteModalId}`}>
+          <Trash2 size={15} /> Delete
         </button>
       </div>
 
-      {/* Product Edit Modal Starts Here */}
-      <div
-        className="modal fade"
-        id={`edit_product_modal-${props.id}`}
-        tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
+      <div className="modal fade" id={modalId} tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content seller-product-modal">
             <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">
-                Edit Product
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+              <h5 className="modal-title">Edit Product</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
-              <form onSubmit={handleSubmitEditProductForm}>
-                <div className="edit-product-form-section">
-                  <label>Product Name</label>
-                  <input
-                    type="text"
-                    name="productname"
-                    value={editFormData && editFormData.productname}
-                    onChange={handleEditProductOnChange}
-                  />
+              <form onSubmit={handleSubmitEditProductForm} className="edit-product-form">
+                {editError && <div className="edit-product-error">{editError}</div>}
+
+                <div className="edit-product-grid">
+                  <div className="edit-product-form-section">
+                    <label>Product Name</label>
+                    <input type="text" name="productname" value={editFormData.productname} onChange={handleEditProductOnChange} required />
+                  </div>
+                  <div className="edit-product-form-section">
+                    <label>Status</label>
+                    <select name="status" value={editFormData.status} onChange={handleEditProductOnChange}>
+                      <option value="Forsale">For sale</option>
+                      <option value="Sold">Sold</option>
+                      <option value="Purchased">Purchased</option>
+                    </select>
+                  </div>
+                  <div className="edit-product-form-section">
+                    <label>Price</label>
+                    <input type="number" min="1" name="price" value={editFormData.price} onChange={handleEditProductOnChange} required />
+                  </div>
+                  <div className="edit-product-form-section">
+                    <label>Quantity</label>
+                    <input type="number" min="1" name="quantity" value={editFormData.quantity} onChange={handleEditProductOnChange} required />
+                  </div>
                 </div>
+
                 <div className="edit-product-form-section">
                   <label>Product Description</label>
-                  <input
-                    type="text"
-                    name="productdescription"
-                    value={editFormData && editFormData.productdescription}
-                    onChange={handleEditProductOnChange}
-                  />
+                  <textarea rows={4} name="productdescription" value={editFormData.productdescription} onChange={handleEditProductOnChange} required />
                 </div>
-                <div className="edit-product-form-section">
-                  <label>Status</label>
-                  <input
-                    type="text"
-                    name="status"
-                    value={editFormData && editFormData.status}
-                    onChange={handleEditProductOnChange}
-                  />
-                </div>
-                <div className="edit-product-form-section">
-                  <label>Price</label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={editFormData && editFormData.price}
-                    onChange={handleEditProductOnChange}
-                  />
-                </div>
-                <div className="edit-product-form-section">
-                  <label>Quantity</label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={editFormData && editFormData.quantity}
-                    onChange={handleEditProductOnChange}
-                  />
-                </div>
+
                 <div className="edit-product-form-image-section">
-                  <p>Images</p>
-                  <div className="image-holder">
-                    {editFormData &&
-                      editFormData.images.map((image, i) => {
-                        return (
-                          <div className="product-edit-img" key={i}>
-                            <img src={URL.createObjectURL(image)} alt="" />
-                            <CircleX
-                              onClick={() => handleRemoveProductImage(image)}
-                            />
-                          </div>
-                        );
-                      })}
+                  <div>
+                    <label>Replace Images</label>
+                    <p>Leave empty to keep current images. Uploading new images will replace old images.</p>
                   </div>
-                  <div className="image-upload-container">
-                    <label htmlFor="edit-product-image-upload">
-                      upload images
-                    </label>
-                    <input
-                      type="file"
-                      accept=".jpg, .png, .jpeg"
-                      id="edit-product-image-upload"
-                      name="images"
-                      onChange={handleEditProductOnChange}
-                      hidden
-                    />
-                  </div>
+
+                  {imagePreviews.length > 0 && (
+                    <div className="edit-image-preview-grid">
+                      {imagePreviews.map(({ file, preview }) => (
+                        <div className="product-edit-img" key={`${file.name}-${file.size}`}>
+                          <img src={preview} alt={file.name} />
+                          <button type="button" onClick={() => handleRemoveProductImage(file)}><X size={15} /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <label className="image-upload-container" htmlFor={`edit-product-image-upload-${product._id}`}>
+                    <ImagePlus size={22} />
+                    <span>Upload new images</span>
+                    <input type="file" accept="image/*" id={`edit-product-image-upload-${product._id}`} name="images" onChange={handleEditProductOnChange} multiple hidden />
+                  </label>
                 </div>
+
                 <div className="edit-product-form-btn-section">
-                  <button
-                    type="button"
-                    className="edit-product-modal-btn"
-                    data-bs-dismiss="modal"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="edit-product-modal-btn"
-                    data-bs-dismiss="modal"
-                  >
-                    Update{" "}
-                    {isLoading && (
-                      <Spinner className="edit-product-modal-btn-spinner" />
-                    )}
+                  <button type="button" className="edit-product-modal-btn secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" className="edit-product-modal-btn primary" disabled={isLoading}>
+                    {isLoading ? <><Spinner size="sm" /> Updating...</> : <><Save size={16} /> Update Product</>}
                   </button>
                 </div>
               </form>
@@ -290,36 +217,18 @@ function SellerProductCard(props) {
         </div>
       </div>
 
-      <div
-        className="modal fade"
-        id={`delete_product_modal-${props.id}`}
-        tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
+      <div className="modal fade" id={deleteModalId} tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content seller-product-modal">
             <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">
-                Delete Product
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+              <h5 className="modal-title">Delete Product</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
+              <p className="delete-product-copy">Are you sure you want to delete <b>{product.productname}</b>? This action cannot be undone.</p>
               <div className="delete-action-edit-product">
-                  <button className="cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                  <button className="delete-btn" data-bs-dismiss="modal"
-                    onClick={()=>{
-                      props.handleDeleteProduct(props.id);
-                    }}
-                  >
-                    Delete
-                  </button>
+                <button className="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+                <button className="delete-btn" data-bs-dismiss="modal" onClick={() => handleDeleteProduct(product._id)}>Delete</button>
               </div>
             </div>
           </div>
