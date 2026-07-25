@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 
 function ProductrequestListItem({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
@@ -214,7 +214,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
             >
               Schedule Meet
               {isLoading && (
-                <Spinner className="product-meet-schedule-spinner" />
+                <SmallLoader className="product-meet-schedule-spinner" size={13} />
               )}
             </button>
           )}
@@ -226,7 +226,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
             >
               Get Schedule Data
               {isLoading && (
-                <Spinner className="product-meet-schedule-spinner" />
+                <SmallLoader className="product-meet-schedule-spinner" size={13} />
               )}
             </button>
           )}
@@ -238,7 +238,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
             >
               Send OTP
               {isLoadingOTP && (
-                <Spinner className="product-meet-schedule-spinner" />
+                <SmallLoader className="product-meet-schedule-spinner" size={13} />
               )}
             </button>
           )}

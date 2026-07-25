@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./StudentprofileView.css";
 import { AlertCircle, Camera, CheckCircle2, Pencil, Save, X } from "lucide-react";
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../SmallLoader/SmallLoader";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 
@@ -345,7 +345,7 @@ function StudentprofileView() {
                     Cancel
                   </button>
                   <button type="submit" disabled={loading || !hasFormChanges} className="btn-save">
-                    {loading ? <><Spinner size="sm" /> Saving...</> : <><Save size={16} /> Save Changes</>}
+                    {loading ? <><SmallLoader size={13} /> Saving...</> : <><Save size={16} /> Save Changes</>}
                   </button>
                 </div>
               </div>

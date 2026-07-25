@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./AddProductFrom.css";
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import {
@@ -399,7 +399,7 @@ function AddProductForm() {
               <RotateCcw size={16} /> Reset
             </button>
             <button type="submit" className="btn-submit-product" disabled={isLoading || !formValid}>
-              {isLoading ? <><Spinner className="add-product-spinner" size="sm" /> Adding...</> : <><Save size={16} /> Add Product</>}
+              {isLoading ? <><SmallLoader className="add-product-spinner" size={13} /> Adding...</> : <><Save size={16} /> Add Product</>}
             </button>
           </div>
         </form>

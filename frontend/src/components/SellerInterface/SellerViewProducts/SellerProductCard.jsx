@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { Edit3, ImagePlus, IndianRupee, Package, Save, Trash2, X } from "lucide-react";
 
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
@@ -208,7 +208,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
                 <div className="edit-product-form-btn-section">
                   <button type="button" className="edit-product-modal-btn secondary" data-bs-dismiss="modal">Cancel</button>
                   <button type="submit" className="edit-product-modal-btn primary" disabled={isLoading}>
-                    {isLoading ? <><Spinner size="sm" /> Updating...</> : <><Save size={16} /> Update Product</>}
+                    {isLoading ? <><SmallLoader size={13} /> Updating...</> : <><Save size={16} /> Update Product</>}
                   </button>
                 </div>
               </form>

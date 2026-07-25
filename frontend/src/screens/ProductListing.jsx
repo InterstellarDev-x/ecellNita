@@ -1,13 +1,16 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BuyerNavbar from "../components/BuyerInterface/BuyerNavbar/BuyerNavbar";
 import ProductList from "../components/BuyerInterface/ProductListing/ProductList";
 import { GetContext } from "../context/ProductsProvider";
 import {
-  ChevronDown,
-  ListFilter,
-  Calendar,
   ArrowDownAZ,
-  ArrowUpAZ
+  ArrowUpAZ,
+  Calendar,
+  ChevronDown,
+  IndianRupee,
+  Search,
+  SlidersHorizontal,
+  X
 } from "lucide-react";
 import Fuse from "fuse.js";
 import { useNavigate } from "react-router-dom";
@@ -15,47 +18,86 @@ import { apiConnector } from "../utils/Apiconnecter";
 import { authroutes } from "../apis/apis";
 
 function ProductListing() {
-  const context = GetContext();
-  const { allProducts, setAllProducts, getAllProducts, searchedProducts, setSearchedProducts } = context;
+  const { allProducts, getAllProducts } = GetContext();
+  const navigate = useNavigate();
 
-  const [AlphabeticalsortingOrder, setAlphabeticalSortingOrder] =
-    useState("Alphabeticalasc");
-  const [DatesortingOrder, setDateSortingOrder] = useState("Dateasc");
-  const [activeDateSort, setDateSortActive] = useState(false);
-  const [activeAplhabeticalSort, setAplhabeticalSortActive] = useState(false);
-  const [priceFilterValue, setPriceFilterValue] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [alphabeticalSortingOrder, setAlphabeticalSortingOrder] = useState("Alphabeticalasc");
+  const [dateSortingOrder, setDateSortingOrder] = useState("Datedesc");
+  const [activeDateSort, setDateSortActive] = useState(true);
+  const [activeAlphabeticalSort, setAlphabeticalSortActive] = useState(false);
+  const [priceFilterValue, setPriceFilterValue] = useState(5000);
   const [isFilter, setIsFilter] = useState(false);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [isCategoryDropdown, setIsCategoryDropdown] = useState(false);
+  const [categoryFilterText, setCategoryFilterText] = useState("All Categories");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [allCategories, setAllCategories] = useState([]);
 
-  const fuseOptions = { includeScore: true, keys: ["productname"] };
-
-  const fuse = useMemo(
-    () => new Fuse(allProducts, fuseOptions),
+  const availableProducts = useMemo(
+    () => (allProducts || []).filter((product) => product?.status !== "Sold"),
     [allProducts]
   );
 
-  const handleSearchOnchangeItem = (e) => {
-    if (e.target.value !== "") {
-      const results = fuse.search(e.target.value);
-      setSearchedProducts(results.map(r => r.item));
-    } else {
-      setSearchedProducts(allProducts);
+  const maxProductPrice = useMemo(() => {
+    const highestPrice = availableProducts.reduce(
+      (max, product) => Math.max(max, Number(product?.price) || 0),
+      0
+    );
+    return Math.max(highestPrice, 5000);
+  }, [availableProducts]);
+
+  const fuse = useMemo(
+    () => new Fuse(availableProducts, {
+      includeScore: true,
+      threshold: 0.35,
+      keys: ["productname", "productdescription", "category.name"]
+    }),
+    [availableProducts]
+  );
+
+  const visibleProducts = useMemo(() => {
+    const searched = searchTerm.trim()
+      ? fuse.search(searchTerm.trim()).map((result) => result.item)
+      : [...availableProducts];
+
+    const filtered = searched
+      .filter((product) => !categoryFilter || product?.category?.name === categoryFilter)
+      .filter((product) => !isFilter || Number(product?.price) <= Number(priceFilterValue));
+
+    if (activeAlphabeticalSort) {
+      return filtered.sort((a, b) => {
+        const first = a?.productname || "";
+        const second = b?.productname || "";
+        return alphabeticalSortingOrder === "Alphabeticalasc"
+          ? first.localeCompare(second)
+          : second.localeCompare(first);
+      });
     }
-  };
 
-  const [isCategoryDropdown, setIsCategoryDropdown] = useState(false);
-
-  const toggleCategoryDropDown = () => {
-    if (isCategoryDropdown) {
-      setIsCategoryDropdown(false);
-    } else {
-      setIsCategoryDropdown(true);
+    if (activeDateSort) {
+      return filtered.sort((a, b) => {
+        const dateA = new Date(a?.createdat || a?.createdAt || 0);
+        const dateB = new Date(b?.createdat || b?.createdAt || 0);
+        return dateSortingOrder === "Dateasc" ? dateA - dateB : dateB - dateA;
+      });
     }
-  };
 
-  const [categoryFilterText, setCategoryFilterText] =
-    useState("All Categories");
-  const [categoryFilter, setCategoryFilter] = useState("");
+    return filtered;
+  }, [
+    activeAlphabeticalSort,
+    activeDateSort,
+    alphabeticalSortingOrder,
+    availableProducts,
+    categoryFilter,
+    dateSortingOrder,
+    fuse,
+    isFilter,
+    priceFilterValue,
+    searchTerm
+  ]);
+
+  const hasActiveFilters = Boolean(searchTerm.trim() || categoryFilter || isFilter);
 
   const handleApplyCategoryFilter = (category, categoryText) => {
     setCategoryFilterText(categoryText);
@@ -63,198 +105,193 @@ function ProductListing() {
     setIsCategoryDropdown(false);
   };
 
-  const ToogleSortAlphabetically = () => {
-    const sortedData = [...searchedProducts].sort((a, b) => {
-      return AlphabeticalsortingOrder === "Alphabeticalasc"
-        ? a.productname.localeCompare(b.productname)
-        : b.productname.localeCompare(a.productname);
-    });
-    setAplhabeticalSortActive(true);
+  const toggleSortAlphabetically = () => {
+    setAlphabeticalSortActive(true);
     setDateSortActive(false);
-    setAlphabeticalSortingOrder(
-      AlphabeticalsortingOrder === "Alphabeticalasc"
-        ? "Alphabeticaldesc"
-        : "Alphabeticalasc"
+    setAlphabeticalSortingOrder((current) =>
+      current === "Alphabeticalasc" ? "Alphabeticaldesc" : "Alphabeticalasc"
     );
-    setSearchedProducts(sortedData);
   };
 
-  const ToogleSortDatewise = () => {
-    const sortedData = [...searchedProducts].sort((a, b) => {
-      const dateA = new Date(a.createdat);
-      const dateB = new Date(b.createdat);
-      return DatesortingOrder === "Dateasc" ? dateA - dateB : dateB - dateA;
-    });
+  const toggleSortDatewise = () => {
     setDateSortActive(true);
-    setAplhabeticalSortActive(false);
-    setDateSortingOrder(
-      DatesortingOrder === "Dateasc" ? "Datedesc" : "Dateasc"
-    );
-    setSearchedProducts(sortedData);
+    setAlphabeticalSortActive(false);
+    setDateSortingOrder((current) => (current === "Dateasc" ? "Datedesc" : "Dateasc"));
   };
 
-  const [allCategories, setAllCategories] = useState([]);
+  const resetFilters = () => {
+    setSearchTerm("");
+    setCategoryFilter("");
+    setCategoryFilterText("All Categories");
+    setIsFilter(false);
+    setPriceFilterValue(maxProductPrice);
+  };
 
-  const fetchAllCategories = async() => {
+  const fetchAllCategories = async () => {
     try {
-        const api_header = { 
-          Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
-          "Content-Type": "multipart/form-data"
-        };
-        const bodyData = {
-            // Need to write something
-        }
-        const response = await apiConnector("POST", authroutes.GET_ALL_CATEGORIES, bodyData, api_header);
-        console.log(response.data);
-        if (response.data.success) {
-            console.log("Categories fetched successfully");
-            setAllCategories(response.data.data);
-        }
+      const apiHeader = {
+        Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
+        "Content-Type": "multipart/form-data"
+      };
+      const response = await apiConnector("POST", authroutes.GET_ALL_CATEGORIES, {}, apiHeader);
+      if (response.data.success) {
+        setAllCategories(response.data.data || []);
+      }
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
-  }
-
-  const navigate = useNavigate();
+  };
 
   useEffect(() => {
-    if(!localStorage.getItem('campusrecycletoken')){
-      navigate('/');
+    if (!localStorage.getItem("campusrecycletoken")) {
+      navigate("/");
       return;
     }
 
     const loadPageData = async () => {
       setProductsLoading(true);
-      fetchAllCategories();
-      console.log(allProducts);
-      await getAllProducts();
+      await Promise.all([fetchAllCategories(), getAllProducts(true)]);
       setProductsLoading(false);
     };
 
     loadPageData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
+
+  useEffect(() => {
+    setPriceFilterValue(maxProductPrice);
+  }, [maxProductPrice]);
 
   return (
     <>
       <BuyerNavbar />
-      <div className="product-search-filter">
-        <div className="product-search-filter-container">
-          <input
-            className="product-search-filter-search-box"
-            placeholder="Search product..."
-            onChange={handleSearchOnchangeItem}
-          />
-          <div className="product-search-filter-category-filter">
-            <div className="clickable" onClick={toggleCategoryDropDown}>
-              <span>{categoryFilterText}</span>
-              <ChevronDown
-                color="gray"
-                fontWeight={"20px"}
-                style={{ rotate: isCategoryDropdown ? "180deg" : "0deg" }}
+      <main className="buyer-product-page">
+
+
+        <section className="product-search-filter">
+          <div className="product-search-filter-container">
+            <div className="product-search-input-wrap">
+              <Search size={18} />
+              <input
+                className="product-search-filter-search-box"
+                placeholder="Search by product, description, or category..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
               />
-            </div>
-            {isCategoryDropdown && (
-              <div className="categories">
-                {
-                  allCategories.map((category, i)=>{
-                    return <li
-                              onClick={() =>
-                                handleApplyCategoryFilter(category.name, category.name)
-                              }
-                            >
-                              {category.name}
-                            </li>
-                  })
-                }
-                <li
-                  onClick={() =>
-                    handleApplyCategoryFilter("", "All Categories")
-                  }
-                >
-                  All Categories
-                </li>
-              </div>
-            )}
-          </div>
-          <div className="product-search-filter-sortings">
-            <span data-bs-toggle="modal" data-bs-target="#filter">
-              Filter <ListFilter size={20} />
-            </span>
-            <span onClick={ToogleSortDatewise}>
-              Date <Calendar size={20} />
-            </span>
-            <span onClick={ToogleSortAlphabetically}>
-              Alphabetical{" "}
-              {AlphabeticalsortingOrder === "Alphabeticalasc" ? (
-                <ArrowDownAZ size={20} />
-              ) : (
-                <ArrowUpAZ size={20} />
+              {searchTerm && (
+                <button type="button" className="product-clear-search" onClick={() => setSearchTerm("")}>
+                  <X size={16} />
+                </button>
               )}
-            </span>
+            </div>
+
+            <div className="product-search-filter-category-filter">
+              <button
+                type="button"
+                className="clickable"
+                onClick={() => setIsCategoryDropdown((current) => !current)}
+              >
+                <span>{categoryFilterText}</span>
+                <ChevronDown
+                  color="gray"
+                  size={18}
+                  style={{ rotate: isCategoryDropdown ? "180deg" : "0deg" }}
+                />
+              </button>
+              {isCategoryDropdown && (
+                <ul className="categories">
+                  <li onClick={() => handleApplyCategoryFilter("", "All Categories")}>All Categories</li>
+                  {allCategories.map((category) => (
+                    <li
+                      key={category._id || category.name}
+                      onClick={() => handleApplyCategoryFilter(category.name, category.name)}
+                    >
+                      {category.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="product-search-filter-sortings">
+              <button type="button" data-bs-toggle="modal" data-bs-target="#filter">
+                <SlidersHorizontal size={18} /> Filter
+              </button>
+              <button type="button" className={activeDateSort ? "active" : ""} onClick={toggleSortDatewise}>
+                <Calendar size={18} /> Date
+              </button>
+              <button
+                type="button"
+                className={activeAlphabeticalSort ? "active" : ""}
+                onClick={toggleSortAlphabetically}
+              >
+                {alphabeticalSortingOrder === "Alphabeticalasc" ? <ArrowDownAZ size={18} /> : <ArrowUpAZ size={18} />}
+                A-Z
+              </button>
+            </div>
           </div>
-        </div>
-        <div
-          className="modal fade"
-          id="filter"
-          tabIndex="-1"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel">
-                  Filter
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="filter-element">
-                  <label htmlFor="priceRange">
-                    Price range: 0 - {priceFilterValue}
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="5000"
-                    value={priceFilterValue}
-                    onChange={(e) => setPriceFilterValue(e.target.value)}
-                    className="slider"
-                    id="priceRange"
-                  />
+
+          {hasActiveFilters && (
+            <div className="active-filter-row">
+              <span>{visibleProducts.length} result{visibleProducts.length === 1 ? "" : "s"} found</span>
+              {categoryFilter && <span className="filter-pill">{categoryFilter}</span>}
+              {isFilter && <span className="filter-pill">Under ₹{priceFilterValue}</span>}
+              {searchTerm && <span className="filter-pill">“{searchTerm}”</span>}
+              <button type="button" onClick={resetFilters}>Clear all</button>
+            </div>
+          )}
+
+          <div className="modal fade" id="filter" tabIndex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content buyer-filter-modal">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="filterModalLabel">
+                    Refine products
+                  </h5>
+                  <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div className="modal-body">
+                  <div className="filter-element">
+                    <div className="filter-label-row">
+                      <label htmlFor="priceRange">Maximum price</label>
+                      <span><IndianRupee size={14} /> {priceFilterValue}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max={maxProductPrice}
+                      value={priceFilterValue}
+                      onChange={(event) => setPriceFilterValue(event.target.value)}
+                      className="slider"
+                      id="priceRange"
+                    />
+                    <div className="price-range-values">
+                      <span>₹1</span>
+                      <span>₹{maxProductPrice}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="secondary" onClick={() => setIsFilter(false)}>
+                    Clear price
+                  </button>
+                  <button type="button" data-bs-dismiss="modal" onClick={() => setIsFilter(true)}>
+                    Apply filter
+                  </button>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  data-bs-dismiss="modal"
-                  onClick={()=>{
-                    setPriceFilterValue(0);
-                  }}
-                >
-                  Close
-                </button>
-                {isFilter && <button onClick={()=>setIsFilter(false)}>Clear Filter</button>}
-                <button onClick={()=>setIsFilter(true)}>
-                  Apply Filter
-                </button>
-              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <ProductList
-        products={searchedProducts}
-        categoryFilter={categoryFilter}
-        isFilter={isFilter}
-        priceFilterValue={priceFilterValue}
-        isLoading={productsLoading}
-      />
+        </section>
+
+        <ProductList
+          products={visibleProducts}
+          totalProducts={availableProducts.length}
+          isLoading={productsLoading}
+          hasActiveFilters={hasActiveFilters}
+          onResetFilters={resetFilters}
+        />
+      </main>
     </>
   );
 }

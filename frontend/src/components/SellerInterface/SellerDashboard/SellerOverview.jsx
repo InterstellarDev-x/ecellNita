@@ -143,7 +143,7 @@ function SellerOverview() {
             <img src={user?.image || DEFAULT_PROFILE_IMAGE} alt="Seller profile" />
           </div>
           <div>
-            <span className="seller-eyebrow"><Sparkles size={15} /> Seller Dashboard</span>
+           
             <h2>Welcome back, {sellerName}! 👋</h2>
             <p>Track your listings, requests, and profile readiness from one place.</p>
           </div>

@@ -3,7 +3,7 @@ import "./Forgot.css";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import successCheck from "../../../images/success-check.png";
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../SmallLoader/SmallLoader";
 
 function Forgot() {
   const [resetEmailSent, setResetEmailSent] = useState(false);
@@ -91,7 +91,7 @@ function Forgot() {
               </div>
               <div className="form-components">
                 <button type="submit" className={loading ? 'forgot-pass-btn-disabled' : ''} disabled={loading}>
-                  Send password reset email {loading && <Spinner className="forgot-pass-btn-spinner" size="sm" animation="border" />}{" "}
+                  Send password reset email {loading && <SmallLoader className="forgot-pass-btn-spinner" size={13} />}
                 </button>
               </div>
             </div>

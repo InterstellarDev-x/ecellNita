@@ -4,7 +4,7 @@ import './UpdatePass.css'
 import { apiConnector } from '../../../utils/Apiconnecter';
 import { authroutes } from '../../../apis/apis';
 import { useNavigate } from 'react-router-dom';
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../SmallLoader/SmallLoader";
 
 function UpdatePass() {
     const navigate = useNavigate();
@@ -123,7 +123,7 @@ function UpdatePass() {
                 <p className="update-pass-error-msg">{!passMatched && 'Password not matched'}</p>
               </div>
               <div className="form-components">
-                <button type="submit" className={`${passMatched ? '' : 'update-pass-btn-disabled'} ${loading ? 'update-pass-btn-disabled' : ''}`} disabled={!passMatched}>Reset password {loading && <Spinner className="update-pass-btn-spinner" size="sm" animation="border" />}</button>
+                <button type="submit" className={`${passMatched ? '' : 'update-pass-btn-disabled'} ${loading ? 'update-pass-btn-disabled' : ''}`} disabled={!passMatched}>Reset password {loading && <SmallLoader className="update-pass-btn-spinner" size={13} />}</button>
               </div>
             </div>
         </form>

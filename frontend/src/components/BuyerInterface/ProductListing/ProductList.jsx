@@ -1,34 +1,53 @@
-import React, { useMemo } from "react";
+import React from "react";
 import "./ProductList.css";
 import ProductCard from "./ProductCard";
+import { PackageSearch, RotateCcw } from "lucide-react";
 
-function ProductList({ products, categoryFilter, isFilter, priceFilterValue, isLoading }) {
-  const maxPrice = parseInt(priceFilterValue);
-
-  const filteredProducts = useMemo(() => {
-    if (!products) return [];
-    return products
-      .filter(p => !categoryFilter || p.category?.name === categoryFilter)
-      .filter(p => !isFilter || p.price <= maxPrice);
-  }, [products, categoryFilter, isFilter, maxPrice]);
-
+function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onResetFilters }) {
   return (
-    <div className="product-list">
+    <section className="product-list">
+      <div className="product-list-header">
+        <div>
+          <span className="product-list-kicker">Browse listings</span>
+          <h2>{products.length} product{products.length === 1 ? "" : "s"}</h2>
+        </div>
+        <span>{totalProducts} available in marketplace</span>
+      </div>
+
       {isLoading ? (
-        <div className="empty-state">Loading products...</div>
-      ) : filteredProducts.length === 0 ? (
+        <div className="product-grid product-grid-loading">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div className="product-card-skeleton" key={index}>
+              <div></div>
+              <span></span>
+              <span></span>
+              <strong></strong>
+            </div>
+          ))}
+        </div>
+      ) : products.length === 0 ? (
         <div className="empty-state">
-          <h5>{products?.length ? "No products match your filters" : "No products available yet"}</h5>
-          <p>{products?.length ? "Try changing the search, category, or price filter." : "Products listed by sellers will appear here."}</p>
+          <PackageSearch size={44} />
+          <h5>{hasActiveFilters ? "No products match your filters" : "No products available yet"}</h5>
+          <p>
+            {hasActiveFilters
+              ? "Try changing the search, category, or price filter to discover more listings."
+              : "Products listed by sellers will appear here once they are available."}
+          </p>
+          {hasActiveFilters && (
+            <button type="button" onClick={onResetFilters}>
+              <RotateCcw size={16} /> Reset filters
+            </button>
+          )}
         </div>
       ) : (
         <div className="product-grid">
-          {filteredProducts.map(product => (
+          {products.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

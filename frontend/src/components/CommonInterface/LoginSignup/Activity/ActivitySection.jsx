@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./ActivitySection.css";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../../SmallLoader/SmallLoader";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { authroutes } from "../../../../apis/apis";
 import { apiConnector } from "../../../../utils/Apiconnecter";
@@ -170,7 +170,7 @@ function ActivitySection() {
             {errorMsg.type === "Captcha not verified" && <span className="auth-error">{errorMsg.msg}</span>}
 
             <button type="submit" className={`auth-submit${loading ? " auth-submit--loading" : ""}`} disabled={loading}>
-              {loading ? <><Spinner size="sm" animation="border" /> Signing in…</> : "Sign In"}
+              {loading ? <><SmallLoader size={13} /> Signing in…</> : "Sign In"}
             </button>
           </form>
 
@@ -240,7 +240,7 @@ function ActivitySection() {
             <button type="submit"
               className={`auth-submit${(!passMatched || loading) ? " auth-submit--loading" : ""}`}
               disabled={!passMatched || loading}>
-              {loading ? <><Spinner size="sm" animation="border" /> Sending OTP…</> : "Continue →"}
+              {loading ? <><SmallLoader size={13} /> Sending OTP…</> : "Continue →"}
             </button>
           </form>
 
@@ -262,7 +262,7 @@ function ActivitySection() {
             </div>
 
             <button type="submit" className={`auth-submit${loading ? " auth-submit--loading" : ""}`} disabled={loading}>
-              {loading ? <><Spinner size="sm" animation="border" /> Verifying…</> : "Verify & Sign Up"}
+              {loading ? <><SmallLoader size={13} /> Verifying…</> : "Verify & Sign Up"}
             </button>
 
             <p className="auth-switch-text" style={{ textAlign: "center" }}>

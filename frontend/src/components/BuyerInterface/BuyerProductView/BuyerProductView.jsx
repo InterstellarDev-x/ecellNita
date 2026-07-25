@@ -6,9 +6,12 @@ import { authroutes } from "../../../apis/apis";
 import { useParams } from 'react-router-dom';
 import { GetContext } from '../../../context/ProductsProvider';
 import { toast } from 'react-toastify';
+import SmallLoader from '../../CommonInterface/SmallLoader/SmallLoader';
 
 function BuyerProductView() {
     const { product, setProduct } = GetContext();
+    const fallbackProfileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+    const sellerImage = product?.owner?.image || fallbackProfileImage;
 
     const [isRequested, setIsRequested] = useState(false);
     const [isRequesting, setIsRequesting] = useState(false);
@@ -161,7 +164,13 @@ function BuyerProductView() {
                 <div className="buyer-product-view-container-product-details-info">
                     <div className="seller-account">
                         <div className="profile-picture">
-                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="" />
+                            <img
+                                src={sellerImage}
+                                alt={`${product?.owner?.firstname || "Seller"} profile`}
+                                onError={(event) => {
+                                    event.currentTarget.src = fallbackProfileImage;
+                                }}
+                            />
                         </div>
                         <div className="profile-desc">
                             <h6>Selling from {product && product.owner.firstname} {product && product.owner.lastname}</h6>
@@ -217,7 +226,13 @@ function BuyerProductView() {
                     <div className="meet-your-seller">
                         <h5>Meet your seller</h5>
                         <div className="card">
-                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="" />
+                            <img
+                                src={sellerImage}
+                                alt={`${product?.owner?.firstname || "Seller"} profile`}
+                                onError={(event) => {
+                                    event.currentTarget.src = fallbackProfileImage;
+                                }}
+                            />
                             <h5>{product && product.owner.firstname} {product && product.owner.lastname}</h5>
                             <span>Seller</span>
                             <span>email: {product && product.owner.email}</span>
@@ -243,7 +258,7 @@ function BuyerProductView() {
                             </span>
                         </div>
                         <button className='btn' onClick={handleProductRequest} disabled={isRequested || isRequesting} style={{ cursor: isRequested ? 'no-drop' : 'pointer', backgroundColor: isRequested ? '#63cd81' : '' }}>
-                            {isRequested ? 'Requested' : isRequesting ? 'Requesting...' : 'Request'}
+                            {isRequested ? 'Requested' : isRequesting ? <><SmallLoader size={13} /> Requesting...</> : 'Request'}
                         </button>
                     </div>
                 </div>

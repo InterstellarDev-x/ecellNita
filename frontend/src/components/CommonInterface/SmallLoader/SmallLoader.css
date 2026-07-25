@@ -1,0 +1,15 @@
+.small-loader {
+  display: inline-block;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: smallLoaderSpin 0.65s linear infinite;
+  vertical-align: -2px;
+}
+
+@keyframes smallLoaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

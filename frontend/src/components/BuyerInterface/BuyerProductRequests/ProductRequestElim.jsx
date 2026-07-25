@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Trash2, Flag } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
-import Spinner from "react-bootstrap/Spinner";
+import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 
 function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
@@ -241,7 +241,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
             >
               Get Schedule Data
               {isLoading && (
-                <Spinner className="product-meet-schedule-spinner" />
+                <SmallLoader className="product-meet-schedule-spinner" size={13} />
               )}
             </button>
           )}
