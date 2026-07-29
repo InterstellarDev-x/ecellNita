@@ -15,7 +15,7 @@ require("dotenv").config();
 exports.sendotp=async (req,res)=>{
     try{
         const {email}=req.body;
-        // console.log(email);
+
         if(!email){
             return res.json({
                 success:false,
@@ -149,7 +149,7 @@ exports.signup=async (req,res)=>{
 
 exports.login=async (req,res)=>{
     try{
-        // console.log(req.body);
+
         const {email,password}=req.body;
         if(!email||!password){
             return res.status(400).json({
@@ -158,7 +158,7 @@ exports.login=async (req,res)=>{
             })
         }
         const user=await User.findOne({email}).populate("additionaldetails").exec();
-        // console.log(user);
+
         if(!user){
             return res.json({
                 success:false,
@@ -167,7 +167,7 @@ exports.login=async (req,res)=>{
         }
         //match the password and make the jwt token and send trouhgn cookie.
         if(await bcrypt.compare(password,user.hashedpassword)){
-            // console.log("password matched successfull")
+
             const payload={
                 email:user.email,
                 id:user._id,
@@ -177,7 +177,6 @@ exports.login=async (req,res)=>{
                 expiresIn:"2h",
             })
 
-            // console.log("token is generated.")
             const options={
                 expires:new Date(Date.now()+3*24*60*60*1000),
                 httpOnly:true,

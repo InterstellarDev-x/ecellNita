@@ -1,8 +1,8 @@
 const logger=require("../utils/logger");
 const Category = require("../models/Category");
-const Profile = require("../models/Profile");
+
 const User=require("../models/User");
-const {cloudinaryuploader}=require("../utils/cloudinaryuploader");
+
 
 require("dotenv").config()
 

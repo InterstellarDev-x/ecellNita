@@ -1,6 +1,5 @@
 const mongoose=require("mongoose");
-const {mailsender}=require("../utils/SendMail");
-const {otptemplate}=require("../mailtemplates/VerificationOtp");
+
 
 
 const otpschema=new mongoose.Schema({

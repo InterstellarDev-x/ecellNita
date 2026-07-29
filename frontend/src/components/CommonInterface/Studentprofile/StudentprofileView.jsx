@@ -172,7 +172,7 @@ function StudentprofileView() {
       setIsEditing(false);
       setStatusMessage({ type: "success", message: "Profile updated successfully." });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setStatusMessage({ type: "error", message: error.message || "Something went wrong while updating your profile." });
     } finally {
       setLoading(false);

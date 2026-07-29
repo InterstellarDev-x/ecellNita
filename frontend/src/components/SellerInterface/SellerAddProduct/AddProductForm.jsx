@@ -51,7 +51,7 @@ function AddProductForm() {
         setStatusMessage({ type: "error", message: response.data.message || "Failed to fetch categories." });
       }
     } catch (error) {
-      console.log("Error fetching categories:", error);
+      console.error("Error fetching categories:", error);
       setStatusMessage({ type: "error", message: "Could not load categories. Please refresh the page." });
     }
   };
@@ -214,7 +214,7 @@ function AddProductForm() {
         });
       }
     } catch (error) {
-      console.log("Error adding product:", error);
+      console.error("Error adding product:", error);
       setStatusMessage({ type: "error", message: "Something went wrong while adding the product." });
       toast.error("Something went wrong while adding the product!", {
         position: "top-right",

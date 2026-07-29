@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Eye } from 'lucide-react';
 import './UpdatePass.css'
 import { apiConnector } from '../../../utils/Apiconnecter';
@@ -27,7 +27,6 @@ function UpdatePass() {
         setloading(true);
         e.preventDefault();
         try {
-            console.log("second");
             const responseObj = await apiConnector(
                 "POST",
                 authroutes.RESET_PASSWORD,
@@ -37,7 +36,6 @@ function UpdatePass() {
                     token: window.location.pathname.split("/")[window.location.pathname.split("/").length - 1]
                 }
             )
-            console.log(responseObj.data);
             if(responseObj.data.success){
               setloading(false);
               navigate('/getstarted');
@@ -51,7 +49,7 @@ function UpdatePass() {
               setloading(false);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
             setloading(false);
         }
     }
@@ -65,15 +63,7 @@ function UpdatePass() {
         setResetPasswordData({...resetPasswordData, [e.target.name]: e.target.value});
     }
 
-    const [passMatched, setPassMatched] = useState(false);
-
-    useEffect(()=>{
-      if(resetPasswordData.password !== resetPasswordData.confirmpassword){
-        setPassMatched(false);
-      }else{
-        setPassMatched(true);
-      }
-    })
+    const passMatched = resetPasswordData.password === resetPasswordData.confirmpassword;
   return (
     <div className="update-pass-main-contanier">
       <div className="update-pass-form-container">

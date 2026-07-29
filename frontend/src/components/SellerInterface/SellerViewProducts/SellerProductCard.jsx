@@ -102,7 +102,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
         setEditError(response.data.message || "Could not update product.");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setEditError("Something went wrong while updating product.");
     } finally {
       setIsLoading(false);

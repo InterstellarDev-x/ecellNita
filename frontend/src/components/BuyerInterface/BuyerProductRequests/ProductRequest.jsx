@@ -8,23 +8,17 @@ function ProductRequest() {
     const [requests, setRequests] = useState([]);
 
     const fetchAllProductrequests = async() => {
-        console.log("calling fetch")
         try {
             const api_header = { 
               Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
               "Content-Type": "multipart/form-data"
             };
-            const bodyData = {
-                // Need to write something
-            }
-            const response = await apiConnector("POST", authroutes.GET_ALL_SENT_PRODUCT_REQUESTS, bodyData, api_header);
-            console.log(response.data);
+            const response = await apiConnector("POST", authroutes.GET_ALL_SENT_PRODUCT_REQUESTS, {}, api_header);
             if (response.data.success) {
-                console.log("Requests fetched successfully");
                 setRequests(response.data.data);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -38,13 +32,11 @@ function ProductRequest() {
                 requestid: idToDelete
             }
             const response = await apiConnector("POST", authroutes.DELETE_PRODUCT_REQUEST, bodyData, api_header);
-            console.log(response.data);
             if (response.data.success) {
-                console.log("Request deleted successfully");
                 fetchAllProductrequests();
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 

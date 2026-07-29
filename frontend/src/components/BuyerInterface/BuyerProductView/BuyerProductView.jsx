@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './BuyerProductView.css';
-import { Trophy, Flame, Flower2, Sparkle, GraduationCap, Briefcase, Plus, Minus, Share, Box } from 'lucide-react';
+import { Flame, Sparkle, Plus, Minus, Share, Box } from 'lucide-react';
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import { useParams } from 'react-router-dom';
@@ -19,31 +19,20 @@ function BuyerProductView() {
 
     const { productid } = useParams();
 
-    const fetchAllProductrequests = async() => {
-        console.log("calling fetch")
+    const fetchAllProductrequests = useCallback(async() => {
         try {
             const api_header = { 
               Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
               "Content-Type": "multipart/form-data"
             };
-            const bodyData = {
-                // Need to write something
-            }
-            const response = await apiConnector("POST", authroutes.GET_ALL_SENT_PRODUCT_REQUESTS, bodyData, api_header);
-            console.log(response.data);
+            const response = await apiConnector("POST", authroutes.GET_ALL_SENT_PRODUCT_REQUESTS, {}, api_header);
             if (response.data.success) {
-                console.log("Requests fetched successfully");
-                for(let data of response.data.data){
-                    console.log("data: ", productid);
-                    if(data.product._id === productid) {
-                        setIsRequested(true);
-                    }
-                }
+                setIsRequested(response.data.data.some((data) => data.product?._id === productid));
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
-    }
+    }, [productid]);
 
     const handleChangeProductQuantity = (action) => {
         if(action === "inc"){
@@ -89,7 +78,6 @@ function BuyerProductView() {
                 quantity: productQuantity
             }
             const response = await apiConnector("POST", authroutes.PRODUCT_REQUEST, bodyData, api_header);
-            console.log(response.data);
             if (response.data.success) {
 
               toast.success("Product requested", {
@@ -106,13 +94,13 @@ function BuyerProductView() {
               setIsRequested(true);
             }
           } catch (error) {
-            console.log(error);
+            console.error(error);
           } finally {
             setIsRequesting(false);
           }
     }
 
-    const fetchProductDetails = async () => {
+    const fetchProductDetails = useCallback(async () => {
         try {
           const api_header = {
             Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
@@ -127,22 +115,18 @@ function BuyerProductView() {
             bodyData,
             api_header
           );
-          console.log(response.data);
           if (response.data.success) {
             setProduct(response.data.data);
           }
         } catch (error) {
-          console.log(error);
+          console.error(error);
         }
-      };
+      }, [productid, setProduct]);
 
     useEffect(()=>{
-        if(!product){
-            fetchProductDetails();
-        }
-
+        fetchProductDetails();
         fetchAllProductrequests();
-    }, []);
+    }, [fetchAllProductrequests, fetchProductDetails]);
   return (
     <div className='buyer-product-view'>
         <div className='buyer-product-view-container'>

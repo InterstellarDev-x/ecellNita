@@ -69,7 +69,7 @@ function ActivitySection() {
         if (res.data.message === "User already Registered")
           setErrorMsg({ msg: "User already registered", type: "email already exists" });
       }
-    } catch (e) { console.log(e); }
+    } catch (e) { console.error(e); }
     setLoading(false);
   };
 
@@ -84,7 +84,7 @@ function ActivitySection() {
           setErrorMsg({ msg: "User already registered", type: "email already exists" });
         setLoading(false);
       }
-    } catch (e) { console.log(e); setLoading(false); }
+    } catch (e) { console.error(e); setLoading(false); }
   };
 
   const handleLogin = async (e) => {
@@ -106,7 +106,7 @@ function ActivitySection() {
           setErrorMsg({ msg: "Incorrect password", type: "wrong password" });
         setLoading(false);
       }
-    } catch (e) { console.log(e); setLoading(false); }
+    } catch (e) { console.error(e); setLoading(false); }
   };
 
   return (

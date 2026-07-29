@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
@@ -63,16 +63,14 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
         bodyData,
         api_header
       );
-      console.log(response.data);
       if (response.data.success) {
-        console.log("Meeting Scheduled successfully");
         setIsScheduled(true);
         setIsLoading(false);
       }else{
         setIsLoading(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsLoading(false);
     }
   };
@@ -93,21 +91,19 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
         bodyData,
         api_header
       );
-      console.log(response.data);
       if (response.data.success) {
-        console.log("Scheduled meeting deleted successfully");
         setIsScheduled(false);
         setIsLoading(false);
       }else{
         setIsLoading(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsLoading(false);
     }
   }
 
-  const fetchScheduleData = async () => {
+  const fetchScheduleData = useCallback(async () => {
     try {
       const api_header = {
         Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
@@ -122,21 +118,18 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
         bodyData,
         api_header
       );
-      console.log(response.data);
       if (response.data.success) {
-        console.log("Meeting is already scheduled");
         setScheduleData(response.data.data);
         setIsScheduled(true);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
-  };
+  }, [request._id]);
 
   const sendTransactionOTP = async (buyeremail, productid) => {
     if (!hasProduct) return;
     setIsLoadingOTP(true);
-    console.log('OTP Details: ', buyeremail, productid);
     try {
       const api_header = {
         Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
@@ -152,28 +145,23 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
         bodyData,
         api_header
       );
-      console.log(response.data);
       if (response.data.success) {
-        console.log("OTP sent successfully");
         setIsScheduled(true);
         setIsLoadingOTP(false);
       }else{
         setIsLoadingOTP(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsLoadingOTP(false);
     }
   }
 
   useEffect(() => {
     fetchScheduleData();
-  }, []);
+  }, [fetchScheduleData]);
   return (
     <>
-      {/* <div className="item-badge-product-request">
-        Scheduled
-      </div> */}
       <div className="requested-product-item">
         <div className="requested-product-item-img">
           <img src={productImage} alt="" />

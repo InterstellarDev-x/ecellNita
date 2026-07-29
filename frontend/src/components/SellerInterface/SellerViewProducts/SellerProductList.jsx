@@ -49,7 +49,7 @@ function SellerProductList() {
 
       setProducts(fetchedProducts);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setErrorMessage("Could not load your products. Please refresh the page.");
     } finally {
       setLoaded(true);
@@ -78,7 +78,7 @@ function SellerProductList() {
         setErrorMessage(response.data.message || "Could not delete product.");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setErrorMessage("Something went wrong while deleting the product.");
     }
   };

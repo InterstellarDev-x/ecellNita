@@ -40,9 +40,7 @@ function Forgot() {
           email: forgotPasswordData.email,
         }
       );
-      console.log(responseObj);
       if (responseObj.data.success) {
-        console.log(responseObj.data.message);
         setloading(false);
         setResetEmailSent(true);
       } else {
@@ -55,7 +53,7 @@ function Forgot() {
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setloading(false);
     }
   };

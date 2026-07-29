@@ -15,17 +15,12 @@ function AllRequests() {
               Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
               "Content-Type": "multipart/form-data"
             };
-            const bodyData = {
-                // Need to write something
-            }
-            const response = await apiConnector("POST", authroutes.GET_ALL_PRODUCT_REQUESTS, bodyData, api_header);
-            console.log(response.data);
+            const response = await apiConnector("POST", authroutes.GET_ALL_PRODUCT_REQUESTS, {}, api_header);
             if (response.data.success) {
-                console.log("Requests fetched successfully");
                 setRequests(response.data.data || []);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -41,13 +36,11 @@ function AllRequests() {
                 requestid: idToDelete
             }
             const response = await apiConnector("POST", authroutes.DELETE_PRODUCT_REQUEST, bodyData, api_header);
-            console.log(response.data);
             if (response.data.success) {
-                console.log("Request deleted successfully");
                 fetchAllProductrequests();
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 

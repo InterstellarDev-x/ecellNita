@@ -1,5 +1,5 @@
 import React from 'react'
-import BuyerNavbar from '../components/BuyerInterface/BuyerNavbar/BuyerNavbar'
+
 import AboutHero from '../components/About/AboutHero'
 import LandingNavbar from '../components/CommonInterface/Landing/Navbar/LandingNavbar'
 import AboutContent from '../components/About/AboutContent'

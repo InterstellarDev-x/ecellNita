@@ -1,10 +1,9 @@
 import React from 'react';
 import './WhyJoinUs.css';
-import { useNavigate } from 'react-router-dom';
+
 import ManThinking from '../../../../images/man_thinking.svg';
 
 function WhyJoinUs() {
-    const navigate = useNavigate();
   return (
     <div className='landing-why-join-us'>
         <h4>Why Join Us</h4>

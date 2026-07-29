@@ -26,10 +26,10 @@ export const ProductProvider = (props) => {
         setAllProducts(response.data.data);
         setSearchedProducts(response.data.data);
       }else{
-        console.log("Invalid Credentials");
+        console.error("Could not fetch products");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 

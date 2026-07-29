@@ -138,7 +138,7 @@ function ProductListing() {
         setAllCategories(response.data.data || []);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

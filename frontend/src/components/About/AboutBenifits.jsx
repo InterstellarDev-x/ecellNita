@@ -1,7 +1,7 @@
 import React from 'react'
 import './AboutBenifits.css'
 import AboutBenifitsImage from '../../images/about-benifits.jpg';
-import { Check, CheckCircle, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 function AboutBenifits() {
   return (

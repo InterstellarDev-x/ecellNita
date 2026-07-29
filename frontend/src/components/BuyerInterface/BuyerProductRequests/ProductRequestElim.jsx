@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Trash2, Flag } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
@@ -26,11 +26,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const [isScheduled, setIsScheduled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [scheduleData, setScheduleData] = useState(null);
-  const [scheduleFormData, setScheduleFormData] = useState({
-    venue: "",
-    time: "",
-    date: "",
-  });
+
 
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [otpError, setOtpError] = useState(null);
@@ -56,49 +52,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
     }
   }
 
-  const handleScheduleOnchange = (e) => {
-    setScheduleFormData({
-      ...scheduleFormData,
-      [e.target.name]: e.target.value,
-    });
-  };
 
-  const handleScheduleMeet = async (e) => {
-    e.preventDefault();
-    if (!hasProduct) return;
-    setIsLoading(true);
-    try {
-      const api_header = {
-        Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-        "Content-Type": "multipart/form-data",
-      };
-      const bodyData = {
-        requestid: request._id,
-        venue: scheduleFormData.venue,
-        date: scheduleFormData.date,
-        time: scheduleFormData.time,
-        sellername: request.seller.firstname + request.seller.lastname,
-        productid: request.product._id,
-      };
-      const response = await apiConnector(
-        "POST",
-        authroutes.SCHEDULE_MEET,
-        bodyData,
-        api_header
-      );
-      console.log(response.data);
-      if (response.data.success) {
-        console.log("Meeting Scheduled successfully");
-        setIsScheduled(true);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
-    }
-  };
 
   const handleDeleteSchedule = async () => {
     setIsLoading(true);
@@ -116,21 +70,19 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         bodyData,
         api_header
       );
-      console.log(response.data);
       if (response.data.success) {
-        console.log("Scheduled meeting deleted successfully");
         setIsScheduled(false);
         setIsLoading(false);
       } else {
         setIsLoading(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsLoading(false);
     }
   };
 
-  const fetchScheduleData = async () => {
+  const fetchScheduleData = useCallback(async () => {
     try {
       const api_header = {
         Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
@@ -145,16 +97,14 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         bodyData,
         api_header
       );
-      console.log(response.data);
       if (response.data.success) {
-        console.log("Meeting is already scheduled");
         setScheduleData(response.data.data);
         setIsScheduled(true);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
-  };
+  }, [request._id]);
 
   const submitCompleteOTP = async () => {
     if (!hasProduct) return;
@@ -175,32 +125,28 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         bodyData,
         api_header
       );
-      console.log(response.data);
       if (response.data.success) {
-        console.log("OTP Matched!!!");
         handleDeleteProductRequest(request._id);
         otpTabCloseBtn.current.click();
       }else{
         setOtpError("Wrong OTP! Please enter the correct one");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
   const [reportBody, setReportBody] = useState("");
   const submitProductReport = () => {
-    console.log(reportBody);
+    if (!reportBody.trim()) return;
+    alert("Report submission is not available yet.");
   };
 
   useEffect(() => {
     fetchScheduleData();
-  }, []);
+  }, [fetchScheduleData]);
   return (
     <>
-      {/* <div className="item-badge-product-request">
-        Scheduled
-      </div> */}
       <div className="requested-product-item">
         <div className="requested-product-item-img">
           <img src={productImage} alt="" />
