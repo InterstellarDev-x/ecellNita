@@ -8,6 +8,8 @@ const { updateproduct,deleteproduct, createproduct,
 
 
 
+
+    
 router.post("/updateproduct",auth,updateproduct);
 router.post("/createproduct",auth,createproduct);
 router.post("/deleteproduct",auth,deleteproduct);

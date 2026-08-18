@@ -6,9 +6,10 @@ const {auth}=require("../middlewares/auth");
 const { updateprofile, updateuser } = require("../controllers/user");
 
 
+router.use(auth)
 
-router.post("/updateprofile",auth,updateprofile);
-router.post("/updateuser",auth,updateuser);
+router.post("/updateprofile",updateprofile);
+router.post("/updateuser",updateuser);
 
 
 
