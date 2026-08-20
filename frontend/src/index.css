@@ -101,6 +101,29 @@ code {
   background: var(--toast-accent);
 }
 
+@keyframes campusToastEnter {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes campusToastExit {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.985); }
+}
+
+.campus-toast-enter {
+  animation: campusToastEnter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.campus-toast-exit {
+  animation: campusToastExit 180ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campus-toast-enter,
+  .campus-toast-exit { animation-duration: 1ms; }
+}
+
 @media (max-width: 480px) {
   .Toastify__toast-container {
     top: max(10px, env(safe-area-inset-top));

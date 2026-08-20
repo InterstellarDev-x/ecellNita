@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 import { RouterProvider } from 'react-router-dom';
 import router from './router/router';
-import { ToastContainer } from 'react-toastify';
+import { cssTransition, ToastContainer } from 'react-toastify';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -17,6 +17,11 @@ const queryClient = new QueryClient({
       refetchOnReconnect: true,
     },
   },
+});
+const smoothToastTransition = cssTransition({
+  enter: 'campus-toast-enter',
+  exit: 'campus-toast-exit',
+  collapseDuration: 220,
 });
 
 root.render(
@@ -32,6 +37,7 @@ root.render(
         newestOnTop
         limit={3}
         icon={false}
+        transition={smoothToastTransition}
       />
     </QueryClientProvider>
   </React.StrictMode>
