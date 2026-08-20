@@ -397,6 +397,12 @@
     }
 }
 
+@media (max-width: 768px) {
+    .buyer-product-request {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+}
+
 @media (max-width: 600px) {
     .buyer-request-hero {
         align-items: flex-start;

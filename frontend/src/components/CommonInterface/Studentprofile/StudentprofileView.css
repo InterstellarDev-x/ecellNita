@@ -387,6 +387,13 @@
     cursor: not-allowed;
 }
 
+/* ── Bottom navigation clearance ── */
+@media (max-width: 768px) {
+    .profile-view {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
     .profile-avatar-wrap {

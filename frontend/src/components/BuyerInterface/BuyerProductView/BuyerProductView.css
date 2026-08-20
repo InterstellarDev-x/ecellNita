@@ -386,6 +386,10 @@
 }
 
 @media screen and (max-width: 768px) {
+    .buyer-product-view {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+
     .buyer-product-view-container {
         width: 95%;
     }
@@ -426,7 +430,7 @@
 
 @media screen and (max-width: 576px) {
     .buyer-product-view {
-        padding: 10px;
+        padding: 10px 10px calc(96px + env(safe-area-inset-bottom));
     }
 
     .buyer-product-view-container h3 {
