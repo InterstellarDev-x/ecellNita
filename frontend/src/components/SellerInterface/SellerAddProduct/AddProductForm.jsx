@@ -176,6 +176,13 @@ function AddProductForm() {
       const response = await apiConnector("POST", authroutes.ADD_PRODUCT, formData, apiHeader);
 
       if (response.data.success) {
+        if (response.data.pendingReview) {
+          setStatusMessage({ type: "success", message: response.data.message || "Your listing is awaiting review." });
+          setAddProductData(INITIAL_PRODUCT_DATA);
+          setProductImageFiles([]);
+          if (imagesInputRef.current) imagesInputRef.current.value = "";
+          return;
+        }
         toast.success("Product added successfully!", {
           position: "top-right",
           autoClose: 3000,

@@ -26,6 +26,22 @@ const userschema=new mongoose.Schema({
         type:String,
         default:"User"
     },
+    roles:{
+        type:[{
+            type:String,
+            enum:["user","moderator","admin"]
+        }],
+        default:["user"]
+    },
+    accountStatus:{
+        type:String,
+        enum:["active","suspended","blocked"],
+        default:"active"
+    },
+    roleVersion:{
+        type:Number,
+        default:1
+    },
     forgotpasswordlink:{
         type:String,
         index:true,

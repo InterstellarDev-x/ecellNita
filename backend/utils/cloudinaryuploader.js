@@ -4,8 +4,8 @@ const cloudinary=require("cloudinary").v2
 
 
 
-exports.cloudinaryuploader=async (file,folder,height,quality)=>{
-    const options={folder}
+exports.cloudinaryuploader=async (file,folder,height,quality,extraOptions={})=>{
+    const options={folder,...extraOptions}
     if(height){
         options.height=height;
     }

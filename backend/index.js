@@ -17,6 +17,7 @@ const conversationroutes=require("./routes/conversation");
 const transactionroutes=require("./routes/checktransaction");
 const ratingandreviewsroutes=require("./routes/ratingandreviews");
 const wishlistroutes=require("./routes/wishlist");
+const adminroutes=require("./routes/admin");
 //
 
 logger.info("Frontend URL: %s", process.env.HOST);
@@ -60,6 +61,7 @@ app.use("/api/v1/conversation",conversationroutes);
 app.use("/api/v1/transaction",transactionroutes);
 app.use("/api/v1/ratingandreviews", ratingandreviewsroutes);
 app.use("/api/v1/wishlist", wishlistroutes);
+app.use("/api/v1/admin", adminroutes);
 
 //
 app.get("/",(req,res)=>{

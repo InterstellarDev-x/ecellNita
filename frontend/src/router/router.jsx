@@ -17,6 +17,8 @@ import SellerViewProducts from '../screens/SellerViewProducts';
 import SellerProductRequests from '../screens/SellerProductRequests';
 import BuyerProductRequests from '../screens/BuyerProductRequests';
 import Wishlist from '../screens/Wishlist';
+import AdminPanel from '../screens/AdminPanel';
+import AdminRoute from './AdminRoute';
 
 import PrivateRoute from './PrivateRoute'; // Adjust the import path as necessary
 import PublicRoute from './PublicRoute';
@@ -60,6 +62,10 @@ const router = createBrowserRouter([
       { path: 'view-product', element: <SellerViewProducts /> },
       { path: 'product-requests', element: <SellerProductRequests /> },
     ]
+  }
+  ,{
+    path: '/admin',
+    element: <PrivateRoute><AdminRoute><AdminPanel /></AdminRoute></PrivateRoute>
   }
 ]);
 

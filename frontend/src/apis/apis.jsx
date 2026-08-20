@@ -26,4 +26,9 @@ export const authroutes={
     GET_WISHLIST:BASE_URL+"/wishlist",
     ADD_TO_WISHLIST:BASE_URL+"/wishlist",
     REMOVE_FROM_WISHLIST:BASE_URL+"/wishlist"
+    ,ADMIN_DASHBOARD:BASE_URL+"/admin/dashboard"
+    ,ADMIN_PRODUCTS:BASE_URL+"/admin/products"
+    ,ADMIN_USERS:BASE_URL+"/admin/users"
+    ,ADMIN_SUBMISSIONS:BASE_URL+"/admin/submissions"
+    ,ADMIN_SETTINGS:BASE_URL+"/admin/settings"
 }

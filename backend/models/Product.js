@@ -24,6 +24,30 @@ const productschema=new mongoose.Schema({
         type:String,
         enum:["Sold","Purchased","Forsale"],
     },
+    publicationStatus:{
+        type:String,
+        enum:["published","hidden","removed"],
+        default:"published",
+        index:true,
+    },
+    moderation:{
+        policyVersion:String,
+        finalDecision:{
+            type:String,
+            enum:["no_review","ai_approved","human_approved"]
+        },
+        reviewedAt:Date,
+        reviewedBy:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }
+    },
+    imageAssets:[{
+        url:String,
+        publicId:String,
+        assetId:String,
+        resourceType:String,
+    }],
     
     quantity:{
         type:Number,
@@ -49,6 +73,9 @@ const productschema=new mongoose.Schema({
     }],
 
 })
+
+productschema.index({ owner: 1, createdat: -1 });
+productschema.index({ publicationStatus: 1, createdat: -1 });
 
 
 module.exports=mongoose.model("Product",productschema);
