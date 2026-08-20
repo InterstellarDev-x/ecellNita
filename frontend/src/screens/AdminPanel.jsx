@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BarChart3, ClipboardCheck, Package, Settings2, ShieldCheck, Users, X } from "lucide-react";
-import { apiConnector } from "../utils/Apiconnecter";
-import { authroutes } from "../apis/apis";
+import { useAdminDashboard, useAdminProducts, useAdminSettings, useAdminSubmissions, useAdminUsers, useReviewAdminSubmission, useUpdateAdminSettings, useUpdateAdminUserStatus } from "../hooks/useAdminQueries";
 import "./AdminPanel.css";
 
 const navItems = [
@@ -12,67 +11,50 @@ const navItems = [
   ["settings", "Review settings", Settings2],
 ];
 
-const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}` });
-
 function AdminPanel() {
   const [activeTab, setActiveTab] = useState("overview");
-  const [dashboard, setDashboard] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [submissions, setSubmissions] = useState([]);
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const dashboardQuery = useAdminDashboard(activeTab === "overview");
+  const productsQuery = useAdminProducts(activeTab === "listings");
+  const usersQuery = useAdminUsers(activeTab === "people");
+  const submissionsQuery = useAdminSubmissions(activeTab === "reviews");
+  const settingsQuery = useAdminSettings();
+  const updateSettings = useUpdateAdminSettings();
+  const reviewSubmission = useReviewAdminSubmission();
+  const updateUserStatus = useUpdateAdminUserStatus();
+  const dashboard = dashboardQuery.data;
+  const products = productsQuery.data || [];
+  const users = usersQuery.data || [];
+  const submissions = submissionsQuery.data || [];
+  const settings = settingsQuery.data;
+  const activeQuery = { overview: dashboardQuery, listings: productsQuery, reviews: submissionsQuery, people: usersQuery, settings: settingsQuery }[activeTab];
+  const loading = activeQuery.isLoading || settingsQuery.isLoading;
+  const visibleError = error || activeQuery.error?.message || settingsQuery.error?.message;
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = async () => {
     setError("");
-    try {
-      const [dashboardRes, productsRes, usersRes, submissionsRes, settingsRes] = await Promise.all([
-        apiConnector("GET", authroutes.ADMIN_DASHBOARD, null, authHeaders()),
-        apiConnector("GET", authroutes.ADMIN_PRODUCTS, null, authHeaders()),
-        apiConnector("GET", authroutes.ADMIN_USERS, null, authHeaders()),
-        apiConnector("GET", authroutes.ADMIN_SUBMISSIONS, null, authHeaders()),
-        apiConnector("GET", authroutes.ADMIN_SETTINGS, null, authHeaders()),
-      ]);
-      setDashboard(dashboardRes.data.data);
-      setProducts(productsRes.data.data || []);
-      setUsers(usersRes.data.data || []);
-      setSubmissions(submissionsRes.data.data || []);
-      setSettings(settingsRes.data.data);
-    } catch (requestError) {
-      setError(requestError?.response?.data?.message || "Unable to load admin data.");
-    } finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+    await Promise.all(activeQuery === settingsQuery ? [settingsQuery.refetch()] : [activeQuery.refetch(), settingsQuery.refetch()]);
+  };
 
   const saveMode = async (mode) => {
     try {
-      const response = await apiConnector("PUT", authroutes.ADMIN_SETTINGS, { mode }, authHeaders());
-      setSettings(response.data.data);
-    } catch (requestError) { setError(requestError?.response?.data?.message || "Could not update review mode."); }
+      await updateSettings.mutateAsync(mode);
+    } catch (requestError) { setError(requestError?.response?.data?.message || requestError?.message || "Could not update review mode."); }
   };
 
   const decideSubmission = async (decision) => {
     if (!selectedSubmission) return;
     try {
-      await apiConnector("POST", `${authroutes.ADMIN_SUBMISSIONS}/${selectedSubmission._id}/review`, {
-        decision,
-        reasonCodes: decision === "rejected" ? ["admin_policy_decision"] : [],
-        sellerMessage: decision === "approved" ? "Your listing has been approved." : "Your listing does not meet marketplace policy.",
-      }, authHeaders());
+      await reviewSubmission.mutateAsync({ submissionId: selectedSubmission._id, decision });
       setSelectedSubmission(null);
-      await load();
-    } catch (requestError) { setError(requestError?.response?.data?.message || "Could not save review decision."); }
+    } catch (requestError) { setError(requestError?.response?.data?.message || requestError?.message || "Could not save review decision."); }
   };
 
   const changeAccountStatus = async (userId, accountStatus) => {
     try {
-      await apiConnector("PATCH", `${authroutes.ADMIN_USERS}/${userId}/status`, { accountStatus }, authHeaders());
-      setUsers((items) => items.map((user) => user._id === userId ? { ...user, accountStatus } : user));
-    } catch (requestError) { setError(requestError?.response?.data?.message || "Could not update account status."); }
+      await updateUserStatus.mutateAsync({ userId, accountStatus });
+    } catch (requestError) { setError(requestError?.response?.data?.message || requestError?.message || "Could not update account status."); }
   };
 
   const total = dashboard?.products || 0;
@@ -90,7 +72,7 @@ function AdminPanel() {
           <div className="admin-topbar-title"><span className="admin-eyebrow">Marketplace operations</span><h1>{navItems.find(([key]) => key === activeTab)?.[1]}</h1></div>
           <button className="admin-refresh" onClick={load}>Refresh data</button>
         </header>
-        {error && <div className="admin-error">{error}<button onClick={() => setError("")}><X size={16} /></button></div>}
+        {visibleError && <div className="admin-error">{visibleError}<button onClick={() => setError("")}><X size={16} /></button></div>}
         {loading ? <div className="admin-loading">Loading control centre…</div> : <>
           {activeTab === "overview" && <div className="admin-overview">
             <section className="admin-hero"><div><span>Marketplace health</span><h2>Everything that needs attention, in one place.</h2><p>Review listings, monitor activity, and apply your safety policy.</p></div><ShieldCheck size={56} /></section>
