@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@hcaptcha/react-hcaptcha": "^1.17.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "axios": "^1.19.0",
@@ -16,6 +15,7 @@
     "react-router-dom": "^6.30.4",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.6",
+    "zod": "^3.24.2",
     "web-vitals": "^6.1.1"
   },
   "scripts": {

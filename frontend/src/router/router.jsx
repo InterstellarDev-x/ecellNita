@@ -16,6 +16,7 @@ import AddProduct from '../screens/AddProduct';
 import SellerViewProducts from '../screens/SellerViewProducts';
 import SellerProductRequests from '../screens/SellerProductRequests';
 import BuyerProductRequests from '../screens/BuyerProductRequests';
+import Wishlist from '../screens/Wishlist';
 
 import PrivateRoute from './PrivateRoute'; // Adjust the import path as necessary
 import PublicRoute from './PublicRoute';
@@ -46,6 +47,7 @@ const router = createBrowserRouter([
       { path: 'productlist', element: <ProductListing /> },
       { path: 'products/:productid', element: <ProductView /> },
       { path: 'product-requests', element: <BuyerProductRequests /> },
+      { path: 'wishlist', element: <Wishlist /> },
     ]
   },
   {

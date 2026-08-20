@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./BuyerNavbar.css";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 function BuyerNavbar() {
   const [profilePicture, setProfilePicture] = useState(null);
@@ -48,7 +47,6 @@ function BuyerNavbar() {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
-      theme: "colored",
     });
     localStorage.removeItem('campusrecycletoken');
     localStorage.removeItem('campusrecycleuser');
@@ -58,7 +56,6 @@ function BuyerNavbar() {
 
   return (
     <>
-      <ToastContainer />
       <div className="buyer-navbar">
         <div className="buyer-navbar-logo">
           <img
@@ -81,6 +78,9 @@ function BuyerNavbar() {
           </Link>
           <Link to="/buyer/product-requests" className={`buyer-navbar-options-item ${location.pathname === "/buyer/product-requests" ? "active" : ""}`}>
             Your Requests
+          </Link>
+          <Link to="/buyer/wishlist" className={`buyer-navbar-options-item ${location.pathname === "/buyer/wishlist" ? "active" : ""}`}>
+            Wishlist
           </Link>
         </div>
 
@@ -131,6 +131,9 @@ function BuyerNavbar() {
           </Link>
           <Link to="/buyer/product-requests" className={`buyer-drawer-item ${location.pathname === "/buyer/product-requests" ? "active" : ""}`}>
             Your Requests
+          </Link>
+          <Link to="/buyer/wishlist" className={`buyer-drawer-item ${location.pathname === "/buyer/wishlist" ? "active" : ""}`}>
+            Wishlist
           </Link>
         </nav>
       </div>

@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./SellerTopNavbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 function SellerTopNavbar({ onMenuClick }) {
   const [userDetails, setUserDetails] = useState(null);
@@ -42,7 +41,6 @@ function SellerTopNavbar({ onMenuClick }) {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
-      theme: "colored",
     });
     localStorage.removeItem("campusrecycletoken");
     localStorage.removeItem("campusrecycleuser");
@@ -51,8 +49,6 @@ function SellerTopNavbar({ onMenuClick }) {
 
   return (
     <div className="seller-top-navbar">
-      <ToastContainer />
-
       {/* Mobile hamburger */}
       <button className="seller-top-navbar-hamburger" onClick={onMenuClick} aria-label="Toggle sidebar">
         <Menu size={22} />

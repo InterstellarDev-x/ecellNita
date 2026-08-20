@@ -13,7 +13,7 @@ import {
   UploadCloud,
   X,
 } from "lucide-react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const INITIAL_PRODUCT_DATA = {
   productname: "",
@@ -183,7 +183,6 @@ function AddProductForm() {
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
-          theme: "colored",
         });
 
         setStatusMessage({ type: "success", message: "Product added successfully. You can add another one now." });
@@ -210,7 +209,6 @@ function AddProductForm() {
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
-          theme: "colored",
         });
       }
     } catch (error) {
@@ -223,7 +221,6 @@ function AddProductForm() {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        theme: "colored",
       });
     } finally {
       setIsLoading(false);
@@ -236,8 +233,6 @@ function AddProductForm() {
 
   return (
     <div className="add-product-page">
-      <ToastContainer />
-
       {statusMessage.message && (
         <div className={`add-product-alert add-product-alert-${statusMessage.type}`}>
           {statusMessage.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}

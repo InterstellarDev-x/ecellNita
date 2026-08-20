@@ -3,6 +3,7 @@ import './ProductRequest.css';
 import ProductRequestElim from './ProductRequestElim';
 import { apiConnector } from '../../../utils/Apiconnecter';
 import { authroutes } from '../../../apis/apis';
+import { ClipboardList, PackageOpen } from 'lucide-react';
 
 function ProductRequest() {
     const [requests, setRequests] = useState([]);
@@ -45,15 +46,29 @@ function ProductRequest() {
     }, []);
   return (
     <div className='buyer-product-request'>
-        <h4 style={{ margin: '1rem 0.5rem' }}>All Requests</h4>
+        <section className="buyer-request-hero">
+            <span className="buyer-request-hero-icon"><ClipboardList size={22} /></span>
+            <div>
+                <span className="buyer-request-kicker">Your activity</span>
+                <h1>Product requests</h1>
+                <p>Track seller responses, meeting details, and your pending pickups.</p>
+            </div>
+            <span className="buyer-request-count">{requests.length} active</span>
+        </section>
         <div className="buyer-product-request-container">
             {requests.length > 0 &&
                 requests.map((request, i)=>{
-                return <ProductRequestElim key={i} request={request} handleDeleteProductRequest={handleDeleteProductRequest} />
+                return <ProductRequestElim key={request._id || i} request={request} handleDeleteProductRequest={handleDeleteProductRequest} />
                 })
             }
             {
-                requests.length === 0 && <p>No Pending Request</p>
+                requests.length === 0 && (
+                    <div className="buyer-request-empty">
+                        <PackageOpen size={42} />
+                        <h2>No active requests</h2>
+                        <p>When you request a product, its details and seller updates will appear here.</p>
+                    </div>
+                )
             }
         </div>
     </div>

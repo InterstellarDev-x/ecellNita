@@ -3,15 +3,15 @@ import "./ProductList.css";
 import ProductCard from "./ProductCard";
 import { PackageSearch, RotateCcw } from "lucide-react";
 
-function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onResetFilters }) {
+function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onResetFilters, kicker = "Browse listings", title, totalLabel, emptyTitle, emptyDescription }) {
   return (
     <section className="product-list">
       <div className="product-list-header">
         <div>
-          <span className="product-list-kicker">Browse listings</span>
-          <h2>{products.length} product{products.length === 1 ? "" : "s"}</h2>
+          <span className="product-list-kicker">{kicker}</span>
+          <h2>{title || `${products.length} product${products.length === 1 ? "" : "s"}`}</h2>
         </div>
-        <span>{totalProducts} available in marketplace</span>
+        <span>{totalLabel || `${totalProducts} available in marketplace`}</span>
       </div>
 
       {isLoading ? (
@@ -28,11 +28,11 @@ function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onR
       ) : products.length === 0 ? (
         <div className="empty-state">
           <PackageSearch size={44} />
-          <h5>{hasActiveFilters ? "No products match your filters" : "No products available yet"}</h5>
+          <h5>{hasActiveFilters ? "No products match your filters" : emptyTitle || "No products available yet"}</h5>
           <p>
             {hasActiveFilters
               ? "Try changing the search, category, or price filter to discover more listings."
-              : "Products listed by sellers will appear here once they are available."}
+              : emptyDescription || "Products listed by sellers will appear here once they are available."}
           </p>
           {hasActiveFilters && (
             <button type="button" onClick={onResetFilters}>

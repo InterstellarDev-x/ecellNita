@@ -3,24 +3,20 @@ import "./ActivitySection.css";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import SmallLoader from "../../SmallLoader/SmallLoader";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { authroutes } from "../../../../apis/apis";
 import { apiConnector } from "../../../../utils/Apiconnecter";
+import { signupDetailsSchema, signupSchema } from "../../../../validation/auth";
 
 function ActivitySection() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState({ msg: "", type: "" });
+  const [signupErrors, setSignupErrors] = useState({});
   const [passView, setPassView] = useState(false);
   const [activity, setActivity] = useState(false); // false=login, true=signup
   const [otp, setOtp] = useState("");
   const [verificationStage, setVerificationStage] = useState(false);
   const [passMatched, setPassMatched] = useState(false);
-  const [recaptchaVerified, setRecaptchaVerified] = useState(false);
-  const [recaptchaVerifiedRegister, setRecaptchaVerifiedRegister] = useState(false);
-  const [captchaSize, setCaptchaSize] = useState(
-    window.innerWidth <= 420 ? "compact" : "normal"
-  );
 
   const [signUpDetails, setSignUpDetails] = useState({
     email: "", firstname: "", lastname: "",
@@ -39,58 +35,70 @@ function ActivitySection() {
   }, []);
 
   useEffect(() => {
-    const updateCaptchaSize = () => {
-      setCaptchaSize(window.innerWidth <= 420 ? "compact" : "normal");
-    };
-
-    window.addEventListener("resize", updateCaptchaSize);
-    return () => window.removeEventListener("resize", updateCaptchaSize);
-  }, []);
-
-  useEffect(() => {
     setPassMatched(signUpDetails.password === signUpDetails.confirmpassword);
   }, [signUpDetails.password, signUpDetails.confirmpassword]);
 
-  const handleOnchangeSignup = (e) =>
-    setSignUpDetails({ ...signUpDetails, [e.target.name]: e.target.value });
+  const handleOnchangeSignup = (e) => {
+    const { name, value } = e.target;
+    setSignUpDetails({ ...signUpDetails, [name]: value });
+    setSignupErrors((current) => ({ ...current, [name]: undefined }));
+    setErrorMsg({ msg: "", type: "" });
+  };
   const handleOnchangelogin = (e) =>
     setLoginDetails({ ...loginDetails, [e.target.name]: e.target.value });
 
+  const getFieldErrors = (validationError) => validationError.flatten().fieldErrors;
+
+  const validateSignup = (schema, values) => {
+    const result = schema.safeParse(values);
+    if (result.success) {
+      setSignupErrors({});
+      return true;
+    }
+    setSignupErrors(getFieldErrors(result.error));
+    return false;
+  };
+
+  const applyApiValidationErrors = (error) => {
+    const responseData = error?.response?.data;
+    if (responseData?.errors) setSignupErrors(responseData.errors);
+    setErrorMsg({
+      msg: responseData?.message || "Something went wrong. Please try again.",
+      type: "signup error",
+    });
+  };
+
   const toggleVerificationStage = async (e) => {
     e.preventDefault();
-    if (!recaptchaVerifiedRegister)
-      return setErrorMsg({ msg: "Please verify the captcha", type: "Captcha not verified while registration" });
+    if (!validateSignup(signupDetailsSchema, signUpDetails)) return;
     setLoading(true);
     try {
       const res = await apiConnector("POST", authroutes.SEND_OTP_API, { email: signUpDetails.email });
       if (res.data.success) {
         setVerificationStage(true);
       } else {
-        if (res.data.message === "User already Registered")
-          setErrorMsg({ msg: "User already registered", type: "email already exists" });
+        setErrorMsg({ msg: res.data.message || "Could not send OTP", type: "signup error" });
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error(e); applyApiValidationErrors(e); }
     setLoading(false);
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    if (!validateSignup(signupSchema, { ...signUpDetails, otp })) return;
     setLoading(true);
     try {
       const res = await apiConnector("POST", authroutes.SIGNUP_API, { ...signUpDetails, otp });
       if (res.data.success) { setLoading(false); navigate("/getstarted"); }
       else {
-        if (res.data.message === "User already Registered")
-          setErrorMsg({ msg: "User already registered", type: "email already exists" });
+        setErrorMsg({ msg: res.data.message || "Could not create account", type: "signup error" });
         setLoading(false);
       }
-    } catch (e) { console.error(e); setLoading(false); }
+    } catch (e) { console.error(e); applyApiValidationErrors(e); setLoading(false); }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!recaptchaVerified)
-      return setErrorMsg({ msg: "Please verify the captcha", type: "Captcha not verified" });
     setLoading(true);
     try {
       const res = await apiConnector("POST", authroutes.LOGIN_API, loginDetails);
@@ -160,15 +168,6 @@ function ActivitySection() {
 
             <Link to="/forgotpassword" className="auth-forgot">Forgot password?</Link>
 
-            <div className="auth-captcha">
-              <HCaptcha
-                sitekey="979e4300-1752-49e6-8e58-1388e9befe64"
-                size={captchaSize}
-                onVerify={() => setRecaptchaVerified(true)}
-              />
-            </div>
-            {errorMsg.type === "Captcha not verified" && <span className="auth-error">{errorMsg.msg}</span>}
-
             <button type="submit" className={`auth-submit${loading ? " auth-submit--loading" : ""}`} disabled={loading}>
               {loading ? <><SmallLoader size={13} /> Signing in…</> : "Sign In"}
             </button>
@@ -188,19 +187,22 @@ function ActivitySection() {
               <div className="auth-field">
                 <label>First Name</label>
                 <input type="text" placeholder="John" name="firstname"
-                  value={signUpDetails.firstname} onChange={handleOnchangeSignup} required />
+                  value={signUpDetails.firstname} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.firstname)} />
+                {signupErrors.firstname?.[0] && <span className="auth-error">{signupErrors.firstname[0]}</span>}
               </div>
               <div className="auth-field">
                 <label>Last Name</label>
                 <input type="text" placeholder="Doe" name="lastname"
-                  value={signUpDetails.lastname} onChange={handleOnchangeSignup} required />
+                  value={signUpDetails.lastname} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.lastname)} />
+                {signupErrors.lastname?.[0] && <span className="auth-error">{signupErrors.lastname[0]}</span>}
               </div>
             </div>
 
             <div className="auth-field">
               <label>Email</label>
               <input type="email" placeholder="you@nita.ac.in" name="email"
-                value={signUpDetails.email} onChange={handleOnchangeSignup} required />
+                value={signUpDetails.email} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.email)} />
+              {signupErrors.email?.[0] && <span className="auth-error">{signupErrors.email[0]}</span>}
               {errorMsg.type === "email already exists" && <span className="auth-error">{errorMsg.msg}</span>}
             </div>
 
@@ -208,34 +210,30 @@ function ActivitySection() {
               <label>Password</label>
               <div className="auth-password-wrap">
                 <input type={passView ? "text" : "password"} placeholder="Create a password"
-                  name="password" value={signUpDetails.password} onChange={handleOnchangeSignup} required />
+                  name="password" value={signUpDetails.password} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.password)} />
                 <button type="button" className="auth-eye" onClick={() => setPassView((o) => !o)}>
                   {passView ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
+              {signupErrors.password?.[0] && <span className="auth-error">{signupErrors.password[0]}</span>}
             </div>
 
             <div className="auth-field">
               <label>Confirm Password</label>
               <div className="auth-password-wrap">
                 <input type={passView ? "text" : "password"} placeholder="Repeat your password"
-                  name="confirmpassword" value={signUpDetails.confirmpassword} onChange={handleOnchangeSignup} required />
+                  name="confirmpassword" value={signUpDetails.confirmpassword} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.confirmpassword)} />
                 <button type="button" className="auth-eye" onClick={() => setPassView((o) => !o)}>
                   {passView ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
-              {signUpDetails.confirmpassword && !passMatched &&
+              {signupErrors.confirmpassword?.[0]
+                ? <span className="auth-error">{signupErrors.confirmpassword[0]}</span>
+                : signUpDetails.confirmpassword && !passMatched &&
                 <span className="auth-error">Passwords don't match</span>}
             </div>
 
-            <div className="auth-captcha">
-              <HCaptcha
-                sitekey="342a82a4-2f5c-4348-942e-999cd9eccc3a"
-                size={captchaSize}
-                onVerify={() => setRecaptchaVerifiedRegister(true)}
-              />
-            </div>
-            {errorMsg.type === "Captcha not verified while registration" && <span className="auth-error">{errorMsg.msg}</span>}
+            {errorMsg.type === "signup error" && <span className="auth-error">{errorMsg.msg}</span>}
 
             <button type="submit"
               className={`auth-submit${(!passMatched || loading) ? " auth-submit--loading" : ""}`}
@@ -256,9 +254,15 @@ function ActivitySection() {
 
             <div className="auth-field">
               <label>One-Time Password</label>
-              <input type="text" placeholder="Enter 6-digit OTP"
-                value={otp} onChange={(e) => setOtp(e.target.value)} required />
+              <input type="text" inputMode="numeric" maxLength="6" placeholder="Enter 6-digit OTP"
+                value={otp} onChange={(e) => {
+                  setOtp(e.target.value.replace(/\D/g, ""));
+                  setSignupErrors((current) => ({ ...current, otp: undefined }));
+                  setErrorMsg({ msg: "", type: "" });
+                }} required aria-invalid={Boolean(signupErrors.otp)} />
+              {signupErrors.otp?.[0] && <span className="auth-error">{signupErrors.otp[0]}</span>}
               {errorMsg.type === "otp did not matched" && <span className="auth-error">{errorMsg.msg}</span>}
+              {errorMsg.type === "signup error" && <span className="auth-error">{errorMsg.msg}</span>}
             </div>
 
             <button type="submit" className={`auth-submit${loading ? " auth-submit--loading" : ""}`} disabled={loading}>

@@ -74,7 +74,23 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: #111827;
+    color: #111827;
+    cursor: pointer;
+    transition: transform 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.product-save-btn:hover:not(:disabled) {
+    transform: scale(1.08);
+}
+
+.product-save-btn--saved {
+    color: #dc2626;
+    background: #fff1f2;
+}
+
+.product-save-btn:disabled {
+    cursor: wait;
+    opacity: 0.65;
 }
 
 .product-card-details {

@@ -7,6 +7,7 @@ const {mailsender}=require("../utils/SendMail");
 const {sendEmailWithRetry}=require("../utils/EmailQueue");
 const {requestproduct}=require("../mailtemplates/Request");
 const {shedulevenue}=require("../mailtemplates/Shedule");
+const mongoose=require("mongoose");
 require("dotenv").config();
 
 
@@ -15,51 +16,62 @@ require("dotenv").config();
 
 exports.productrequest=async (req,res)=>{
     try{
-        const {id,email}=req.user;
-        const {buyername, productid, quantity}=req.body;
-        const buyeremail=email;
-        if(!buyeremail || !productid || !buyername || !quantity){
-            return res.json({
+        const {id}=req.user;
+        const {productid, quantity}=req.body;
+        const requestedQuantity=Number(quantity);
+        if(!mongoose.Types.ObjectId.isValid(productid) || !Number.isInteger(requestedQuantity) || requestedQuantity < 1){
+            return res.status(400).json({
                 success:false,
-                message:"All Fields are required"
+                message:"A product and a whole-number quantity of at least 1 are required"
             })
         }
-  
-        const checkrequest=await Request.findOne({buyer:id, product:productid});
-        if(checkrequest){
-            return res.json({
-                success:false,
-                message:"Request has been Already sent, kindly wait for Response from the Owner or delete the request and again make new request"
-            })
-        }
-       
+
         const productdata=await Product.findById(productid).populate("owner", "firstname lastname email");
         if(!productdata){
-            return res.json({
+            return res.status(404).json({
                 success:false,
-                message:"Product Has been deleted , Kindly delete the request"
+                message:"Product not found"
             })
         }
         const sellerdata=productdata.owner;
-        if(!sellerdata?.email){
-            return res.json({
-                success:false, 
-                message:"Seller Does not exist "
+        if(!sellerdata?._id || !sellerdata.email){
+            return res.status(400).json({
+                success:false,
+                message:"Seller does not exist"
             })
         }
-    
+        if(sellerdata._id.toString()===id){
+            return res.status(403).json({
+                success:false,
+                message:"You cannot request your own product"
+            })
+        }
+        if(productdata.status!=="Forsale" || productdata.quantity < requestedQuantity){
+            return res.status(400).json({
+                success:false,
+                message:"The requested quantity is no longer available"
+            })
+        }
+        const checkrequest=await Request.findOne({buyer:id, product:productid});
+        if(checkrequest){
+            return res.status(409).json({
+                success:false,
+                message:"You have already requested this product"
+            })
+        }
+
         const saverequest=await Request.create({
             buyer:id,
             seller:sellerdata._id,
             product:productdata._id,
-            quantity:quantity
+            quantity:requestedQuantity
         })
 
         logger.info("queueing product request email to seller: %s", sellerdata.email);
         sendEmailWithRetry(
             sellerdata.email,
             "Request to Sell",
-            requestproduct(buyername, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, productid, quantity)
+            requestproduct(req.user.email, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, productid, requestedQuantity)
         ).catch((mailError) => {
             logger.error("failed to queue product request email: %s", mailError.message);
         });
@@ -71,6 +83,12 @@ exports.productrequest=async (req,res)=>{
 
 }
 catch(err){
+    if(err?.code===11000){
+        return res.status(409).json({
+            success:false,
+            message:"You have already requested this product"
+        })
+    }
     return res.json({
         success:false,
         message:err.message,

@@ -18,7 +18,7 @@ import { apiConnector } from "../utils/Apiconnecter";
 import { authroutes } from "../apis/apis";
 
 function ProductListing() {
-  const { allProducts, getAllProducts } = GetContext();
+  const { allProducts, getAllProducts, getWishlist } = GetContext();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -150,7 +150,7 @@ function ProductListing() {
 
     const loadPageData = async () => {
       setProductsLoading(true);
-      await Promise.all([fetchAllCategories(), getAllProducts(true)]);
+      await Promise.all([fetchAllCategories(), getAllProducts(true), getWishlist(true)]);
       setProductsLoading(false);
     };
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Trash2, Flag } from "lucide-react";
+import { Trash2, Flag, CalendarDays, UserRound } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
@@ -26,6 +26,11 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const [isScheduled, setIsScheduled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [scheduleData, setScheduleData] = useState(null);
+  const requestedOn = new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(request.requestdate));
 
 
   const [otp, setOtp] = useState(new Array(6).fill(""));
@@ -151,32 +156,17 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         <div className="requested-product-item-img">
           <img src={productImage} alt="" />
           <div className="product-info">
+            <span className={`request-status-badge${isScheduled ? " request-status-badge--scheduled" : ""}`}>
+              {isScheduled ? "Meeting scheduled" : "Awaiting seller"}
+            </span>
             <b>{request.product?.productname || "Product no longer available"}</b>
             <p>{request.product?.productdescription || "This product was deleted by the seller."}</p>
-            {hasProduct && <b>&#8377; {request.product.price}</b>}
+            {hasProduct && <strong className="requested-product-price">&#8377; {request.product.price}</strong>}
           </div>
         </div>
         <div className="requested-product-item-status">
-          <p>
-            <b>Seller name: </b>
-            {request.seller.firstname} {request.seller.lastname}
-          </p>
-          <p>
-            <b>Seller email: </b>
-            {request.seller.email}
-          </p>
-          <p>
-            <b>Date: </b>
-            {`${new Date(request.requestdate)
-              .getDate()
-              .toString()
-              .padStart(2, "0")}/${new Date(request.requestdate)
-              .getMonth()
-              .toString()
-              .padStart(2, "0")}/${new Date(
-              request.requestdate
-            ).getFullYear()}`}
-          </p>
+          <p><UserRound size={15} /><span><b>Seller</b>{request.seller?.firstname} {request.seller?.lastname}<small>{request.seller?.email}</small></span></p>
+          <p><CalendarDays size={15} /><span><b>Requested</b>{requestedOn}</span></p>
         </div>
         <div className="requested-product-item-btns">
           {hasProduct && isScheduled && (

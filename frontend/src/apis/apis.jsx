@@ -22,5 +22,8 @@ export const authroutes={
     VERIFY_TRANSACTION_OTP:BASE_URL+"/transaction/verifytransotp",
     GET_ALL_CATEGORIES:BASE_URL+"/category/getcategories",
     UPDATE_USER:BASE_URL+"/user/updateuser",
-    UPDATE_PROFILE:BASE_URL+"/user/updateprofile"
+    UPDATE_PROFILE:BASE_URL+"/user/updateprofile",
+    GET_WISHLIST:BASE_URL+"/wishlist",
+    ADD_TO_WISHLIST:BASE_URL+"/wishlist",
+    REMOVE_FROM_WISHLIST:BASE_URL+"/wishlist"
 }

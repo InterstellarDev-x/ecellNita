@@ -16,6 +16,7 @@ const categoryroutes=require("./routes/category");
 const conversationroutes=require("./routes/conversation");
 const transactionroutes=require("./routes/checktransaction");
 const ratingandreviewsroutes=require("./routes/ratingandreviews");
+const wishlistroutes=require("./routes/wishlist");
 //
 
 logger.info("Frontend URL: %s", process.env.HOST);
@@ -49,8 +50,7 @@ app.use(fileupload({
     useTempFiles:true,
     tempFileDir:'/tmp/',
 }))
-databaseConnect();
-cloudinaryConnect();
+
 //
 app.use("/api/v1/auth",authroutes);
 app.use("/api/v1/user",userroutes);
@@ -59,6 +59,7 @@ app.use("/api/v1/category",categoryroutes);
 app.use("/api/v1/conversation",conversationroutes);
 app.use("/api/v1/transaction",transactionroutes);
 app.use("/api/v1/ratingandreviews", ratingandreviewsroutes);
+app.use("/api/v1/wishlist", wishlistroutes);
 
 //
 app.get("/",(req,res)=>{
@@ -78,10 +79,22 @@ app.get("/health", (req, res) => {
 });
 
 
-if (process.env.VERCEL !== "1") {
-    app.listen(PORT,()=>{
-        logger.info("server running on port %d", PORT);
+
+
+
+databaseConnect().then(()=> {
+            cloudinaryConnect()
+            app.listen(PORT,async ()=>{
+            logger.info("server running on port %d", PORT);
+            })
+        
+    }).catch((e) => {
+        console.log("error ocuured")
+        throw new Error(e)
     })
-}
+
+
+    
+
 
 module.exports = app;

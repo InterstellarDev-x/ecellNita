@@ -24,14 +24,15 @@ const requestschema=new mongoose.Schema({
         default:Date.now,
     },
     quantity:{
-        type : String,
-        required:true
+        type : Number,
+        required:true,
+        min:[1, "Requested quantity must be at least 1"]
     }
 })
 
 
 
 
-requestschema.index({ buyer: 1, product: 1 });
+requestschema.index({ buyer: 1, product: 1 }, { unique: true });
 
 module.exports=mongoose.model("Request",requestschema);

@@ -1,15 +1,14 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut, PackagePlus, CircleGauge, Package, PackageSearch, ChevronDown } from 'lucide-react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import './SellerSidebar.css';
 
 function SellerSidebar({ open, onClose }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    toast.info('🚀 You have successfully logged out. See you soon!', {
+    toast.info('You have successfully logged out. See you soon!', {
       position: "top-right",
       autoClose: 3000,
       hideProgressBar: false,
@@ -17,7 +16,6 @@ function SellerSidebar({ open, onClose }) {
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      theme: "colored",
     });
     localStorage.removeItem('campusrecycletoken');
     localStorage.removeItem('campusrecycleuser');
@@ -28,7 +26,6 @@ function SellerSidebar({ open, onClose }) {
 
   return (
     <div className={`seller-sidebar-main${open ? ' open' : ''}`}>
-      <ToastContainer />
       <div className="logo">
         <img src="../logo.png" alt="" />
       </div>

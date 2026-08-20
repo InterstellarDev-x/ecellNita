@@ -9,19 +9,21 @@ const {signuptemplate}=require("../mailtemplates/Signup")
 const {forgotpasswordtemplate}=require("../mailtemplates/ForgotpasswordLink");
 const {mailsender}=require("../utils/SendMail");
 const logger=require("../utils/logger");
+const { signupSchema, sendOtpSchema, getValidationErrors } = require("../validation/auth");
 require("dotenv").config();
 
 
 exports.sendotp=async (req,res)=>{
     try{
-        const {email}=req.body;
-
-        if(!email){
-            return res.json({
+        const validation = sendOtpSchema.safeParse(req.body);
+        if (!validation.success) {
+            return res.status(400).json({
                 success:false,
-                message:"Email Not Found"
-            })
+                message:"Enter a valid email address",
+                errors:getValidationErrors(validation.error),
+            });
         }
+        const {email}=validation.data;
         const checkuser=await User.findOne({email});
         if(checkuser){
             return res.json({
@@ -78,14 +80,16 @@ exports.sendotp=async (req,res)=>{
 
 exports.signup=async (req,res)=>{
     try{
-        const {firstname,lastname,email,password,confirmpassword,accounttype,otp}=req.body;
-        logger.debug("signup attempt for email: %s", email)
-        if(!firstname||!lastname|| !email ||!password || !confirmpassword|| !accounttype ||!otp){
-            return res.json({
+        const validation = signupSchema.safeParse(req.body);
+        if (!validation.success) {
+            return res.status(400).json({
                 success:false,
-                message:"All fields are required",
-            })
+                message:"Please correct the highlighted fields",
+                errors:getValidationErrors(validation.error),
+            });
         }
+        const {firstname,lastname,email,password,confirmpassword,accounttype,otp}=validation.data;
+        logger.debug("signup attempt for email: %s", email)
         const checkuser=await User.findOne({email});
         if(checkuser){
             return res.json({
@@ -305,4 +309,3 @@ exports.forgotpassword=async (req,res)=>{
     }
 
 }
-

@@ -18,6 +18,15 @@ function BuyerProductView() {
     const [productQuantity, setProductQuantity] = useState(0);
 
     const { productid } = useParams();
+    const currentUser = (() => {
+        try {
+            return JSON.parse(localStorage.getItem("campusrecycleuser"));
+        } catch {
+            return null;
+        }
+    })();
+    const isOwnProduct = Boolean(product?.owner?._id) && String(product.owner._id) === String(currentUser?._id);
+    const isUnavailable = product?.status !== "Forsale" || Number(product?.quantity) < 1;
 
     const fetchAllProductrequests = useCallback(async() => {
         try {
@@ -35,8 +44,9 @@ function BuyerProductView() {
     }, [productid]);
 
     const handleChangeProductQuantity = (action) => {
+        if (isOwnProduct || isUnavailable) return;
         if(action === "inc"){
-            if(productQuantity+1 > product.quantity) return;
+            if(productQuantity+1 > product?.quantity) return;
             setProductQuantity(productQuantity+1);
         }else{
             if(productQuantity-1 < 0) return;
@@ -45,7 +55,7 @@ function BuyerProductView() {
     }
 
     const handleProductRequest = async() => {
-        if(isRequested) return;
+        if(isRequested || isOwnProduct || isUnavailable) return;
         if (productQuantity === 0){
 
 
@@ -57,23 +67,17 @@ function BuyerProductView() {
                   pauseOnHover: true,
                   draggable: true,
                   progress: undefined,
-                  theme: "colored",
                 });
             return;
         }
         setIsRequesting(true);
 
-        const user = localStorage.getItem('campusrecycleuser');
-        const userObj = JSON.parse(user);
-        const buyerEmail = userObj.email;
         try {
             const api_header = { 
               Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
               "Content-Type": "multipart/form-data"
             };
             const bodyData = {
-                buyername: buyerEmail,
-                selleremail: product.owner.email,
                 productid: product._id,
                 quantity: productQuantity
             }
@@ -88,13 +92,21 @@ function BuyerProductView() {
                     pauseOnHover: true,
                     draggable: true,
                     progress: undefined,
-                    theme: "colored",
                   });
               
               setIsRequested(true);
+            } else {
+              toast.error(response.data.message || "Could not request this product", {
+                position: "top-right",
+                autoClose: 3000,
+              });
             }
           } catch (error) {
             console.error(error);
+            toast.error(error?.response?.data?.message || "Could not request this product", {
+              position: "top-right",
+              autoClose: 3000,
+            });
           } finally {
             setIsRequesting(false);
           }
@@ -231,18 +243,18 @@ function BuyerProductView() {
                         </h5>
                         <p>{product && product.quantity} left - {product && product.status}</p>
                         <div className='quantity-input'>
-                            <span className={`quantity-input-btn-plus ${productQuantity+1 > (product && product.quantity) ? 'disabled' : ''}`} onClick={()=>handleChangeProductQuantity("inc")} >
+                            <span className={`quantity-input-btn-plus ${productQuantity+1 > (product && product.quantity) || isOwnProduct || isUnavailable ? 'disabled' : ''}`} onClick={()=>handleChangeProductQuantity("inc")} >
                                 <Plus/>
                             </span>
                             <span className='quantity-input-counter'>
                                 {productQuantity}
                             </span>
-                            <span className={`quantity-input-btn-minus ${productQuantity-1 < 0 ? 'disabled' : ''}`} onClick={()=>handleChangeProductQuantity("dec")} >
+                            <span className={`quantity-input-btn-minus ${productQuantity-1 < 0 || isOwnProduct || isUnavailable ? 'disabled' : ''}`} onClick={()=>handleChangeProductQuantity("dec")} >
                                 <Minus/>
                             </span>
                         </div>
-                        <button className='btn' onClick={handleProductRequest} disabled={isRequested || isRequesting} style={{ cursor: isRequested ? 'no-drop' : 'pointer', backgroundColor: isRequested ? '#63cd81' : '' }}>
-                            {isRequested ? 'Requested' : isRequesting ? <><SmallLoader size={13} /> Requesting...</> : 'Request'}
+                        <button className='btn' onClick={handleProductRequest} disabled={isRequested || isRequesting || isOwnProduct || isUnavailable} style={{ cursor: isRequested || isOwnProduct || isUnavailable ? 'no-drop' : 'pointer', backgroundColor: isRequested ? '#63cd81' : '' }}>
+                            {isOwnProduct ? 'Your listing' : isUnavailable ? 'Unavailable' : isRequested ? 'Requested' : isRequesting ? <><SmallLoader size={13} /> Requesting...</> : 'Request'}
                         </button>
                     </div>
                 </div>

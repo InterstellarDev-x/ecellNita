@@ -7,7 +7,7 @@ const PrivateRoute = ({ children }) => {
 
   if (!isAuthenticated) {
    
-    toast.warn(" You need to be logged in to access this page. Redirecting to login page...", {
+    toast.warn("You need to be logged in to access this page. Redirecting to login page...", {
   position: "top-right",
   autoClose: 4000,
   hideProgressBar: false,
@@ -15,7 +15,6 @@ const PrivateRoute = ({ children }) => {
   pauseOnHover: true,
   draggable: true,
   progress: undefined,
-  theme: "colored", 
 });
     return <Navigate to="/student-login" />;
   }
