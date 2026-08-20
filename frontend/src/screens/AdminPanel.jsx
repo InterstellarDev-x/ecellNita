@@ -85,7 +85,11 @@ function AdminPanel() {
         <div className="admin-sidebar-note"><span>Live policy</span><strong>{settings?.mode?.replaceAll("_", " ") || "Loading"}</strong></div>
       </aside>
       <section className="admin-content">
-        <header className="admin-topbar"><div><span className="admin-eyebrow">Marketplace operations</span><h1>{navItems.find(([key]) => key === activeTab)?.[1]}</h1></div><button className="admin-refresh" onClick={load}>Refresh data</button></header>
+        <header className="admin-topbar">
+          <div className="admin-mobile-brand"><ShieldCheck size={19} /><span>Campus Control</span></div>
+          <div className="admin-topbar-title"><span className="admin-eyebrow">Marketplace operations</span><h1>{navItems.find(([key]) => key === activeTab)?.[1]}</h1></div>
+          <button className="admin-refresh" onClick={load}>Refresh data</button>
+        </header>
         {error && <div className="admin-error">{error}<button onClick={() => setError("")}><X size={16} /></button></div>}
         {loading ? <div className="admin-loading">Loading control centre…</div> : <>
           {activeTab === "overview" && <div className="admin-overview">
@@ -99,6 +103,14 @@ function AdminPanel() {
           {activeTab === "settings" && <section className="admin-settings"><section className="admin-panel"><span className="admin-eyebrow">Publication safeguards</span><h2>How should new listings be reviewed?</h2><p>The change takes effect for every future product submission. Existing listings stay published.</p><div className="admin-mode-grid">{[["no_review", "No review", "Publish after regular backend validation."], ["human", "Human review", "Hold privately until a moderator approves it."], ["ai_escalation", "AI with escalation", "AI publishes clear passes and sends uncertain cases to humans."]].map(([mode, label, description]) => <button key={mode} className={settings?.mode === mode ? "selected" : ""} onClick={() => saveMode(mode)}><strong>{label}</strong><span>{description}</span></button>)}</div></section><section className="admin-panel admin-policy"><h2>Policy version</h2><p>{settings?.policyVersion}</p><small>AI failures are configured to hold a listing for human review rather than publish it.</small></section></section>}
         </>}
       </section>
+      <nav className="admin-mobile-nav" aria-label="Admin navigation">
+        {navItems.map(([key, label, Icon]) => (
+          <button key={key} className={activeTab === key ? "active" : ""} onClick={() => setActiveTab(key)}>
+            <Icon size={20} />
+            <span>{key === "reviews" ? "Review" : key === "settings" ? "Settings" : label}</span>
+          </button>
+        ))}
+      </nav>
       {selectedSubmission && <div className="admin-modal-backdrop"><section className="admin-review-modal"><button className="admin-modal-close" onClick={() => setSelectedSubmission(null)}><X size={18}/></button><span className="admin-eyebrow">Review listing</span><h2>{selectedSubmission.listing?.productname}</h2><p>{selectedSubmission.listing?.productdescription}</p><dl><div><dt>Price</dt><dd>₹{selectedSubmission.listing?.price}</dd></div><div><dt>Seller</dt><dd>{selectedSubmission.seller?.email}</dd></div></dl><div className="admin-review-actions"><button className="reject" onClick={() => decideSubmission("rejected")}>Reject</button><button className="approve" onClick={() => decideSubmission("approved")}>Approve & publish</button></div></section></div>}
     </main>
   );
