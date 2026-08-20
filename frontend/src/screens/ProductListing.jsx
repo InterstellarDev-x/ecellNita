@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState , useEffect } from "react";
 import BuyerNavbar from "../components/BuyerInterface/BuyerNavbar/BuyerNavbar";
 import ProductList from "../components/BuyerInterface/ProductListing/ProductList";
-import { GetContext } from "../context/ProductsProvider";
 import {
   ArrowDownAZ,
   ArrowUpAZ,
@@ -13,13 +12,13 @@ import {
   X
 } from "lucide-react";
 import Fuse from "fuse.js";
-import { useNavigate } from "react-router-dom";
-import { apiConnector } from "../utils/Apiconnecter";
-import { authroutes } from "../apis/apis";
+import { useMarketplaceCategories, useMarketplaceProducts, useWishlist } from "../hooks/useBuyerQueries";
 
 function ProductListing() {
-  const { allProducts, getAllProducts, getWishlist } = GetContext();
-  const navigate = useNavigate();
+  const productsQuery = useMarketplaceProducts();
+  const categoriesQuery = useMarketplaceCategories();
+  const wishlistQuery = useWishlist();
+  const allProducts = productsQuery.data || [];
 
   const [searchTerm, setSearchTerm] = useState("");
   const [alphabeticalSortingOrder, setAlphabeticalSortingOrder] = useState("Alphabeticalasc");
@@ -28,11 +27,11 @@ function ProductListing() {
   const [activeAlphabeticalSort, setAlphabeticalSortActive] = useState(false);
   const [priceFilterValue, setPriceFilterValue] = useState(5000);
   const [isFilter, setIsFilter] = useState(false);
-  const [productsLoading, setProductsLoading] = useState(true);
   const [isCategoryDropdown, setIsCategoryDropdown] = useState(false);
   const [categoryFilterText, setCategoryFilterText] = useState("All Categories");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [allCategories, setAllCategories] = useState([]);
+  const allCategories = categoriesQuery.data || [];
+  const productsLoading = productsQuery.isLoading || categoriesQuery.isLoading || wishlistQuery.isLoading;
 
   const availableProducts = useMemo(
     () => (allProducts || []).filter((product) => product?.status !== "Sold"),
@@ -126,37 +125,6 @@ function ProductListing() {
     setIsFilter(false);
     setPriceFilterValue(maxProductPrice);
   };
-
-  const fetchAllCategories = async () => {
-    try {
-      const apiHeader = {
-        Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-        "Content-Type": "multipart/form-data"
-      };
-      const response = await apiConnector("POST", authroutes.GET_ALL_CATEGORIES, {}, apiHeader);
-      if (response.data.success) {
-        setAllCategories(response.data.data || []);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (!localStorage.getItem("campusrecycletoken")) {
-      navigate("/");
-      return;
-    }
-
-    const loadPageData = async () => {
-      setProductsLoading(true);
-      await Promise.all([fetchAllCategories(), getAllProducts(true), getWishlist(true)]);
-      setProductsLoading(false);
-    };
-
-    loadPageData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
 
   useEffect(() => {
     setPriceFilterValue(maxProductPrice);

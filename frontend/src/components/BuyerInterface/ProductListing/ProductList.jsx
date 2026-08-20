@@ -2,6 +2,7 @@ import React from "react";
 import "./ProductList.css";
 import ProductCard from "./ProductCard";
 import { PackageSearch, RotateCcw } from "lucide-react";
+import PageLoader from "../../CommonInterface/PageLoader/PageLoader";
 
 function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onResetFilters, kicker = "Browse listings", title, totalLabel, emptyTitle, emptyDescription }) {
   return (
@@ -15,16 +16,7 @@ function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onR
       </div>
 
       {isLoading ? (
-        <div className="product-grid product-grid-loading">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div className="product-card-skeleton" key={index}>
-              <div></div>
-              <span></span>
-              <span></span>
-              <strong></strong>
-            </div>
-          ))}
-        </div>
+        <PageLoader className="buyer-product-list-loader" />
       ) : products.length === 0 ? (
         <div className="empty-state">
           <PackageSearch size={44} />

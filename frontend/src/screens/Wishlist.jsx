@@ -1,23 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Heart } from "lucide-react";
 import BuyerNavbar from "../components/BuyerInterface/BuyerNavbar/BuyerNavbar";
 import ProductList from "../components/BuyerInterface/ProductListing/ProductList";
-import { GetContext } from "../context/ProductsProvider";
+import { useWishlist } from "../hooks/useBuyerQueries";
 
 function Wishlist() {
-  const { wishlistProducts, getWishlist } = GetContext();
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadWishlist = async () => {
-      await getWishlist(true);
-      setIsLoading(false);
-    };
-
-    loadWishlist();
-    // The provider owns the request lifecycle for the current signed-in user.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data: wishlistProducts = [], isLoading } = useWishlist();
 
   return (
     <>

@@ -28,6 +28,7 @@ code {
 /* Shared notification system */
 .Toastify__toast-container {
   width: min(390px, calc(100vw - 28px));
+  max-height: calc(100dvh - 28px);
   padding: 0;
 }
 
@@ -46,6 +47,13 @@ code {
   font-size: 0.88rem;
   font-weight: 700;
   line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.Toastify__toast-body {
+  align-items: center;
+  margin: 0;
+  padding: 0 26px 0 0;
 }
 
 .Toastify__toast--success {
@@ -95,7 +103,33 @@ code {
 
 @media (max-width: 480px) {
   .Toastify__toast-container {
-    top: 12px;
-    right: 14px;
+    top: max(10px, env(safe-area-inset-top));
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-height: calc(100dvh - max(20px, env(safe-area-inset-top)) - 24px);
   }
+
+  .Toastify__toast {
+    min-height: 58px;
+    margin-bottom: 8px;
+    padding: 11px 12px;
+    border-left-width: 3px;
+    border-radius: 14px;
+    font-size: .81rem;
+    line-height: 1.36;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+  }
+
+  .Toastify__toast-body { padding-right: 22px; }
+
+  .Toastify__close-button {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    padding: 5px;
+    transform: translateY(-50%);
+  }
+
+  .Toastify__progress-bar--wrp { height: 2px; }
 }

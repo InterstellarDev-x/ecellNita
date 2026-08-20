@@ -443,3 +443,84 @@ input[type="range"]::-moz-range-thumb {
     grid-template-columns: 1fr;
   }
 }
+
+/* The buyer marketplace becomes a focused, app-like browsing surface on phones. */
+@media (max-width: 768px) {
+  .buyer-product-page {
+    min-height: calc(100vh - 60px);
+    padding: 10px 16px calc(92px + env(safe-area-inset-bottom));
+    background: #f8f9fb;
+  }
+
+  .product-search-filter { margin-top: 0; }
+
+  .product-search-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 8px;
+    padding: 10px 0 12px;
+    border: 0;
+    border-bottom: 1px solid #e3e7e3;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .product-search-input-wrap {
+    width: 100%;
+    height: 43px;
+    padding: 0 14px;
+    border-color: #bdcab9;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(22, 33, 24, .03);
+  }
+
+  .product-search-input-wrap svg { width: 18px; color: #314238; }
+  .product-search-filter-search-box { font-size: .8rem; }
+  .product-search-filter-search-box::placeholder { color: #879188; opacity: 1; }
+
+  .product-search-filter-category-filter { flex: 0 0 auto; }
+  .product-search-filter-category-filter .clickable,
+  .product-search-filter-sortings button {
+    width: auto;
+    height: 34px;
+    padding: 0 11px;
+    border-color: #bdcab9;
+    border-radius: 999px;
+    background: #fff;
+    color: #253129;
+    font-size: .72rem;
+    font-weight: 650;
+    box-shadow: 0 1px 3px rgba(22, 33, 24, .04);
+  }
+
+  .product-search-filter-category-filter .clickable { min-width: 118px; }
+  .product-search-filter-category-filter .clickable svg,
+  .product-search-filter-sortings button svg { width: 15px; height: 15px; }
+  .product-search-filter-category-filter .categories { top: calc(100% + 6px); left: 0; right: auto; width: min(250px, calc(100vw - 32px)); border-radius: 14px; }
+
+  .product-search-filter-sortings {
+    display: flex;
+    width: auto;
+    gap: 7px;
+  }
+
+  .product-search-filter-sortings button { flex: 0 0 auto; }
+  .product-search-filter-category-filter .clickable:hover,
+  .product-search-filter-sortings button:hover,
+  .product-search-filter-sortings button.active { border-color: #77ad84; background: #eff7f0; color: #08782e; }
+
+  .active-filter-row { margin-top: 10px; font-size: .75rem; }
+  .filter-pill { padding: 5px 8px; }
+
+  .product-list { margin-top: 20px; }
+  .product-list-header { align-items: flex-end; flex-direction: row; gap: 10px; margin-bottom: 15px; }
+  .product-list-kicker { margin-bottom: 6px; color: #536054; font-size: .62rem; letter-spacing: .13em; }
+  .product-list-header h2 { font-size: 1.08rem; font-weight: 850; letter-spacing: -.02em; }
+  .product-list-header > span { padding-bottom: 2px; color: #08782e; font-size: .65rem; font-weight: 650; text-align: right; }
+  .product-grid { grid-template-columns: 1fr; gap: 14px; }
+  .product-card-skeleton { height: 340px; border-radius: 20px; }
+  .product-list .empty-state { min-height: 260px; border-radius: 20px; }
+}

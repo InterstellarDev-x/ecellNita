@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import AddProductForm from '../components/SellerInterface/SellerAddProduct/AddProductForm';
 import SellerSidebar from '../components/SellerInterface/SellerDashboard/SellerSidebar';
 import SellerTopNavbar from '../components/SellerInterface/SellerDashboard/SellerTopNavbar';
+import SellerMobileNav from '../components/SellerInterface/SellerDashboard/SellerMobileNav';
 import { useNavigate } from 'react-router-dom';
 import './SellerDashboard.css';
 
 function AddProduct() {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem('campusrecycletoken')) navigate('/');
@@ -15,14 +15,14 @@ function AddProduct() {
 
   return (
     <div className="seller-dashboard-container">
-      {sidebarOpen && <div className="seller-sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
-      <SellerSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <SellerSidebar />
       <div className="seller-dashboard-main">
-        <SellerTopNavbar onMenuClick={() => setSidebarOpen(o => !o)} />
+        <SellerTopNavbar />
         <div className="seller-dashboard-content">
           <AddProductForm />
         </div>
       </div>
+      <SellerMobileNav />
     </div>
   );
 }

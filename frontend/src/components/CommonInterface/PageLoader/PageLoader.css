@@ -1,0 +1,10 @@
+.page-loader {
+  display: grid;
+  min-height: 240px;
+  place-items: center;
+  padding: 28px;
+}
+
+@media (max-width: 768px) {
+  .page-loader { min-height: 210px; }
+}

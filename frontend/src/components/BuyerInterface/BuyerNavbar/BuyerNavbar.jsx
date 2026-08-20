@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./BuyerNavbar.css";
-import { Menu, X } from "lucide-react";
+import { ClipboardList, Heart, Package, UserRound } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 function BuyerNavbar() {
   const [profilePicture, setProfilePicture] = useState(null);
   const [profileDrop, setProfileDrop] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,11 +32,6 @@ function BuyerNavbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Close drawer on route change
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [location.pathname]);
 
   const handleLogout = () => {
     toast.info('You have successfully logged out. See you soon!', {
@@ -85,15 +79,9 @@ function BuyerNavbar() {
         </div>
 
         <div className="buyer-navbar-right">
-          {/* Mobile hamburger */}
-          <button className="buyer-navbar-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Open menu">
-            <Menu size={20} />
-          </button>
-
           {/* Profile dropdown */}
           <div className="buyer-navbar-accounts" ref={dropdownRef}>
             <div className="toggle" onClick={() => setProfileDrop(o => !o)}>
-              <Menu size={16} />
               <img
                 src={profilePicture || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}
                 alt="Profile"
@@ -111,32 +99,24 @@ function BuyerNavbar() {
           </div>
         </div>
       </div>
-
-      {/* Backdrop */}
-      {drawerOpen && <div className="buyer-drawer-backdrop" onClick={() => setDrawerOpen(false)} />}
-
-      {/* Slide-in drawer */}
-      <div className={`buyer-drawer${drawerOpen ? " open" : ""}`}>
-        <button className="buyer-drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close menu">
-          <X size={22} />
-        </button>
-
-        <div className="buyer-drawer-logo">
-          <img src="/logo.png" alt="Campus Recycle" onClick={() => { navigate('/buyer/productlist'); }} />
-        </div>
-
-        <nav className="buyer-drawer-links">
-          <Link to="/buyer/productlist" className={`buyer-drawer-item ${location.pathname === "/buyer/productlist" ? "active" : ""}`}>
-            Products
-          </Link>
-          <Link to="/buyer/product-requests" className={`buyer-drawer-item ${location.pathname === "/buyer/product-requests" ? "active" : ""}`}>
-            Your Requests
-          </Link>
-          <Link to="/buyer/wishlist" className={`buyer-drawer-item ${location.pathname === "/buyer/wishlist" ? "active" : ""}`}>
-            Wishlist
-          </Link>
-        </nav>
-      </div>
+      <nav className="buyer-mobile-nav" aria-label="Buyer navigation">
+        <Link to="/buyer/productlist" className={location.pathname === "/buyer/productlist" ? "active" : ""}>
+          <Package size={20} />
+          <span>Products</span>
+        </Link>
+        <Link to="/buyer/product-requests" className={location.pathname === "/buyer/product-requests" ? "active" : ""}>
+          <ClipboardList size={20} />
+          <span>Requests</span>
+        </Link>
+        <Link to="/buyer/wishlist" className={location.pathname === "/buyer/wishlist" ? "active" : ""}>
+          <Heart size={20} />
+          <span>Wishlist</span>
+        </Link>
+        <Link to="/student-profile" className={location.pathname === "/student-profile" ? "active" : ""}>
+          <UserRound size={20} />
+          <span>Profile</span>
+        </Link>
+      </nav>
     </>
   );
 }

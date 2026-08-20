@@ -1,0 +1,37 @@
+.seller-mobile-nav { display: none; }
+
+@media (max-width: 991.98px) {
+  .seller-mobile-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    min-height: calc(68px + env(safe-area-inset-bottom));
+    padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+    border-top: 1px solid #d9dfd9;
+    background: rgba(255, 255, 255, .98);
+    box-shadow: 0 -6px 18px rgba(22, 33, 24, .06);
+  }
+
+  .seller-mobile-nav a {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 3px;
+    padding: 3px 1px;
+    border-radius: 10px;
+    color: #526056;
+    font-size: .65rem;
+    font-weight: 600;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+
+  .seller-mobile-nav a.active { color: #08782e; font-weight: 800; }
+  .seller-mobile-nav a:active { background: #eff7f0; }
+}

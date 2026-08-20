@@ -2,31 +2,29 @@ import React from "react";
 import "./ProductCard.css";
 import { Heart, ImageOff, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { GetContext } from "../../../context/ProductsProvider";
 import { toast } from "react-toastify";
+import { useToggleWishlist, useWishlist } from "../../../hooks/useBuyerQueries";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
-  const { wishlistProductIds, toggleWishlist } = GetContext();
-  const [isSaving, setIsSaving] = React.useState(false);
+  const { data: wishlistProducts = [] } = useWishlist();
+  const toggleWishlist = useToggleWishlist();
   const image = product?.images?.find(Boolean);
   const description = product?.productdescription || "No description added yet.";
   const categoryName = product?.category?.name || "General";
   const price = Number(product?.price) || 0;
-  const isSaved = wishlistProductIds.includes(product?._id);
+  const isSaved = wishlistProducts.some((savedProduct) => savedProduct._id === product?._id);
 
   const handleWishlistToggle = async (event) => {
     event.stopPropagation();
-    if (isSaving) return;
+    if (toggleWishlist.isPending) return;
 
-    setIsSaving(true);
     try {
-      const isNowSaved = await toggleWishlist(product);
+      await toggleWishlist.mutateAsync({ product, isSaved });
+      const isNowSaved = !isSaved;
       toast.success(isNowSaved ? "Saved to wishlist" : "Removed from wishlist", { autoClose: 2500 });
     } catch (error) {
       toast.error(error?.response?.data?.message || "Could not update wishlist", { autoClose: 3000 });
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -48,7 +46,7 @@ function ProductCard({ product }) {
           className={`product-save-btn${isSaved ? " product-save-btn--saved" : ""}`}
           aria-label={isSaved ? "Remove product from wishlist" : "Save product to wishlist"}
           aria-pressed={isSaved}
-          disabled={isSaving}
+          disabled={toggleWishlist.isPending}
           onClick={handleWishlistToggle}
         >
           <Heart size={16} fill={isSaved ? "currentColor" : "none"} />

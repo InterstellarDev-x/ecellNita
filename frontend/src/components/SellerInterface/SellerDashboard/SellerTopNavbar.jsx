@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./SellerTopNavbar.css";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
 import { toast } from 'react-toastify';
 
-function SellerTopNavbar({ onMenuClick }) {
+function SellerTopNavbar() {
   const [userDetails, setUserDetails] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [profileDrop, setProfileDrop] = useState(false);
@@ -49,10 +48,9 @@ function SellerTopNavbar({ onMenuClick }) {
 
   return (
     <div className="seller-top-navbar">
-      {/* Mobile hamburger */}
-      <button className="seller-top-navbar-hamburger" onClick={onMenuClick} aria-label="Toggle sidebar">
-        <Menu size={22} />
-      </button>
+      <div className="seller-top-navbar-brand">
+        <img src="/logo.png" alt="Campus Recycle" onClick={() => navigate("/seller/seller-dashboard")} />
+      </div>
 
       <div className="profile" onClick={() => setProfileDrop(o => !o)} ref={dropdownRef}>
         <img

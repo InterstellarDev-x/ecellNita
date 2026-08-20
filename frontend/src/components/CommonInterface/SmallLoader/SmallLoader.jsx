@@ -1,14 +1,16 @@
 import React from "react";
 import "./SmallLoader.css";
 
-function SmallLoader({ size = 14, color = "currentColor", className = "" }) {
+function SmallLoader({ size = 14, color = "#14933d", className = "" }) {
   return (
     <span
       className={`small-loader ${className}`.trim()}
-      style={{ width: size, height: size, borderColor: `${color}33`, borderTopColor: color }}
+      style={{ "--small-loader-size": `${size}px`, "--small-loader-color": color }}
       aria-label="Loading"
       role="status"
-    />
+    >
+      {Array.from({ length: 8 }, (_, index) => <i key={index} />)}
+    </span>
   );
 }
 

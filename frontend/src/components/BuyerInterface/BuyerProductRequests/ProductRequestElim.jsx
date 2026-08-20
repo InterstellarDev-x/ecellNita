@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Trash2, Flag, CalendarDays, UserRound } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
+import { useDeleteRequestSchedule, useRequestSchedule } from "../../../hooks/useBuyerQueries";
 
 function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
@@ -23,9 +24,10 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
     [12, "Dec"]
   ]);
 
-  const [isScheduled, setIsScheduled] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [scheduleData, setScheduleData] = useState(null);
+  const { data: scheduleData } = useRequestSchedule(request?._id);
+  const deleteSchedule = useDeleteRequestSchedule();
+  const isScheduled = Boolean(scheduleData);
+  const isLoading = deleteSchedule.isPending;
   const requestedOn = new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
@@ -60,56 +62,12 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
 
 
   const handleDeleteSchedule = async () => {
-    setIsLoading(true);
     try {
-      const api_header = {
-        Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-        "Content-Type": "multipart/form-data",
-      };
-      const bodyData = {
-        requestid: request._id,
-      };
-      const response = await apiConnector(
-        "POST",
-        authroutes.DELETE_SCHEDULED_MEET,
-        bodyData,
-        api_header
-      );
-      if (response.data.success) {
-        setIsScheduled(false);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
+      await deleteSchedule.mutateAsync(request._id);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
     }
   };
-
-  const fetchScheduleData = useCallback(async () => {
-    try {
-      const api_header = {
-        Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-        "Content-Type": "multipart/form-data",
-      };
-      const bodyData = {
-        requestid: request._id,
-      };
-      const response = await apiConnector(
-        "POST",
-        authroutes.GET_SCHEDULE_DATA,
-        bodyData,
-        api_header
-      );
-      if (response.data.success) {
-        setScheduleData(response.data.data);
-        setIsScheduled(true);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [request._id]);
 
   const submitCompleteOTP = async () => {
     if (!hasProduct) return;
@@ -147,9 +105,6 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
     alert("Report submission is not available yet.");
   };
 
-  useEffect(() => {
-    fetchScheduleData();
-  }, [fetchScheduleData]);
   return (
     <>
       <div className="requested-product-item">

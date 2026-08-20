@@ -1,23 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './BuyerProductView.css';
 import { Flame, Sparkle, Plus, Minus, Share, Box } from 'lucide-react';
-import { apiConnector } from "../../../utils/Apiconnecter";
-import { authroutes } from "../../../apis/apis";
 import { useParams } from 'react-router-dom';
-import { GetContext } from '../../../context/ProductsProvider';
 import { toast } from 'react-toastify';
 import SmallLoader from '../../CommonInterface/SmallLoader/SmallLoader';
+import PageLoader from '../../CommonInterface/PageLoader/PageLoader';
+import { useBuyerRequests, useCreateBuyerRequest, useMarketplaceProduct } from '../../../hooks/useBuyerQueries';
 
 function BuyerProductView() {
-    const { product, setProduct } = GetContext();
+    const { productid } = useParams();
+    const { data: product, isLoading: isProductLoading } = useMarketplaceProduct(productid);
+    const { data: requests = [], isLoading: isRequestsLoading } = useBuyerRequests();
+    const createRequest = useCreateBuyerRequest();
     const fallbackProfileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
     const sellerImage = product?.owner?.image || fallbackProfileImage;
 
-    const [isRequested, setIsRequested] = useState(false);
-    const [isRequesting, setIsRequesting] = useState(false);
     const [productQuantity, setProductQuantity] = useState(0);
-
-    const { productid } = useParams();
     const currentUser = (() => {
         try {
             return JSON.parse(localStorage.getItem("campusrecycleuser"));
@@ -27,21 +25,8 @@ function BuyerProductView() {
     })();
     const isOwnProduct = Boolean(product?.owner?._id) && String(product.owner._id) === String(currentUser?._id);
     const isUnavailable = product?.status !== "Forsale" || Number(product?.quantity) < 1;
-
-    const fetchAllProductrequests = useCallback(async() => {
-        try {
-            const api_header = { 
-              Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
-              "Content-Type": "multipart/form-data"
-            };
-            const response = await apiConnector("POST", authroutes.GET_ALL_SENT_PRODUCT_REQUESTS, {}, api_header);
-            if (response.data.success) {
-                setIsRequested(response.data.data.some((data) => data.product?._id === productid));
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }, [productid]);
+    const isRequested = requests.some((data) => data.product?._id === productid);
+    const isRequesting = createRequest.isPending;
 
     const handleChangeProductQuantity = (action) => {
         if (isOwnProduct || isUnavailable) return;
@@ -70,75 +55,22 @@ function BuyerProductView() {
                 });
             return;
         }
-        setIsRequesting(true);
-
         try {
-            const api_header = { 
-              Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
-              "Content-Type": "multipart/form-data"
-            };
-            const bodyData = {
-                productid: product._id,
-                quantity: productQuantity
-            }
-            const response = await apiConnector("POST", authroutes.PRODUCT_REQUEST, bodyData, api_header);
-            if (response.data.success) {
-
-              toast.success("Product requested", {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                  });
-              
-              setIsRequested(true);
-            } else {
-              toast.error(response.data.message || "Could not request this product", {
-                position: "top-right",
-                autoClose: 3000,
-              });
-            }
+            await createRequest.mutateAsync({ productid: product._id, quantity: productQuantity });
+            toast.success("Product requested", { position: "top-right", autoClose: 3000 });
           } catch (error) {
             console.error(error);
             toast.error(error?.response?.data?.message || "Could not request this product", {
               position: "top-right",
               autoClose: 3000,
             });
-          } finally {
-            setIsRequesting(false);
           }
     }
 
-    const fetchProductDetails = useCallback(async () => {
-        try {
-          const api_header = {
-            Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-            "Content-Type": "multipart/form-data",
-          };
-          const bodyData = {
-            productid: productid,
-          };
-          const response = await apiConnector(
-            "POST",
-            authroutes.GET_PRODUCT_DETAILS,
-            bodyData,
-            api_header
-          );
-          if (response.data.success) {
-            setProduct(response.data.data);
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }, [productid, setProduct]);
+    if (isProductLoading || isRequestsLoading) {
+        return <div className="buyer-product-view"><PageLoader /></div>;
+    }
 
-    useEffect(()=>{
-        fetchProductDetails();
-        fetchAllProductrequests();
-    }, [fetchAllProductrequests, fetchProductDetails]);
   return (
     <div className='buyer-product-view'>
         <div className='buyer-product-view-container'>

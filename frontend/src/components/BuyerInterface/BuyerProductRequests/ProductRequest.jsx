@@ -1,49 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import './ProductRequest.css';
 import ProductRequestElim from './ProductRequestElim';
-import { apiConnector } from '../../../utils/Apiconnecter';
-import { authroutes } from '../../../apis/apis';
 import { ClipboardList, PackageOpen } from 'lucide-react';
+import PageLoader from '../../CommonInterface/PageLoader/PageLoader';
+import { useBuyerRequests, useDeleteBuyerRequest } from '../../../hooks/useBuyerQueries';
 
 function ProductRequest() {
-    const [requests, setRequests] = useState([]);
+    const { data: requests = [], isLoading: loading } = useBuyerRequests();
+    const deleteRequest = useDeleteBuyerRequest();
 
-    const fetchAllProductrequests = async() => {
+    const handleDeleteProductRequest = async (idToDelete) => {
         try {
-            const api_header = { 
-              Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
-              "Content-Type": "multipart/form-data"
-            };
-            const response = await apiConnector("POST", authroutes.GET_ALL_SENT_PRODUCT_REQUESTS, {}, api_header);
-            if (response.data.success) {
-                setRequests(response.data.data);
-            }
+            await deleteRequest.mutateAsync(idToDelete);
         } catch (error) {
             console.error(error);
         }
-    }
-
-    const handleDeleteProductRequest = async(idToDelete) => {
-        try {
-            const api_header = { 
-              Authorization: `Bearer ${localStorage.getItem('campusrecycletoken')}`,
-              "Content-Type": "multipart/form-data"
-            };
-            const bodyData = {
-                requestid: idToDelete
-            }
-            const response = await apiConnector("POST", authroutes.DELETE_PRODUCT_REQUEST, bodyData, api_header);
-            if (response.data.success) {
-                fetchAllProductrequests();
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    useEffect(()=>{
-        fetchAllProductrequests();
-    }, []);
+    };
   return (
     <div className='buyer-product-request'>
         <section className="buyer-request-hero">
@@ -56,13 +28,13 @@ function ProductRequest() {
             <span className="buyer-request-count">{requests.length} active</span>
         </section>
         <div className="buyer-product-request-container">
-            {requests.length > 0 &&
+            {loading ? <PageLoader /> : requests.length > 0 &&
                 requests.map((request, i)=>{
                 return <ProductRequestElim key={request._id || i} request={request} handleDeleteProductRequest={handleDeleteProductRequest} />
                 })
             }
             {
-                requests.length === 0 && (
+                !loading && requests.length === 0 && (
                     <div className="buyer-request-empty">
                         <PackageOpen size={42} />
                         <h2>No active requests</h2>
