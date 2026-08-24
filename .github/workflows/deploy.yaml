@@ -2,32 +2,274 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# Never run two production deployments simultaneously.
+concurrency:
+  group: recycool-production
+  cancel-in-progress: false
 
 env:
   VM_APP_DIR: /home/azureuser/ecellNita
   DEPLOY_BRANCH: master
+
   BACKEND_PM2_NAME: backend
-  FRONTEND_PM2_NAME: frontend
+  FRONTEND_DEPLOY_DIR: /var/www/recycool
+
+  FRONTEND_URL: https://recycool.ecellnita.in
+  FRONTEND_API_URL: https://api.recycool.ecellnita.in/api/v1
+  API_HEALTH_URL: https://api.recycool.ecellnita.in/health
 
 jobs:
   deploy:
     name: Build and deploy on the VM
     runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: production
 
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.2
+        env:
+          DEPLOY_COMMIT: ${{ github.sha }}
+
+          VM_APP_DIR: ${{ env.VM_APP_DIR }}
+          DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
+
+          BACKEND_PM2_NAME: ${{ env.BACKEND_PM2_NAME }}
+          FRONTEND_DEPLOY_DIR: ${{ env.FRONTEND_DEPLOY_DIR }}
+
+          FRONTEND_URL: ${{ env.FRONTEND_URL }}
+          FRONTEND_API_URL: ${{ env.FRONTEND_API_URL }}
+          API_HEALTH_URL: ${{ env.API_HEALTH_URL }}
+
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: ${{ secrets.VM_PORT || 22 }}
-          command_timeout: 30m
-          script: |
-            ls -l
-            
 
-          
+
+          timeout: 30s
+          command_timeout: 30m
+
+          envs: >-
+            DEPLOY_COMMIT,
+            VM_APP_DIR,
+            DEPLOY_BRANCH,
+            BACKEND_PM2_NAME,
+            FRONTEND_DEPLOY_DIR,
+            FRONTEND_URL,
+            FRONTEND_API_URL,
+            API_HEALTH_URL
+
+          script: |
+            set -Eeuo pipefail
+
+            deployment_failed() {
+              exit_code=$?
+
+              echo "Deployment failed with exit code ${exit_code}"
+              echo "Current PM2 status:"
+              pm2 status || true
+
+              echo "Recent backend logs:"
+              pm2 logs "$BACKEND_PM2_NAME" \
+                --lines 50 \
+                --nostream || true
+
+              exit "$exit_code"
+            }
+
+            trap deployment_failed ERR
+
+            echo "========================================"
+            echo "Starting Recycool production deployment"
+            echo "Commit: $DEPLOY_COMMIT"
+            echo "========================================"
+
+            command -v git >/dev/null
+            command -v node >/dev/null
+            command -v npm >/dev/null
+            command -v pm2 >/dev/null
+            command -v rsync >/dev/null
+            command -v nginx >/dev/null
+            command -v curl >/dev/null
+
+            sudo -n true
+
+            cd "$VM_APP_DIR"
+
+            if [ ! -d .git ]; then
+              echo "Git repository not found in $VM_APP_DIR"
+              exit 1
+            fi
+
+            current_branch="$(git branch --show-current)"
+
+            if [ "$current_branch" != "$DEPLOY_BRANCH" ]; then
+              echo "Expected branch: $DEPLOY_BRANCH"
+              echo "Current branch: $current_branch"
+              exit 1
+            fi
+
+            # Do not overwrite tracked server-side modifications.
+            if ! git diff --quiet; then
+              echo "Tracked server files have uncommitted changes:"
+              git status --short
+              exit 1
+            fi
+
+            if ! git diff --cached --quiet; then
+              echo "The server has staged but uncommitted changes:"
+              git status --short
+              exit 1
+            fi
+
+            previous_commit="$(git rev-parse HEAD)"
+            echo "Previous commit: $previous_commit"
+
+            echo "Fetching the requested Git commit..."
+            git fetch --prune origin "$DEPLOY_BRANCH"
+
+            if ! git cat-file -e "${DEPLOY_COMMIT}^{commit}"; then
+              echo "Commit $DEPLOY_COMMIT was not fetched from origin"
+              exit 1
+            fi
+
+            # Only allow a fast-forward deployment.
+            git merge --ff-only "$DEPLOY_COMMIT"
+
+            deployed_commit="$(git rev-parse HEAD)"
+
+            if [ "$deployed_commit" != "$DEPLOY_COMMIT" ]; then
+              echo "Expected commit: $DEPLOY_COMMIT"
+              echo "Checked-out commit: $deployed_commit"
+              exit 1
+            fi
+
+            echo "Deploying commit $deployed_commit"
+
+            echo "========================================"
+            echo "Installing and testing backend"
+            echo "========================================"
+
+            cd "$VM_APP_DIR/backend"
+
+            npm ci
+            npm test
+            npm prune --omit=dev
+
+            echo "========================================"
+            echo "Building frontend"
+            echo "========================================"
+
+            cd "$VM_APP_DIR/frontend"
+
+            npm ci
+
+            if [ -z "$FRONTEND_API_URL" ]; then
+              echo "FRONTEND_API_URL is missing"
+              exit 1
+            fi
+
+            VITE_BASE_URL="$FRONTEND_API_URL" npm run build
+
+            if [ ! -f dist/index.html ]; then
+              echo "Frontend build did not create dist/index.html"
+              exit 1
+            fi
+
+            if ! grep -RFl \
+              "$FRONTEND_API_URL" \
+              dist/assets >/dev/null; then
+              echo "Production API URL was not found in the frontend bundle"
+              exit 1
+            fi
+
+            if grep -RFl \
+              "http://localhost:4000" \
+              dist/assets >/dev/null; then
+              echo "Frontend bundle still contains localhost:4000"
+              exit 1
+            fi
+
+            echo "Frontend bundle validation passed"
+
+            echo "========================================"
+            echo "Validating Nginx"
+            echo "========================================"
+
+            sudo -n nginx -t
+
+            echo "========================================"
+            echo "Deploying frontend to Nginx"
+            echo "========================================"
+
+            sudo -n install \
+              -d \
+              -o www-data \
+              -g www-data \
+              -m 755 \
+              "$FRONTEND_DEPLOY_DIR"
+
+            sudo -n rsync \
+              -a \
+              --delete \
+              --chown=www-data:www-data \
+              dist/ \
+              "$FRONTEND_DEPLOY_DIR/"
+
+            echo "========================================"
+            echo "Restarting PM2 backend"
+            echo "========================================"
+
+            cd "$VM_APP_DIR"
+
+            pm2 startOrRestart \
+              ecosystem.config.js \
+              --only "$BACKEND_PM2_NAME" \
+              --update-env
+
+            pm2 save
+
+            sudo -n nginx -t
+            sudo -n systemctl reload nginx
+
+            echo "========================================"
+            echo "Running health checks"
+            echo "========================================"
+
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              --retry 10 \
+              --retry-delay 2 \
+              --retry-connrefused \
+              "$API_HEALTH_URL"
+
+            echo
+
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              --retry 5 \
+              --retry-delay 2 \
+              --output /dev/null \
+              "$FRONTEND_URL"
+
+            echo "========================================"
+            echo "Deployment successful"
+            echo "Commit: $deployed_commit"
+            echo "Frontend: $FRONTEND_URL"
+            echo "API health: $API_HEALTH_URL"
+            echo "========================================"
+
+            pm2 status
