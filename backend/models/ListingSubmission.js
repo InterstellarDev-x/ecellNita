@@ -26,7 +26,7 @@ const listingSubmissionSchema = new mongoose.Schema({
         index: true,
     },
     reviewMode: { type: String, enum: ["human", "ai_escalation"], required: true },
-    expiresAt: { type: Date, index: true },
+    expiresAt: { type: Date },
 }, { timestamps: true });
 
 listingSubmissionSchema.index({ state: 1, createdAt: -1 });

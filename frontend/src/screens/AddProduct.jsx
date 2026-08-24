@@ -1,18 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import AddProductForm from '../components/SellerInterface/SellerAddProduct/AddProductForm';
 import SellerSidebar from '../components/SellerInterface/SellerDashboard/SellerSidebar';
 import SellerTopNavbar from '../components/SellerInterface/SellerDashboard/SellerTopNavbar';
 import SellerMobileNav from '../components/SellerInterface/SellerDashboard/SellerMobileNav';
-import { useNavigate } from 'react-router-dom';
 import './SellerDashboard.css';
 
 function AddProduct() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!localStorage.getItem('campusrecycletoken')) navigate('/');
-  }, []);
-
   return (
     <div className="seller-dashboard-container">
       <SellerSidebar />

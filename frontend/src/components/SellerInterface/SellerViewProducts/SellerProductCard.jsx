@@ -6,8 +6,10 @@ import { Edit3, ImagePlus, IndianRupee, Package, Save, Trash2, X } from "lucide-
 
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
 const MAX_IMAGE_SIZE_MB = 3;
+const MIN_IMAGES = 3;
+const MAX_IMAGES = 6;
 
-function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
+function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onReviewSubmitted }) {
   const [editFormData, setEditFormData] = useState({
     productid: product._id,
     productname: product.productname || "",
@@ -19,6 +21,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [editError, setEditError] = useState("");
+  const [editSuccess, setEditSuccess] = useState("");
 
   const imagePreviews = useMemo(
     () => editFormData.images.map((file) => ({ file, preview: URL.createObjectURL(file) })),
@@ -31,6 +34,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
 
   const handleEditProductOnChange = (e) => {
     setEditError("");
+    setEditSuccess("");
     if (e.target.name === "images") {
       const selectedFiles = Array.from(e.target.files || []);
       const validFiles = [];
@@ -47,7 +51,14 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
         validFiles.push(file);
       }
 
-      setEditFormData((prev) => ({ ...prev, images: [...prev.images, ...validFiles] }));
+      setEditFormData((prev) => {
+        const images = [...prev.images, ...validFiles];
+        if (images.length > MAX_IMAGES) {
+          setEditError(`Upload no more than ${MAX_IMAGES} replacement images.`);
+          return prev;
+        }
+        return { ...prev, images };
+      });
       e.target.value = "";
     } else {
       setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
@@ -63,6 +74,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
 
   const resetEditForm = () => {
     setEditError("");
+    setEditSuccess("");
     setEditFormData({
       productid: product._id,
       productname: product.productname || "",
@@ -76,8 +88,13 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
 
   const handleSubmitEditProductForm = async (e) => {
     e.preventDefault();
+    if (editFormData.images.length > 0 && editFormData.images.length < MIN_IMAGES) {
+      setEditError(`Upload at least ${MIN_IMAGES} replacement images, or leave images unchanged.`);
+      return;
+    }
     setIsLoading(true);
     setEditError("");
+    setEditSuccess("");
 
     try {
       const formData = new FormData();
@@ -96,7 +113,14 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
 
       const response = await apiConnector("POST", authroutes.EDIT_PRODUCT, formData, apiHeader);
       if (response.data.success) {
-        onProductUpdated(response.data.data);
+        if (response.data.pendingReview) {
+          setEditSuccess(response.data.message || "Your changes are awaiting review.");
+          onReviewSubmitted?.();
+        } else {
+          onProductUpdated(response.data.data);
+          setEditSuccess("Product updated successfully.");
+          onReviewSubmitted?.();
+        }
         setEditFormData((prev) => ({ ...prev, images: [] }));
       } else {
         setEditError(response.data.message || "Could not update product.");
@@ -152,6 +176,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated }) {
             <div className="modal-body">
               <form onSubmit={handleSubmitEditProductForm} className="edit-product-form">
                 {editError && <div className="edit-product-error">{editError}</div>}
+                {editSuccess && <div className="edit-product-success" role="status">{editSuccess}</div>}
 
                 <div className="edit-product-grid">
                   <div className="edit-product-form-section">

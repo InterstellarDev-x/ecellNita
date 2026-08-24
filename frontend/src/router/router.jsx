@@ -19,12 +19,16 @@ import BuyerProductRequests from '../screens/BuyerProductRequests';
 import Wishlist from '../screens/Wishlist';
 import AdminPanel from '../screens/AdminPanel';
 import AdminRoute from './AdminRoute';
+import BuyerQuestions from '../screens/BuyerQuestions';
+import SellerQuestions from '../screens/SellerQuestions';
+import FeatureRequest from '../screens/FeatureRequest';
 
 import PrivateRoute from './PrivateRoute'; // Adjust the import path as necessary
 import PublicRoute from './PublicRoute';
 import { Outlet } from 'react-router-dom';
 import About from '../screens/About';
 import AboutMotive from '../screens/AboutMotive';
+import NotFound from '../screens/NotFound';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -40,6 +44,7 @@ const router = createBrowserRouter([
       { path: 'student-profile', element: <PrivateRoute><Studentprofile /></PrivateRoute> },
       { path: 'about', element: <About /> },
       { path: 'aboutMotive', element: <AboutMotive /> },
+      { path: 'feature-request', element: <PrivateRoute><FeatureRequest /></PrivateRoute> },
     ],
   },
   { 
@@ -50,6 +55,7 @@ const router = createBrowserRouter([
       { path: 'products/:productid', element: <ProductView /> },
       { path: 'product-requests', element: <BuyerProductRequests /> },
       { path: 'wishlist', element: <Wishlist /> },
+      { path: 'questions', element: <BuyerQuestions /> },
     ]
   },
   {
@@ -61,12 +67,14 @@ const router = createBrowserRouter([
       { path: 'add-product', element: <AddProduct /> },
       { path: 'view-product', element: <SellerViewProducts /> },
       { path: 'product-requests', element: <SellerProductRequests /> },
+      { path: 'questions', element: <SellerQuestions /> },
     ]
   }
   ,{
     path: '/admin',
     element: <PrivateRoute><AdminRoute><AdminPanel /></AdminRoute></PrivateRoute>
-  }
+  },
+  { path: '*', element: <NotFound /> }
 ]);
 
 export default router;

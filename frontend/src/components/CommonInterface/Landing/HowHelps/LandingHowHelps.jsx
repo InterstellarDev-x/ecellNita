@@ -10,7 +10,7 @@ function LandingHowHelps() {
     const navigate = useNavigate();
   return (
     <div className='landing-how-helps'>
-        <h4>How recyCool helps you</h4>
+        <h4>How Campus Recycle helps you</h4>
         <div className="landing-how-helps-cards">
             <div className="card">
                 <div>
@@ -30,15 +30,15 @@ function LandingHowHelps() {
                 <div>
                     <img src={Resume} alt="" />
                 </div>
-                <div>Verified Products</div>
-                <p>Get hands-on verified product directly during buying. You can check the quality of the product by yourself.</p>
+                <div>Inspect Before Completing</div>
+                <p>Meet at an approved campus location, inspect the item yourself, and complete the exchange only when you are satisfied.</p>
             </div>
             <div className="card">
                 <div>
                     <img src={EasyMoney} alt="" />
                 </div>
-                <div>Cheap Price</div>
-                <p>Get best usable products at cheapest rates possible! Bargain, negotiate, it's all our colege family.</p>
+                <div>Student-Friendly Prices</div>
+                <p>Find useful second-hand products at prices set by fellow students, with room to discuss details before meeting.</p>
             </div>
         </div>
         <div>

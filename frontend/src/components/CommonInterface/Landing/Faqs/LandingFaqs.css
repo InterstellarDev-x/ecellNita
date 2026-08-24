@@ -22,6 +22,12 @@
 }
 
 .question {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
     font-size: 15px;
     font-weight: 500;
     display: flex;

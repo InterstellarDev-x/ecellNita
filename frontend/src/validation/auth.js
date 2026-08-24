@@ -40,3 +40,8 @@ export const signupDetailsSchema = withMatchingPasswords(signupFields);
 export const signupSchema = withMatchingPasswords(signupFields.extend({
   otp: z.string().regex(/^\d{6}$/, "OTP must be a 6-digit number"),
 }));
+
+export const resetPasswordSchema = withMatchingPasswords(z.object({
+  password: passwordSchema,
+  confirmpassword: z.string(),
+}));

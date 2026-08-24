@@ -9,12 +9,16 @@ const read = (response, message) => {
   return response.data.data;
 };
 
-export const adminQueryKeys = {
+const adminQueryKeys = {
   dashboard: ["admin-dashboard"],
   products: ["admin-products"],
   users: ["admin-users"],
   submissions: ["admin-submissions"],
   settings: ["admin-review-settings"],
+  meetingLocations: ["admin-meeting-locations"],
+  contentReports: ["admin-content-reports"],
+  productReports: ["admin-product-reports"],
+  featureRequests: ["admin-feature-requests"],
 };
 
 const queryOptions = (queryKey, url, message, enabled = true, staleTime = 60 * 1000) => ({
@@ -28,7 +32,11 @@ export const useAdminDashboard = (enabled) => useQuery(queryOptions(adminQueryKe
 export const useAdminProducts = (enabled) => useQuery(queryOptions(adminQueryKeys.products, authroutes.ADMIN_PRODUCTS, "Could not load listings.", enabled));
 export const useAdminUsers = (enabled) => useQuery(queryOptions(adminQueryKeys.users, authroutes.ADMIN_USERS, "Could not load people.", enabled));
 export const useAdminSubmissions = (enabled) => useQuery(queryOptions(adminQueryKeys.submissions, authroutes.ADMIN_SUBMISSIONS, "Could not load submissions.", enabled));
-export const useAdminSettings = () => useQuery(queryOptions(adminQueryKeys.settings, authroutes.ADMIN_SETTINGS, "Could not load review settings.", true, 5 * 60 * 1000));
+export const useAdminSettings = (enabled = true) => useQuery(queryOptions(adminQueryKeys.settings, authroutes.ADMIN_SETTINGS, "Could not load review settings.", enabled, 5 * 60 * 1000));
+export const useAdminMeetingLocations = (enabled) => useQuery(queryOptions(adminQueryKeys.meetingLocations, authroutes.ADMIN_MEETING_LOCATIONS, "Could not load meeting locations.", enabled));
+export const useAdminContentReports = (enabled) => useQuery(queryOptions(adminQueryKeys.contentReports, authroutes.ADMIN_CONTENT_REPORTS, "Could not load content reports.", enabled));
+export const useAdminProductReports = (enabled) => useQuery(queryOptions(adminQueryKeys.productReports, authroutes.ADMIN_PRODUCT_REPORTS, "Could not load product reports.", enabled));
+export const useAdminFeatureRequests = (enabled) => useQuery(queryOptions(adminQueryKeys.featureRequests, authroutes.ADMIN_FEATURE_REQUESTS, "Could not load feature requests.", enabled));
 
 export function useUpdateAdminSettings() {
   const queryClient = useQueryClient();
@@ -64,6 +72,46 @@ export function useUpdateAdminUserStatus() {
       queryClient.setQueryData(adminQueryKeys.users, (users = []) => users.map((user) => (
         user._id === userId ? { ...user, accountStatus } : user
       )));
+    },
+  });
+}
+
+export function useSaveMeetingLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ locationId, values }) => read(await apiConnector(locationId ? "PATCH" : "POST", locationId ? `${authroutes.ADMIN_MEETING_LOCATIONS}/${locationId}` : authroutes.ADMIN_MEETING_LOCATIONS, values, headers()), "Could not save meeting location."),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminQueryKeys.meetingLocations }),
+  });
+}
+
+export function useDeactivateMeetingLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (locationId) => read(await apiConnector("DELETE", `${authroutes.ADMIN_MEETING_LOCATIONS}/${locationId}`, null, headers()), "Could not deactivate meeting location."),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminQueryKeys.meetingLocations }),
+  });
+}
+
+export function useReviewContentReport() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ reportId, resolution }) => read(await apiConnector("POST", `${authroutes.ADMIN_CONTENT_REPORTS}/${reportId}/review`, { resolution }, headers()), "Could not review report."),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminQueryKeys.contentReports }),
+  });
+}
+
+export function useReviewProductReport() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ reportId, resolution, hideProduct = false }) => read(
+      await apiConnector("POST", `${authroutes.ADMIN_PRODUCT_REPORTS}/${reportId}/review`, { resolution, hideProduct }, headers()),
+      "Could not review product report."
+    ),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.productReports }),
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.products }),
+      ]);
     },
   });
 }

@@ -1,6 +1,8 @@
 const logger=require("../utils/logger");
+const mongoose=require("mongoose");
 const Category = require("../models/Category");
 const Product = require("../models/Product");
+const ListingSubmission = require("../models/ListingSubmission");
 
 const User=require("../models/User");
 const {cloudinaryuploader}=require("../utils/cloudinaryuploader");
@@ -11,16 +13,26 @@ const {
 
 require("dotenv").config()
 
+const marketplaceProduct = (product) => ({
+    ...product,
+    owner: product.owner ? { _id: product.owner._id || product.owner } : null,
+});
+
 exports.createproduct=async (req,res)=>{
     try{
         const {id}=req.user;
         const imagearr=req.files?.images || req.files?.['images[]'];
-        const {productname,productdescription,price,status,quantity,categoryid}=req.body;
-        if(!id || !productname || !productdescription || !price || !status || !quantity || !categoryid){
+        const {productname,productdescription,price,quantity,categoryid}=req.body;
+        const numericPrice=Number(price);
+        const numericQuantity=Number(quantity);
+        if(!id || typeof productname!=="string" || !productname.trim() || typeof productdescription!=="string" || !productdescription.trim() || !mongoose.Types.ObjectId.isValid(categoryid)){
             return res.status(400).json({
                 success:false,
                 message:"All fields are required"
             })
+        }
+        if(!Number.isFinite(numericPrice) || numericPrice<1 || !Number.isInteger(numericQuantity) || numericQuantity<1){
+            return res.status(400).json({success:false,message:"Price and quantity must be positive"});
         }
         if(!imagearr){
             return res.status(400).json({
@@ -40,7 +52,7 @@ exports.createproduct=async (req,res)=>{
         const category = await Category.findById(categoryid);
         if (!category) return res.status(400).json({ success: false, message: "Category not found" });
 
-        const listing = { productname: productname.trim(), productdescription: productdescription.trim(), price: Number(price), status, quantity: Number(quantity), category: categoryid };
+        const listing = { productname: productname.trim(), productdescription: productdescription.trim(), price: numericPrice, status: "Forsale", quantity: numericQuantity, category: categoryid };
         const configuration = await getReviewConfiguration();
         let response;
         if (configuration.mode === "no_review") {
@@ -82,14 +94,14 @@ exports.updateproduct=async (req,res)=>{
     try{
     
         
-        const {id,email}=req.user;
+        const {id}=req.user;
         
         const {productid,productname,productdescription,price,status,quantity}=req.body;
 
         logger.debug("updateproduct body: %o", req.body)
 
-        if(!productid){
-            return res.json({
+        if(!mongoose.Types.ObjectId.isValid(productid)){
+            return res.status(400).json({
                 success:false,
                 message:"Product id is required"
             })
@@ -111,11 +123,23 @@ exports.updateproduct=async (req,res)=>{
         }
 
         const updateData={};
-        if(productname!==undefined) updateData.productname=productname;
-        if(productdescription!==undefined) updateData.productdescription=productdescription;
-        if(price!==undefined) updateData.price=price;
+        if(productname!==undefined) updateData.productname=String(productname).trim();
+        if(productdescription!==undefined) updateData.productdescription=String(productdescription).trim();
+        if(price!==undefined) updateData.price=Number(price);
         if(status!==undefined) updateData.status=status;
-        if(quantity!==undefined) updateData.quantity=quantity;
+        if(quantity!==undefined) updateData.quantity=Number(quantity);
+        if((updateData.productname!==undefined && !updateData.productname) || (updateData.productdescription!==undefined && !updateData.productdescription)){
+            return res.status(400).json({success:false,message:"Product name and description cannot be empty"});
+        }
+        if(updateData.price!==undefined && (!Number.isFinite(updateData.price) || updateData.price<1)){
+            return res.status(400).json({success:false,message:"Price must be at least 1"});
+        }
+        if(updateData.quantity!==undefined && (!Number.isInteger(updateData.quantity) || updateData.quantity<1)){
+            return res.status(400).json({success:false,message:"Quantity must be a whole number of at least 1"});
+        }
+        if(updateData.status!==undefined && !["Forsale","Sold","Purchased"].includes(updateData.status)){
+            return res.status(400).json({success:false,message:"Invalid product status"});
+        }
 
         const imagearr = req.files?.['images[]'] || req.files?.images;
         const files = imagearr ? normaliseFiles(imagearr) : [];
@@ -164,7 +188,7 @@ exports.updateproduct=async (req,res)=>{
 
     
 
-    const respones =     await Product.findByIdAndUpdate( productid , updateData,{new:true}
+    const respones =     await Product.findByIdAndUpdate( productid , updateData,{new:true,runValidators:true}
         )
 
 
@@ -195,10 +219,10 @@ catch(err){
 exports.deleteproduct=async (req,res)=>{
     try{
         
-        const {id,email}=req.user;
+        const {id}=req.user;
         const {productid}=req.body;
-        if(!productid){
-            return res.json({
+        if(!mongoose.Types.ObjectId.isValid(productid)){
+            return res.status(400).json({
                 success:false,
                 message:"Product id is required"
             })
@@ -219,6 +243,12 @@ exports.deleteproduct=async (req,res)=>{
             })
         }
 
+        const pendingSubmissions=await ListingSubmission.find({product:productid,state:"pending_human_review"});
+        if(pendingSubmissions.length){
+            const {destroyStagedAssets}=require("../services/listingReview");
+            await Promise.all(pendingSubmissions.map((submission)=>destroyStagedAssets(submission.stagedAssets)));
+            await ListingSubmission.deleteMany({_id:{$in:pendingSubmissions.map((submission)=>submission._id)}});
+        }
         const prodel=await Product.findByIdAndDelete(productid);
         await User.findByIdAndUpdate(id,
             {$pull:{products:productid}}
@@ -256,7 +286,11 @@ exports.getproductsviacategory=async (req,res)=>{
             })
         }
 
-        const products=await Category.findById(categoryid).populate("products");
+        const products=await Category.findById(categoryid).populate({
+            path:"products",
+            match:{publicationStatus:"published",status:"Forsale",quantity:{$gt:0}},
+            select:"productname productdescription price images status quantity createdat owner category",
+        });
         if(!products){
             return res.json({
                 success:false,
@@ -290,9 +324,17 @@ exports.getproductpagedetails=async (req,res)=>{
             })
         }
 
-        const productpage=await Product.findById(productid)
+        if(!mongoose.Types.ObjectId.isValid(productid)){
+            return res.status(400).json({success:false,message:"A valid product id is required"});
+        }
+        const productpage=await Product.findOne({
+            _id:productid,
+            $or:[
+                {publicationStatus:"published",status:"Forsale",quantity:{$gt:0}},
+                {owner:req.user.id},
+            ],
+        })
             .populate("category","name")
-            .populate("owner","firstname lastname email image")
             .lean();
         if(!productpage){
             return res.json({
@@ -303,7 +345,7 @@ exports.getproductpagedetails=async (req,res)=>{
         res.json({
             success:true,
             message:"Product details fetched successfully",
-            data:productpage
+            data:marketplaceProduct(productpage)
         })
     }
     catch(err){
@@ -317,16 +359,15 @@ exports.getproductpagedetails=async (req,res)=>{
 exports.getallproduct=async (req,res)=>{
     try{
         const products=await Product.find(
-            {},
+            {publicationStatus:"published",status:"Forsale",quantity:{$gt:0}},
             "productname productdescription price images status quantity createdat owner category"
         )
-        .populate("owner","firstname lastname email image")
         .populate("category","name")
         .lean();
         res.json({
             success:true,
             message:"All Products fetched successfully",
-            data:products
+            data:products.map(marketplaceProduct)
         })
     }
     catch(err){
@@ -334,5 +375,44 @@ exports.getallproduct=async (req,res)=>{
             success:false,
             message:err.message
         })
+    }
+}
+
+exports.getmyproducts=async (req,res)=>{
+    try{
+        const [products,pendingSubmissions]=await Promise.all([
+            Product.find({owner:req.user.id})
+                .populate("category","name")
+                .sort({createdat:-1})
+                .lean(),
+            ListingSubmission.find({seller:req.user.id,state:"pending_human_review"})
+                .select("product operation listing state reviewMode createdAt")
+                .sort({createdAt:-1})
+                .lean(),
+        ]);
+        return res.json({
+            success:true,
+            message:"Seller inventory fetched successfully",
+            data:{products,pendingSubmissions},
+        });
+    }catch(err){
+        logger.error("Could not load seller inventory: %s",err.message);
+        return res.status(500).json({success:false,message:"Could not load your products"});
+    }
+}
+
+exports.getmarketplacestats=async (_req,res)=>{
+    try{
+        const Ratingandreviews=require("../models/Ratingandreviews");
+        const [members,products,reviews,categories]=await Promise.all([
+            User.countDocuments({accountStatus:"active"}),
+            Product.countDocuments({publicationStatus:"published",status:"Forsale",quantity:{$gt:0}}),
+            Ratingandreviews.countDocuments(),
+            Category.countDocuments(),
+        ]);
+        return res.json({success:true,data:{members,products,reviews,categories}});
+    }catch(err){
+        logger.error("Could not load marketplace stats: %s",err.message);
+        return res.status(500).json({success:false,message:"Could not load marketplace statistics"});
     }
 }

@@ -13,10 +13,10 @@ function FaqBlocks(props) {
   }
   return (
     <div className="faq-blocks">
-        <div className="question" onClick={toggleAnswerView}>
+        <button type="button" className="question" onClick={toggleAnswerView} aria-expanded={showAns}>
             {props.question}
             <ChevronRight className={`${showAns ? 'rotate-90' : ''}`} style={{cursor: "pointer"}}/>
-        </div>
+        </button>
         {
             showAns &&
             <div className="answer">

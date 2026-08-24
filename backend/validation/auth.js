@@ -48,6 +48,12 @@ const signupSchema = withMatchingPasswords(signupFields.extend({
 
 const sendOtpSchema = z.object({ email: emailSchema });
 
+const resetPasswordSchema = withMatchingPasswords(z.object({
+    password: passwordSchema,
+    confirmpassword: z.string(),
+    token: z.string().uuid("Invalid reset token"),
+}));
+
 const getValidationErrors = (error) => error.flatten().fieldErrors;
 
-module.exports = { signupSchema, sendOtpSchema, getValidationErrors };
+module.exports = { signupSchema, sendOtpSchema, resetPasswordSchema, getValidationErrors };

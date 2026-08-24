@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   background-color: #f5f7fa;
-  font-family: 'Noto Sans', sans-serif;
+  font-family: var(--font-sans);
   padding: 24px 16px;
   box-sizing: border-box;
 }
@@ -141,11 +141,21 @@
   padding-right: 44px;
 }
 
-.update-pass-password-div svg {
+.update-pass-password-div button {
   position: absolute;
   right: 12px;
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
   cursor: pointer;
   color: #888;
+  box-shadow: none;
+}
+
+.update-pass-password-div button:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .update-pass-success-msg span {

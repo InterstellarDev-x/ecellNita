@@ -12,6 +12,7 @@
 }
 
 .seller-top-navbar-brand { display: none; }
+.seller-top-navbar-actions { display: flex; align-items: center; gap: 14px; }
 
 .seller-top-navbar-brand img {
     height: 27px;

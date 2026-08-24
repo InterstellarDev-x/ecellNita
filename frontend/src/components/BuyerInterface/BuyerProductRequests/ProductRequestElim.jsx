@@ -4,6 +4,8 @@ import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { useDeleteRequestSchedule, useRequestSchedule } from "../../../hooks/useBuyerQueries";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
@@ -26,6 +28,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
 
   const { data: scheduleData } = useRequestSchedule(request?._id);
   const deleteSchedule = useDeleteRequestSchedule();
+  const queryClient = useQueryClient();
   const isScheduled = Boolean(scheduleData);
   const isLoading = deleteSchedule.isPending;
   const requestedOn = new Intl.DateTimeFormat("en-IN", {
@@ -41,11 +44,12 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const otpTabCloseBtn = useRef(null);
 
   function handleChange(value, index) {
+    const digit = String(value).replace(/\D/g, "").slice(-1);
     let newArr = [...otp];
-    newArr[index] = value;
+    newArr[index] = digit;
     setOtp(newArr);
 
-    if (value && index < 6 - 1) {
+    if (digit && index < 6 - 1) {
       otpBoxReference.current[index + 1].focus();
     }
   }
@@ -77,8 +81,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         "Content-Type": "multipart/form-data",
       };
       const bodyData = {
-        buyermail: request.buyer.email,
-        productid: request.product._id,
+        requestid: request._id,
         otp: otp.join('')
       };
       
@@ -89,20 +92,51 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         api_header
       );
       if (response.data.success) {
-        handleDeleteProductRequest(request._id);
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["buyer-requests"] }),
+          queryClient.invalidateQueries({ queryKey: ["marketplace-products"] }),
+          queryClient.invalidateQueries({ queryKey: ["marketplace-product", request.product._id] }),
+        ]);
+        toast.success("Transaction completed successfully");
         otpTabCloseBtn.current.click();
+        setOtp(new Array(6).fill(""));
+        setOtpError(null);
       }else{
-        setOtpError("Wrong OTP! Please enter the correct one");
+        setOtpError(response.data.message || "Could not verify this OTP");
       }
     } catch (error) {
-      console.error(error);
+      setOtpError(error?.response?.data?.message || "Could not verify this OTP");
     }
   };
 
   const [reportBody, setReportBody] = useState("");
-  const submitProductReport = () => {
-    if (!reportBody.trim()) return;
-    alert("Report submission is not available yet.");
+  const [reportReason, setReportReason] = useState("");
+  const [reportError, setReportError] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
+  const reportTabCloseBtn = useRef(null);
+  const submitProductReport = async () => {
+    if (!hasProduct || !reportReason || reportBody.trim().length < 10) {
+      setReportError("Select a reason and provide at least 10 characters of detail.");
+      return;
+    }
+    setIsReporting(true);
+    setReportError("");
+    try {
+      const response = await apiConnector("POST", authroutes.PRODUCT_REPORTS, {
+        productid: request.product._id,
+        reason: reportReason,
+        details: reportBody.trim(),
+      }, { Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}` });
+      if (!response.data.success) throw new Error(response.data.message);
+      toast.success("Report submitted for review");
+      setReportBody("");
+      setReportReason("");
+      reportTabCloseBtn.current?.click();
+    } catch (error) {
+      setReportError(error?.response?.data?.message || error.message || "Could not submit the report.");
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   return (
@@ -120,7 +154,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
           </div>
         </div>
         <div className="requested-product-item-status">
-          <p><UserRound size={15} /><span><b>Seller</b>{request.seller?.firstname} {request.seller?.lastname}<small>{request.seller?.email}</small></span></p>
+          <p><UserRound size={15} /><span><b>Seller</b>{isScheduled ? `${request.seller?.firstname || "Seller"} ${request.seller?.lastname || ""}` : "Seller"}<small>{isScheduled ? request.seller?.email : "Identity is shared after a meeting is scheduled."}</small></span></p>
           <p><CalendarDays size={15} /><span><b>Requested</b>{requestedOn}</span></p>
         </div>
         <div className="requested-product-item-btns">
@@ -148,6 +182,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
           {hasProduct && isScheduled && (
             <button
               className="delete-btn"
+              aria-label={`Report ${request.product.productname}`}
               data-bs-toggle="modal"
               data-bs-target={`#schedule_data_report_product_modal-${request._id}`}
             >
@@ -233,12 +268,12 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
                     <div>
                       <b>Name </b>
                       <p>
-                        {request.seller.firstname + request.seller.lastname}{" "}
+                        {(request.seller?.firstname || "Seller") + " " + (request.seller?.lastname || "")}
                       </p>
                     </div>
                     <div>
                       <b>Email </b>
-                      <p>{request.seller.email} </p>
+                      <p>{request.seller?.email || "Available after a meeting is scheduled"} </p>
                     </div>
                     <div>
                       <b>Requested on </b>
@@ -251,7 +286,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
                   <div className="schedule-data-view-component-content">
                     <div>
                       <b>Venue </b>
-                      <p>{scheduleData && scheduleData.venue} </p>
+                      <p>{scheduleData?.locationSnapshot?.name || scheduleData?.venue} {scheduleData?.locationSnapshot?.address ? `· ${scheduleData.locationSnapshot.address}` : ""}</p>
                     </div>
                     <div>
                       <b>Date </b>
@@ -318,7 +353,10 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
                       (otpBoxReference.current[index] = reference)
                     }
                     className="otp-input"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    aria-label={`OTP digit ${index + 1}`}
                   />
                 ))}
                 {/* {otp.map((digit, index) => (
@@ -335,7 +373,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
                 {otpError}
               </div>
               <div className="complete-transaction-footer">
-                <button onClick={submitCompleteOTP}>Submit</button>
+                <button onClick={submitCompleteOTP} disabled={otp.some((digit) => !digit)}>Submit</button>
               </div>
             </div>
           </div>
@@ -361,21 +399,40 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
+                ref={reportTabCloseBtn}
               ></button>
             </div>
             <div className="modal-body">
               <div className="report-container">
+                <label htmlFor={`product-report-reason-${request._id}`}>Reason</label>
+                <select
+                  id={`product-report-reason-${request._id}`}
+                  value={reportReason}
+                  onChange={(e) => { setReportReason(e.target.value); setReportError(""); }}
+                >
+                  <option value="">Select a reason</option>
+                  <option value="misleading">Misleading listing</option>
+                  <option value="prohibited">Prohibited item</option>
+                  <option value="condition">Condition differs from listing</option>
+                  <option value="safety">Safety concern</option>
+                  <option value="other">Other</option>
+                </select>
+                <label htmlFor={`product-report-${request._id}`}>Details</label>
                 <textarea
                   name="product-report"
-                  id="product-report"
+                  id={`product-report-${request._id}`}
                   rows={5}
                   cols={55}
+                  minLength={10}
+                  maxLength={1000}
                   value={reportBody}
-                  onChange={(e) => setReportBody(e.target.value)}
+                  onChange={(e) => { setReportBody(e.target.value); setReportError(""); }}
+                  placeholder="Explain what is wrong with this listing…"
                 ></textarea>
+                {reportError && <p role="alert">{reportError}</p>}
               </div>
               <div className="complete-transaction-footer">
-                <button onClick={submitProductReport}>Report</button>
+                <button onClick={submitProductReport} disabled={isReporting}>{isReporting ? "Submitting…" : "Report"}</button>
               </div>
             </div>
           </div>

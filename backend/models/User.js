@@ -21,6 +21,7 @@ const userschema=new mongoose.Schema({
     hashedpassword:{
         type:String,
         required:true,
+        select:false,
     },
     accounttype:{
         type:String,
@@ -46,9 +47,11 @@ const userschema=new mongoose.Schema({
         type:String,
         index:true,
         sparse:true,
+        select:false,
     },
     forgotpasswordlinkexpires:{
         type:Date,
+        select:false,
     },
     image:{
         type:String,

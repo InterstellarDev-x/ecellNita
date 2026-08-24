@@ -28,7 +28,7 @@ function AccessAccount() {
                 <div className="landing-navbar-right">
                     <div className='landing-navbar-right-btn-sec'>
                         <button className='landing-navbar-right-btn-login' onClick={() => navigate('/')}>Home</button>
-                        <button className='landing-navbar-right-btn-signup' onClick={() => navigate('/getstarted')}>Sign Up</button>
+                        <button className='landing-navbar-right-btn-signup' onClick={() => navigate('/student-signup')}>Sign Up</button>
                     </div>
                     <Menu className='landing-navbar-right-hammenu' size={30} onClick={toggleShowNav} />
                 </div>
@@ -42,7 +42,7 @@ function AccessAccount() {
                         </div>
                         <div className="landing-hamberger-menu-btns">
                             <button className='landing-hamberger-menu-btn-login' onClick={() => navigate('/')}>Home</button>
-                            <button className='landing-hamberger-menu-btn-signup' onClick={() => navigate('/getstarted')}>Sign Up</button>
+                            <button className='landing-hamberger-menu-btn-signup' onClick={() => navigate('/student-signup')}>Sign Up</button>
                         </div>
                     </div>
                 )}

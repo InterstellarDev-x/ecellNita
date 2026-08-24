@@ -8,8 +8,9 @@ const otpgenerator=require("otp-generator");
 const {signuptemplate}=require("../mailtemplates/Signup")
 const {forgotpasswordtemplate}=require("../mailtemplates/ForgotpasswordLink");
 const {mailsender}=require("../utils/SendMail");
+const {sendEmailWithRetry}=require("../utils/EmailQueue");
 const logger=require("../utils/logger");
-const { signupSchema, sendOtpSchema, getValidationErrors } = require("../validation/auth");
+const { signupSchema, sendOtpSchema, resetPasswordSchema, getValidationErrors } = require("../validation/auth");
 require("dotenv").config();
 
 
@@ -36,23 +37,13 @@ exports.sendotp=async (req,res)=>{
             lowerCaseAlphabets:false,
             specialChars:false,
         })
-        let checkotp=await Otp.findOne({otp});
-        while(checkotp){
-            otp=otpgenerator.generate(6,{
-                upperCaseAlphabets:false,
-                lowerCaseAlphabets:false,
-                specialChars:false,
-            })
-            checkotp=await Otp.findOne({otp});
-        }
-
-        // Create OTP entry in database first
-        const otpdata = await Otp.create({email, otp});
+        const otpHash=await bcrypt.hash(otp,10);
+        await Otp.deleteMany({email});
+        await Otp.create({email,otpHash,failedAttempts:0,expiresAt:new Date(Date.now()+5*60*1000)});
         
         // Send email asynchronously using queue system for better reliability
         setImmediate(async () => {
             try {
-                const {sendEmailWithRetry} = require("../utils/EmailQueue");
                 const {otptemplate} = require("../mailtemplates/VerificationOtp");
                 
                 logger.info("Adding OTP email to queue for: %s", email);
@@ -103,12 +94,20 @@ exports.signup=async (req,res)=>{
                 message:"Password and ConfirmPassword are not Same",
             })
         }
-        const latestotp=await Otp.find({email}).sort({cretedat:"desc"}).limit(1);
-        logger.debug("latest OTP record: %o", latestotp);
-        if(!latestotp.length || latestotp[0].otp!==otp){
-            return res.json({
+        const latestotp=await Otp.findOne({email}).sort({createdAt:-1}).select("+otpHash");
+        if(!latestotp || latestotp.expiresAt<=new Date()){
+            return res.status(410).json({success:false,message:"OTP expired. Request a new code"});
+        }
+        if(latestotp.failedAttempts>=5){
+            return res.status(429).json({success:false,message:"Too many incorrect attempts. Request a new code"});
+        }
+        const validOtp=await bcrypt.compare(otp,latestotp.otpHash);
+        if(!validOtp){
+            latestotp.failedAttempts+=1;
+            await latestotp.save();
+            return res.status(400).json({
                 success:false,
-                message:"OTP Not Found"
+                message:"Incorrect OTP"
             })
         }
         logger.info("OTP verified for signup");
@@ -122,21 +121,33 @@ exports.signup=async (req,res)=>{
             graduationyr:null
         })
 
-        const userdata=await User.create({
-            firstname,
-            lastname,
-            accounttype,
-            email,
-            hashedpassword,
-            image:`https://api.dicebear.com/5.x/initials/svg?seed=${firstname} ${lastname}`,
-            additionaldetails:profiledetails._id,
-
-        })
-        const mailresposne=await mailsender(email,"Signup Successfull",signuptemplate(accounttype));
+        let userdata;
+        try{
+            userdata=await User.create({
+                firstname,
+                lastname,
+                accounttype,
+                email,
+                hashedpassword,
+                image:`https://api.dicebear.com/5.x/initials/svg?seed=${encodeURIComponent(`${firstname} ${lastname}`)}`,
+                additionaldetails:profiledetails._id,
+            });
+        }catch(createError){
+            await Profile.findByIdAndDelete(profiledetails._id);
+            throw createError;
+        }
+        await Otp.deleteMany({email});
+        sendEmailWithRetry(email,"Signup Successful",signuptemplate(accounttype)).catch((mailError)=>{
+            logger.error("Could not queue signup email: %s",mailError.message);
+        });
+        const safeUser=userdata.toObject();
+        delete safeUser.hashedpassword;
+        delete safeUser.forgotpasswordlink;
+        delete safeUser.forgotpasswordlinkexpires;
         res.json({
             success:true,
             message:"User Created Successfully",
-            data:userdata,
+            data:safeUser,
         })
 
 
@@ -144,9 +155,16 @@ exports.signup=async (req,res)=>{
 
     }
     catch(err){
-        return res.json({
+        logger.error("Signup failed: %s",err.message);
+        if(err?.code===11000){
+            return res.status(409).json({
+                success:false,
+                message:"An account with this email already exists",
+            });
+        }
+        return res.status(500).json({
             success:false,
-            message:err.message,
+            message:"Could not create the account. Please try again",
         })
     }
 }
@@ -161,13 +179,17 @@ exports.login=async (req,res)=>{
                 message:"Email and password are required"
             })
         }
-        const user=await User.findOne({email}).populate("additionaldetails").exec();
+        const normalizedEmail=String(email).trim().toLowerCase();
+        const user=await User.findOne({email:normalizedEmail}).select("+hashedpassword").populate("additionaldetails").exec();
 
         if(!user){
             return res.json({
                 success:false,
                 message:"User Not Registered"
             })
+        }
+        if(user.accountStatus && user.accountStatus!=="active"){
+            return res.status(403).json({success:false,message:"This account is not permitted to sign in"});
         }
         //match the password and make the jwt token and send trouhgn cookie.
         if(await bcrypt.compare(password,user.hashedpassword)){
@@ -181,10 +203,6 @@ exports.login=async (req,res)=>{
                 expiresIn:"2h",
             })
 
-            const options={
-                expires:new Date(Date.now()+3*24*60*60*1000),
-                httpOnly:true,
-            }
             user.hashedpassword=undefined;
             user.forgotpasswordlink=undefined;
             user.forgotpasswordlinkexpires=undefined;
@@ -222,21 +240,20 @@ exports.forgotpasswordtoken=async (req,res)=>{
         })
     }
 
-    const user=await User.findOne({email});
+    const normalizedEmail=String(email).trim().toLowerCase();
+    const user=await User.findOne({email:normalizedEmail});
 
     if(!user){
-        return res.json({
-            success:false,
-            message:"User not Found with given email",
-        })
+        return res.json({success:true,message:"If an account exists, a reset link has been sent"});
     }
     const token=crypto.randomUUID();    
-    await User.findOneAndUpdate({email},{
+    await User.findOneAndUpdate({email:normalizedEmail},{
         forgotpasswordlink:token,
         forgotpasswordlinkexpires:Date.now()+5*60*1000,
     })
-    const link=`${process.env.HOST}/updatepassword/${token}`   // frontend link.
-    const mailresposne=await mailsender(email,"Forgot Password Email",forgotpasswordtemplate(email,link));
+    const frontendHost=(process.env.HOST || "http://localhost:3000").split(",")[0].trim().replace(/\/$/,"");
+    const link=`${frontendHost}/updatepassword/${token}`;
+    await mailsender(normalizedEmail,"Forgot Password Email",forgotpasswordtemplate(normalizedEmail,link));
 
     res.json({
         success:true,
@@ -257,32 +274,26 @@ exports.forgotpasswordtoken=async (req,res)=>{
 
 exports.forgotpassword=async (req,res)=>{
     try{
-
-        const {password,confirmpassword,token}=req.body;
-        if(!password || !confirmpassword || !token){
+        const validation=resetPasswordSchema.safeParse(req.body);
+        if(!validation.success){
             return res.status(400).json({
                 success:false,
-                message:"Password, confirm password, and token are required",
+                message:"Please correct the highlighted fields",
+                errors:getValidationErrors(validation.error),
             })
         }
+        const {password,token}=validation.data;
 
-        if(password!==confirmpassword){
-            return res.json({
-                success:false,
-                message:"Password and ConfirmPassword are not Same",
-            })
-        }
-
-        const userdetails=await User.findOne({forgotpasswordlink:token});
+        const userdetails=await User.findOne({forgotpasswordlink:token}).select("+forgotpasswordlink +forgotpasswordlinkexpires");
         if(!userdetails){
-            return res.json({
+            return res.status(400).json({
                 success:false,
                 message:"Invalid Token",
             })
         }
 
         if(userdetails.forgotpasswordlinkexpires<Date.now()){
-            return res.json({
+            return res.status(410).json({
                 success:false,
                 message:"Token expires generate new token",
             })

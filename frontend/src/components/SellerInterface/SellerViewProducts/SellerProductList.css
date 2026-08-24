@@ -67,6 +67,43 @@
   font-weight: 700;
 }
 
+.seller-pending-reviews {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.8fr);
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #f4d58d;
+  border-radius: 16px;
+  background: #fffaf0;
+  color: #7a4d00;
+}
+
+.seller-pending-reviews > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seller-pending-reviews span {
+  font-size: 13px;
+}
+
+.seller-pending-reviews ul {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.seller-pending-reviews li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
 .seller-products-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -347,6 +384,16 @@
   background: #fff0f0;
   color: #b42318;
   border: 1px solid #ffc7c7;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.edit-product-success {
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #ecfdf3;
+  color: #067647;
+  border: 1px solid #abefc6;
   font-weight: 800;
   margin-bottom: 14px;
 }

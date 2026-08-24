@@ -7,16 +7,21 @@ const otpschema=new mongoose.Schema({
         type:String,
         index:true,
     },
-    otp:{
+    otpHash:{
         type:String,
-        index:true,
+        required:true,
+        select:false,
     },
-    cretedat:{
+    failedAttempts:{
+        type:Number,
+        default:0,
+    },
+    expiresAt:{
         type:Date,
-        default:Date.now,
-        expires:5*60,
+        default:()=>new Date(Date.now()+5*60*1000),
+        expires:0,
     },
-})
+},{timestamps:true})
 
 
 module.exports=mongoose.model("Otp",otpschema);

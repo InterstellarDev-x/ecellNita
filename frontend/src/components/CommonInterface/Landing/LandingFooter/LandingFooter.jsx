@@ -11,7 +11,7 @@ function LandingFooter() {
                 Contact | E-CELL NITA
             </div>
             <div className='landing-footer-content-copyright'>
-                Copyright 2024 Campus Recycle - All rights reserved
+                Copyright {new Date().getFullYear()} Campus Recycle - All rights reserved
             </div>
         </div>
         <div className='landing-footer-social-media'>
@@ -24,7 +24,7 @@ function LandingFooter() {
             <a href="https://www.facebook.com/ecellnita/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                 <Facebook className='landing-page-footer-bg' size={40}/>
             </a>
-            <a href="https://x.com/nitaecell" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+            <a href="https://x.com/nitaecell" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
                 <X className='landing-page-footer-bg' size={40}/>
             </a>
         </div>

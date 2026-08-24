@@ -8,7 +8,6 @@ import {
   Package,
   PackagePlus,
   ShoppingCart,
-  Sparkles,
   UserRound,
 } from "lucide-react";
 import "./SellerOverview.css";
@@ -60,32 +59,12 @@ function SellerOverview() {
           "Content-Type": "multipart/form-data",
         };
 
-        const productIds = user?.products || [];
-        const productResults = productIds.length
-          ? await Promise.allSettled(
-              productIds.map((productId) =>
-                apiConnector(
-                  "POST",
-                  authroutes.GET_PRODUCT_DETAILS,
-                  { productid: productId },
-                  apiHeader
-                )
-              )
-            )
-          : [];
+        const [productResponse, requestResponse] = await Promise.all([
+          apiConnector("GET", authroutes.GET_MY_PRODUCTS, null, apiHeader),
+          apiConnector("POST", authroutes.GET_ALL_PRODUCT_REQUESTS, {}, apiHeader),
+        ]);
 
-        const sellerProducts = productResults
-          .filter((result) => result.status === "fulfilled" && result.value.data.success && result.value.data.data)
-          .map((result) => result.value.data.data);
-
-        const requestResponse = await apiConnector(
-          "POST",
-          authroutes.GET_ALL_PRODUCT_REQUESTS,
-          {},
-          apiHeader
-        );
-
-        setProducts(sellerProducts);
+        setProducts(productResponse.data.success ? productResponse.data.data?.products || [] : []);
         setRequests(requestResponse.data.success ? requestResponse.data.data || [] : []);
       } catch (error) {
         console.error("Error fetching seller dashboard:", error);
@@ -96,7 +75,7 @@ function SellerOverview() {
     };
 
     fetchDashboardData();
-  }, [user?.products]);
+  }, []);
 
   const stats = useMemo(() => {
     const soldProducts = products.filter((product) => product.status === "Sold");

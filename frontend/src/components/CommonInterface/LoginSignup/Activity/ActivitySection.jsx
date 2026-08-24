@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./ActivitySection.css";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
@@ -13,10 +13,9 @@ function ActivitySection() {
   const [errorMsg, setErrorMsg] = useState({ msg: "", type: "" });
   const [signupErrors, setSignupErrors] = useState({});
   const [passView, setPassView] = useState(false);
-  const [activity, setActivity] = useState(false); // false=login, true=signup
+  const [activity, setActivity] = useState(() => window.location.pathname.includes("student-signup")); // false=login, true=signup
   const [otp, setOtp] = useState("");
   const [verificationStage, setVerificationStage] = useState(false);
-  const [passMatched, setPassMatched] = useState(false);
 
   const [signUpDetails, setSignUpDetails] = useState({
     email: "", firstname: "", lastname: "",
@@ -30,13 +29,7 @@ function ActivitySection() {
     setErrorMsg({ msg: "", type: "" });
   };
 
-  useEffect(() => {
-    if (window.location.pathname.split("-")[1] === "signup") setActivity(true);
-  }, []);
-
-  useEffect(() => {
-    setPassMatched(signUpDetails.password === signUpDetails.confirmpassword);
-  }, [signUpDetails.password, signUpDetails.confirmpassword]);
+  const passMatched = signUpDetails.password === signUpDetails.confirmpassword;
 
   const handleOnchangeSignup = (e) => {
     const { name, value } = e.target;
@@ -89,7 +82,15 @@ function ActivitySection() {
     setLoading(true);
     try {
       const res = await apiConnector("POST", authroutes.SIGNUP_API, { ...signUpDetails, otp });
-      if (res.data.success) { setLoading(false); navigate("/getstarted"); }
+      if (res.data.success) {
+        setLoginDetails({ email: signUpDetails.email, password: "" });
+        setActivity(false);
+        setVerificationStage(false);
+        setOtp("");
+        setErrorMsg({ msg: "Account created. Sign in to continue.", type: "login success" });
+        setLoading(false);
+        navigate("/student-login");
+      }
       else {
         setErrorMsg({ msg: res.data.message || "Could not create account", type: "signup error" });
         setLoading(false);
@@ -112,9 +113,14 @@ function ActivitySection() {
           setErrorMsg({ msg: "No account found with this email", type: "email does not exists" });
         else if (res.data.message === "Password is Incorrect")
           setErrorMsg({ msg: "Incorrect password", type: "wrong password" });
+        else setErrorMsg({ msg: res.data.message || "Could not sign in", type: "login error" });
         setLoading(false);
       }
-    } catch (e) { console.error(e); setLoading(false); }
+    } catch (e) {
+      console.error(e);
+      setErrorMsg({ msg: e?.response?.data?.message || "Could not sign in. Please try again.", type: "login error" });
+      setLoading(false);
+    }
   };
 
   return (
@@ -143,27 +149,29 @@ function ActivitySection() {
             <div className="auth-form-header">
               <h2>Welcome back</h2>
               <p className="auth-switch-text">
-                New here? <Link onClick={toggleActivity}>Create an account</Link>
+                New here? <Link to="/student-signup" onClick={toggleActivity}>Create an account</Link>
               </p>
             </div>
 
             <div className="auth-field">
-              <label>Email</label>
-              <input type="email" placeholder="you@nita.ac.in" name="email"
+              <label htmlFor="login-email">Email</label>
+              <input id="login-email" type="email" placeholder="you@nita.ac.in" name="email" autoComplete="email"
                 value={loginDetails.email} onChange={handleOnchangelogin} required />
               {errorMsg.type === "email does not exists" && <span className="auth-error">{errorMsg.msg}</span>}
             </div>
 
             <div className="auth-field">
-              <label>Password</label>
+              <label htmlFor="login-password">Password</label>
               <div className="auth-password-wrap">
-                <input type={passView ? "text" : "password"} placeholder="Enter your password"
-                  name="password" value={loginDetails.password} onChange={handleOnchangelogin} required />
-                <button type="button" className="auth-eye" onClick={() => setPassView((o) => !o)}>
+                <input id="login-password" type={passView ? "text" : "password"} placeholder="Enter your password"
+                  name="password" autoComplete="current-password" value={loginDetails.password} onChange={handleOnchangelogin} required />
+                <button type="button" className="auth-eye" aria-label={passView ? "Hide password" : "Show password"} aria-controls="login-password" onClick={() => setPassView((o) => !o)}>
                   {passView ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
               {errorMsg.type === "wrong password" && <span className="auth-error">{errorMsg.msg}</span>}
+              {errorMsg.type === "login error" && <span className="auth-error">{errorMsg.msg}</span>}
+              {errorMsg.type === "login success" && <span className="auth-success" role="status">{errorMsg.msg}</span>}
             </div>
 
             <Link to="/forgotpassword" className="auth-forgot">Forgot password?</Link>
@@ -179,39 +187,39 @@ function ActivitySection() {
             <div className="auth-form-header">
               <h2>Create account</h2>
               <p className="auth-switch-text">
-                Already have one? <Link onClick={toggleActivity}>Sign in</Link>
+                Already have one? <Link to="/student-login" onClick={toggleActivity}>Sign in</Link>
               </p>
             </div>
 
             <div className="auth-field auth-field--row">
               <div className="auth-field">
-                <label>First Name</label>
-                <input type="text" placeholder="John" name="firstname"
+                <label htmlFor="signup-firstname">First Name</label>
+                <input id="signup-firstname" type="text" placeholder="John" name="firstname" autoComplete="given-name"
                   value={signUpDetails.firstname} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.firstname)} />
                 {signupErrors.firstname?.[0] && <span className="auth-error">{signupErrors.firstname[0]}</span>}
               </div>
               <div className="auth-field">
-                <label>Last Name</label>
-                <input type="text" placeholder="Doe" name="lastname"
+                <label htmlFor="signup-lastname">Last Name</label>
+                <input id="signup-lastname" type="text" placeholder="Doe" name="lastname" autoComplete="family-name"
                   value={signUpDetails.lastname} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.lastname)} />
                 {signupErrors.lastname?.[0] && <span className="auth-error">{signupErrors.lastname[0]}</span>}
               </div>
             </div>
 
             <div className="auth-field">
-              <label>Email</label>
-              <input type="email" placeholder="you@nita.ac.in" name="email"
+              <label htmlFor="signup-email">Email</label>
+              <input id="signup-email" type="email" placeholder="you@nita.ac.in" name="email" autoComplete="email"
                 value={signUpDetails.email} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.email)} />
               {signupErrors.email?.[0] && <span className="auth-error">{signupErrors.email[0]}</span>}
               {errorMsg.type === "email already exists" && <span className="auth-error">{errorMsg.msg}</span>}
             </div>
 
             <div className="auth-field">
-              <label>Password</label>
+              <label htmlFor="signup-password">Password</label>
               <div className="auth-password-wrap">
-                <input type={passView ? "text" : "password"} placeholder="Create a password"
-                  name="password" value={signUpDetails.password} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.password)} />
-                <button type="button" className="auth-eye" onClick={() => setPassView((o) => !o)}>
+                <input id="signup-password" type={passView ? "text" : "password"} placeholder="Create a password"
+                  name="password" autoComplete="new-password" value={signUpDetails.password} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.password)} />
+                <button type="button" className="auth-eye" aria-label={passView ? "Hide passwords" : "Show passwords"} aria-controls="signup-password signup-confirm-password" onClick={() => setPassView((o) => !o)}>
                   {passView ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
@@ -219,11 +227,11 @@ function ActivitySection() {
             </div>
 
             <div className="auth-field">
-              <label>Confirm Password</label>
+              <label htmlFor="signup-confirm-password">Confirm Password</label>
               <div className="auth-password-wrap">
-                <input type={passView ? "text" : "password"} placeholder="Repeat your password"
-                  name="confirmpassword" value={signUpDetails.confirmpassword} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.confirmpassword)} />
-                <button type="button" className="auth-eye" onClick={() => setPassView((o) => !o)}>
+                <input id="signup-confirm-password" type={passView ? "text" : "password"} placeholder="Repeat your password"
+                  name="confirmpassword" autoComplete="new-password" value={signUpDetails.confirmpassword} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.confirmpassword)} />
+                <button type="button" className="auth-eye" aria-label={passView ? "Hide passwords" : "Show passwords"} aria-controls="signup-password signup-confirm-password" onClick={() => setPassView((o) => !o)}>
                   {passView ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
@@ -253,8 +261,8 @@ function ActivitySection() {
             </div>
 
             <div className="auth-field">
-              <label>One-Time Password</label>
-              <input type="text" inputMode="numeric" maxLength="6" placeholder="Enter 6-digit OTP"
+              <label htmlFor="signup-otp">One-Time Password</label>
+              <input id="signup-otp" type="text" inputMode="numeric" pattern="[0-9]*" autoComplete="one-time-code" maxLength="6" placeholder="Enter 6-digit OTP"
                 value={otp} onChange={(e) => {
                   setOtp(e.target.value.replace(/\D/g, ""));
                   setSignupErrors((current) => ({ ...current, otp: undefined }));
@@ -270,7 +278,7 @@ function ActivitySection() {
             </button>
 
             <p className="auth-switch-text" style={{ textAlign: "center" }}>
-              <Link onClick={toggleActivity}>← Back to Sign in</Link>
+              <Link to="/student-login" onClick={toggleActivity}>← Back to Sign in</Link>
             </p>
           </form>
         )}

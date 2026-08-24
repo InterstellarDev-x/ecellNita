@@ -39,7 +39,7 @@ function Getstarted() {
             </div>
             <div className="sidebar-button-text">
               <p className="sidebar-button-subtext">I’m here to buy</p>
-              <p>Evaluate tech skills at scale</p>
+              <p>Discover useful products from other students</p>
             </div>
           </button>
 
@@ -55,7 +55,7 @@ function Getstarted() {
             </div>
             <div className="sidebar-button-text">
               <p className="sidebar-button-subtext">I’m here to sell</p>
-              <p>Solve problems and learn new skills</p>
+              <p>List unused items and give them a second life</p>
             </div>
           </button>
 
@@ -65,6 +65,7 @@ function Getstarted() {
               className={`${
                 activeButton ? "button" : "defbutton"
               }`}
+              disabled={!activeButton}
               onClick={() => {
                 if (activeButton === "button1") navigate("/buyer/productlist");
                 else if (activeButton === "button2") navigate("/seller/welcome");

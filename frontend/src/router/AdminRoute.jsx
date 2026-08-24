@@ -5,8 +5,8 @@ function AdminRoute({ children }) {
   try {
     const user = JSON.parse(localStorage.getItem("campusrecycleuser"));
     const roles = user?.roles || [];
-    if (roles.includes("admin") || user?.accounttype === "Admin") return children;
-  } catch (_) {
+    if (roles.includes("admin") || roles.includes("moderator") || user?.accounttype === "Admin") return children;
+  } catch {
     // Redirect below when browser storage is malformed.
   }
   return <Navigate to="/buyer/productlist" replace />;

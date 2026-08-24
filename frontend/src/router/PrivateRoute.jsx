@@ -9,7 +9,7 @@ const PrivateRoute = ({ children }) => {
    
     toast.warn("You need to be logged in to access this page. Redirecting to login page...", {
   position: "top-right",
-  autoClose: 4000,
+  autoClose: 2000,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: true,

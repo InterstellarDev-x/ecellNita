@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import './UpdatePass.css'
 import { apiConnector } from '../../../utils/Apiconnecter';
 import { authroutes } from '../../../apis/apis';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import SmallLoader from "../SmallLoader/SmallLoader";
+import { resetPasswordSchema } from '../../../validation/auth';
 
 function UpdatePass() {
     const navigate = useNavigate();
+    const { token } = useParams();
     const [loading, setloading] = useState(false);
     const [passView, setPassView] = useState(false);
     const togglePassView = () => {
@@ -24,8 +26,14 @@ function UpdatePass() {
     });
 
     const handlePasswordReset = async(e) => {
-        setloading(true);
         e.preventDefault();
+        const validation = resetPasswordSchema.safeParse(resetPasswordData);
+        if (!validation.success) {
+            setErrorMsg({ msg: validation.error.issues[0]?.message || "Enter a valid password", type: "validation" });
+            return;
+        }
+        setloading(true);
+        setErrorMsg({ msg: "", type: "" });
         try {
             const responseObj = await apiConnector(
                 "POST",
@@ -33,23 +41,19 @@ function UpdatePass() {
                 {
                     password: resetPasswordData.password,
                     confirmpassword: resetPasswordData.confirmpassword,
-                    token: window.location.pathname.split("/")[window.location.pathname.split("/").length - 1]
+                    token
                 }
             )
             if(responseObj.data.success){
               setloading(false);
-              navigate('/getstarted');
+              navigate('/student-login', { replace: true });
             }else{
-              if(responseObj.data.message === "Invalid Token"){
-                setErrorMsg({
-                  msg: "Token expired! Do forgot password again",
-                  type: "invalid token"
-                })
-              }
+              setErrorMsg({ msg: responseObj.data.message || "Could not reset password", type: "request" });
               setloading(false);
             }
         } catch (error) {
             console.error(error);
+            setErrorMsg({ msg: error?.response?.data?.message || "Could not reset password", type: "request" });
             setloading(false);
         }
     }
@@ -77,9 +81,7 @@ function UpdatePass() {
           <div className="form-body">
               <div className="form-components">
                 <p className="update-pass-error-msg">
-                  {errorMsg.type === "invalid token"
-                    ? errorMsg.msg
-                    : ""}
+                  {errorMsg.msg}
                 </p>
               </div>
               <div className="form-components">
@@ -89,15 +91,14 @@ function UpdatePass() {
                         type={passView ? "text" : "password"}
                         id="password"
                         name="password"
+                        autoComplete="new-password"
                         value={resetPasswordData.password}
                         onChange={onChange}
                         required
                     />
-                  <Eye
-                    size={20}
-                    style={{ cursor: "pointer" }}
-                    onClick={togglePassView}
-                  />
+                  <button type="button" onClick={togglePassView} aria-label={passView ? "Hide passwords" : "Show passwords"}>
+                    {passView ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </div>
               </div>
               <div className="form-components">
@@ -106,6 +107,7 @@ function UpdatePass() {
                     type={passView ? "text" : "password"}
                     id="confirmpassword"
                     name="confirmpassword"
+                    autoComplete="new-password"
                     value={resetPasswordData.confirmpassword}
                     onChange={onChange}
                     required
@@ -113,7 +115,7 @@ function UpdatePass() {
                 <p className="update-pass-error-msg">{!passMatched && 'Password not matched'}</p>
               </div>
               <div className="form-components">
-                <button type="submit" className={`${passMatched ? '' : 'update-pass-btn-disabled'} ${loading ? 'update-pass-btn-disabled' : ''}`} disabled={!passMatched}>Reset password {loading && <SmallLoader className="update-pass-btn-spinner" size={13} />}</button>
+                <button type="submit" className={`${passMatched ? '' : 'update-pass-btn-disabled'} ${loading ? 'update-pass-btn-disabled' : ''}`} disabled={!passMatched || loading}>Reset password {loading && <SmallLoader className="update-pass-btn-spinner" size={13} />}</button>
               </div>
             </div>
         </form>

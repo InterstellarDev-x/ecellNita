@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./BuyerNavbar.css";
-import { ClipboardList, Heart, Package, UserRound } from "lucide-react";
+import { ClipboardList, Heart, Package, MessageCircle } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
+import NotificationBell from "../../CommonInterface/Notifications/NotificationBell";
 
 function BuyerNavbar() {
   const [profilePicture, setProfilePicture] = useState(null);
@@ -76,9 +77,13 @@ function BuyerNavbar() {
           <Link to="/buyer/wishlist" className={`buyer-navbar-options-item ${location.pathname === "/buyer/wishlist" ? "active" : ""}`}>
             Wishlist
           </Link>
+          <Link to="/buyer/questions" className={`buyer-navbar-options-item ${location.pathname === "/buyer/questions" ? "active" : ""}`}>
+            Questions
+          </Link>
         </div>
 
         <div className="buyer-navbar-right">
+          <NotificationBell audience="buyer" />
           {/* Profile dropdown */}
           <div className="buyer-navbar-accounts" ref={dropdownRef}>
             <div className="toggle" onClick={() => setProfileDrop(o => !o)}>
@@ -91,6 +96,7 @@ function BuyerNavbar() {
               <div className="dropdown">
                 <Link to="/student-profile" onClick={() => setProfileDrop(false)}>See Profile</Link>
                 <Link to="/seller/seller-dashboard" onClick={() => setProfileDrop(false)}>Switch to Seller</Link>
+                <Link to="/feature-request" onClick={() => setProfileDrop(false)}>Request a feature</Link>
                 <Link to="#" onClick={() => { setProfileDrop(false); handleLogout(); }} className={activeLink === 'logout' ? 'active' : ''}>
                   Logout
                 </Link>
@@ -112,9 +118,9 @@ function BuyerNavbar() {
           <Heart size={20} />
           <span>Wishlist</span>
         </Link>
-        <Link to="/student-profile" className={location.pathname === "/student-profile" ? "active" : ""}>
-          <UserRound size={20} />
-          <span>Profile</span>
+        <Link to="/buyer/questions" className={location.pathname === "/buyer/questions" ? "active" : ""}>
+          <MessageCircle size={20} />
+          <span>Questions</span>
         </Link>
       </nav>
     </>

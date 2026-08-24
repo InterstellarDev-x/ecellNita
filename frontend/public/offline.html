@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#198d43" />
+    <title>Offline · Campus Recycle</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; color: #17351f; background: #f6fcf7; font-family: "Trebuchet MS", sans-serif; }
+      main { display: grid; min-height: 100vh; min-height: 100dvh; padding: 20px; place-items: center; background: repeating-linear-gradient(135deg, transparent 0 18px, rgba(25,141,67,.04) 18px 19px); }
+      section { width: min(100%, 540px); padding: clamp(30px, 7vw, 54px); border: 1px solid rgba(25,141,67,.2); border-radius: 32px 8px; background: #fff; box-shadow: 0 30px 80px rgba(23,53,31,.13); text-align: center; }
+      .brand { margin-bottom: 34px; color: #244b2f; font-size: .9rem; font-weight: 800; }
+      .mark { display: inline-grid; width: 30px; height: 30px; margin-right: 8px; border-radius: 10px 3px; background: #198d43; color: #fff; font-size: 1.25rem; vertical-align: middle; place-items: center; }
+      .signal { display: grid; width: 90px; height: 90px; margin: 0 auto 24px; border-radius: 50%; background: #dff5e6; color: #198d43; font-size: 3.5rem; font-weight: 900; place-items: center; }
+      .eyebrow { margin: 0 0 10px; color: #198d43; font-size: .75rem; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.15rem); letter-spacing: -.045em; line-height: 1.03; }
+      .copy { margin: 20px auto 26px; color: #5f7164; line-height: 1.7; }
+      button { padding: 13px 24px; border: 0; border-radius: 14px 4px; background: #198d43; color: #fff; cursor: pointer; font: inherit; font-weight: 800; }
+      button:focus-visible { outline: 3px solid rgba(25,141,67,.3); outline-offset: 4px; }
+      small { display: block; margin-top: 18px; color: #76877b; line-height: 1.5; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section aria-labelledby="offline-title">
+        <div class="brand"><span class="mark" aria-hidden="true">↻</span>Campus Recycle</div>
+        <div class="signal" aria-hidden="true">×</div>
+        <p class="eyebrow">Connection paused</p>
+        <h1 id="offline-title">You’re offline, not out of the loop.</h1>
+        <p class="copy">Check your Wi-Fi or mobile data, then try Campus Recycle again.</p>
+        <button type="button" onclick="window.location.reload()">↻&nbsp;&nbsp;Try again</button>
+        <small>This page will recover once your connection is available.</small>
+      </section>
+    </main>
+  </body>
+</html>

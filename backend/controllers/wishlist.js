@@ -12,9 +12,10 @@ exports.getWishlist = async (req, res) => {
             .populate({
                 path: "product",
                 populate: [
-                    { path: "owner", select: "firstname lastname email image" },
+                    { path: "owner", select: "_id" },
                     { path: "category", select: "name" },
                 ],
+                match:{publicationStatus:"published",status:"Forsale",quantity:{$gt:0}},
             });
 
         return res.json({
@@ -32,7 +33,7 @@ exports.addToWishlist = async (req, res) => {
         const { productid } = req.body;
         if (!mongoose.Types.ObjectId.isValid(productid)) return invalidProductId(res);
 
-        const product = await Product.findById(productid);
+        const product = await Product.findOne({_id:productid,publicationStatus:"published",status:"Forsale",quantity:{$gt:0}});
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });
         }

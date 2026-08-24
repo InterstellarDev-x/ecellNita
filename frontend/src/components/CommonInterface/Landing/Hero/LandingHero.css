@@ -1,5 +1,5 @@
 .landing-navbar-font{
-    font-family: "Noto Sans", sans-serif;
+    font-family: var(--font-sans);
 }
 
 .landing-hero{
@@ -18,6 +18,8 @@
 .landing-hero-left-heading{
     font-size: 45px;
     font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
 }
 
 .green{

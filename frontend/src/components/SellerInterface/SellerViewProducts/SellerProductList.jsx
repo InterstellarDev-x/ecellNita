@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./SellerProductList.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SellerProductCard from "./SellerProductCard";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import { AlertCircle, PackagePlus, Search, SlidersHorizontal } from "lucide-react";
 
 function SellerProductList() {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [pendingSubmissions, setPendingSubmissions] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,45 +16,24 @@ function SellerProductList() {
 
   const apiHeader = useMemo(() => ({
     Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-    "Content-Type": "multipart/form-data",
   }), []);
 
-  const getStoredProductIds = () => {
-    const user = localStorage.getItem("campusrecycleuser");
-    if (!user) return null;
-    const userObj = JSON.parse(user);
-    return userObj.products || [];
-  };
-
   const fetchProducts = useCallback(async () => {
-    const productIds = getStoredProductIds();
-    if (!productIds) {
-      navigate("/");
-      return;
-    }
-
     setLoaded(false);
     setErrorMessage("");
 
     try {
-      const responses = await Promise.allSettled(
-        productIds.map((productId) =>
-          apiConnector("POST", authroutes.GET_PRODUCT_DETAILS, { productid: productId }, apiHeader)
-        )
-      );
-
-      const fetchedProducts = responses
-        .filter((result) => result.status === "fulfilled" && result.value.data.success && result.value.data.data)
-        .map((result) => result.value.data.data);
-
-      setProducts(fetchedProducts);
+      const response = await apiConnector("GET", authroutes.GET_MY_PRODUCTS, null, apiHeader);
+      if (!response.data.success) throw new Error(response.data.message);
+      setProducts(response.data.data?.products || []);
+      setPendingSubmissions(response.data.data?.pendingSubmissions || []);
     } catch (error) {
       console.error(error);
       setErrorMessage("Could not load your products. Please refresh the page.");
     } finally {
       setLoaded(true);
     }
-  }, [apiHeader, navigate]);
+  }, [apiHeader]);
 
   const handleDeleteProduct = async (idToDelete) => {
     try {
@@ -66,13 +45,6 @@ function SellerProductList() {
       );
 
       if (response.data.success) {
-        const user = localStorage.getItem("campusrecycleuser");
-        if (user) {
-          const userObj = JSON.parse(user);
-          userObj.products = (userObj.products || []).filter((productId) => productId !== idToDelete);
-          localStorage.setItem("campusrecycleuser", JSON.stringify(userObj));
-          window.dispatchEvent(new Event("campusrecycleuser-updated"));
-        }
         setProducts((prev) => prev.filter((product) => product._id !== idToDelete));
       } else {
         setErrorMessage(response.data.message || "Could not delete product.");
@@ -127,6 +99,23 @@ function SellerProductList() {
         </div>
       )}
 
+      {pendingSubmissions.length > 0 && (
+        <section className="seller-pending-reviews" aria-label="Listings awaiting review">
+          <div>
+            <strong>{pendingSubmissions.length} change{pendingSubmissions.length === 1 ? "" : "s"} awaiting review</strong>
+            <span>They will appear publicly after approval. You do not need to submit them again.</span>
+          </div>
+          <ul>
+            {pendingSubmissions.map((submission) => (
+              <li key={submission._id}>
+                <span>{submission.listing?.productname || "Product listing"}</span>
+                <b>{submission.operation === "update" ? "Edit pending" : "New listing pending"}</b>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <div className="seller-products-stats">
         <button className={statusFilter === "All" ? "active" : ""} onClick={() => setStatusFilter("All")}>All <b>{stats.total}</b></button>
         <button className={statusFilter === "Forsale" ? "active" : ""} onClick={() => setStatusFilter("Forsale")}>For sale <b>{stats.forSale}</b></button>
@@ -165,6 +154,7 @@ function SellerProductList() {
             key={product._id}
             product={product}
             onProductUpdated={handleProductUpdated}
+            onReviewSubmitted={fetchProducts}
             handleDeleteProduct={handleDeleteProduct}
           />
         ))}

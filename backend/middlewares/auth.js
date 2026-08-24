@@ -1,5 +1,6 @@
 const logger=require("../utils/logger");
 const jwt=require("jsonwebtoken");
+const User=require("../models/User");
 require("dotenv").config();
 
 
@@ -11,7 +12,7 @@ exports.auth=async (req,res,next)=>{
                     req.body.token ||
                     (authHeader?.startsWith("Bearer ") ? authHeader.replace("Bearer ","") : authHeader);
         if(!token){
-            return res.json({
+            return res.status(401).json({
                 success:false,
                 message:"Token is Missing"
             })
@@ -20,11 +21,15 @@ exports.auth=async (req,res,next)=>{
         //validating the token.
         try{
             const decode=jwt.verify(token,process.env.JWT_SECRET);
+            const user=await User.findById(decode.id).select("accountStatus").lean();
+            if(!user || (user.accountStatus && user.accountStatus!=="active")){
+                return res.status(403).json({ success:false, message:"Account is not permitted to perform this action" });
+            }
             req.user=decode;
         }
         catch(err){
             logger.error(err);
-            return res.json({
+            return res.status(401).json({
                 success:false,
                 message:"Invalid Token",
             })
@@ -33,11 +38,9 @@ exports.auth=async (req,res,next)=>{
 
     }
     catch(err){
-        return res.json({
+        return res.status(500).json({
             success:false,
             message:"Something Went Wrong While Validating the Token",
         })
     }
 }
-
-

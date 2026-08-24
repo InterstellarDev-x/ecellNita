@@ -376,11 +376,27 @@
     font-size: small;
 }
 
+.modal-body .report-container {
+    display: grid;
+    gap: 8px;
+}
+
+.modal-body .report-container label {
+    font-weight: 700;
+}
+
+.modal-body .report-container select,
 .modal-body .report-container textarea {
     border: 1px solid rgb(210, 210, 210);
     border-radius: 5px;
     padding: 10px;
     width: 100%;
+}
+
+.modal-body .report-container p {
+    color: #b42318;
+    margin: 0;
+    font-size: .85rem;
 }
 
 /* ---- Mobile ---- */

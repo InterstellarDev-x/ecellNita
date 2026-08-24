@@ -8,7 +8,7 @@ function LandingHero() {
     <div className='landing-hero'>
         <div className="landing-hero-left">
             <div>
-                <div className='landing-hero-left-heading'>
+                <h1 className='landing-hero-left-heading'>
                     <div>
                         <span>Buy and Sell</span>
                         <span className='green'> Quality Items</span>
@@ -17,7 +17,7 @@ function LandingHero() {
                         <span className='green'>on Campus</span>
                         <span> in Simple Steps</span>
                     </div>
-                </div>
+                </h1>
                 <div className='landing-hero-left-des'>
                     Connect with Peers, Trade with the Community, and Access Exclusive Campus Deals
                 </div>

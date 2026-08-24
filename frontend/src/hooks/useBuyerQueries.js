@@ -20,13 +20,14 @@ const requireSuccess = (response, fallbackMessage) => {
   return response.data.data;
 };
 
-export const buyerQueryKeys = {
+const buyerQueryKeys = {
   products: ["marketplace-products"],
   categories: ["marketplace-categories"],
   wishlist: (user) => ["wishlist", user],
   requests: (user) => ["buyer-requests", user],
   product: (productId) => ["marketplace-product", productId],
   schedule: (requestId) => ["buyer-request-schedule", requestId],
+  meetingLocations: ["active-meeting-locations"],
 };
 
 const fetchProducts = async () => requireSuccess(
@@ -59,6 +60,11 @@ const fetchSchedule = async (requestId) => {
   return response?.data?.success ? response.data.data : null;
 };
 
+const fetchMeetingLocations = async () => requireSuccess(
+  await apiConnector("GET", authroutes.MEETING_LOCATIONS, null, authHeaders()),
+  "Could not load meeting locations."
+);
+
 export function useMarketplaceProducts() {
   return useQuery({ queryKey: buyerQueryKeys.products, queryFn: fetchProducts, staleTime: 2 * 60 * 1000 });
 }
@@ -83,6 +89,10 @@ export function useMarketplaceProduct(productId) {
 
 export function useRequestSchedule(requestId) {
   return useQuery({ queryKey: buyerQueryKeys.schedule(requestId), queryFn: () => fetchSchedule(requestId), staleTime: 5 * 60 * 1000, enabled: Boolean(requestId) });
+}
+
+export function useActiveMeetingLocations() {
+  return useQuery({ queryKey: buyerQueryKeys.meetingLocations, queryFn: fetchMeetingLocations, staleTime: 2 * 60 * 1000 });
 }
 
 export function useToggleWishlist() {

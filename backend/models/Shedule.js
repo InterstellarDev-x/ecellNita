@@ -10,6 +10,16 @@ const sheduleschema=new mongoose.Schema({
     venue:{
         type:String
     },
+    location:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"MeetingLocation"
+    },
+    locationSnapshot:{
+        name:String,
+        address:String,
+        startTime:String,
+        endTime:String,
+    },
     date:{
         type:String
         
@@ -18,7 +28,7 @@ const sheduleschema=new mongoose.Schema({
         type:String
         
     }
-})
+}, { timestamps:true })
 
 
 module.exports=mongoose.model("Shedule",sheduleschema);

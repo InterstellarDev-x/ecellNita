@@ -1,0 +1,178 @@
+.offline-page {
+  --offline-ink: #17351f;
+  --offline-green: #198d43;
+  --offline-mint: #dff5e6;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 100dvh;
+  overflow: hidden;
+  place-items: center;
+  padding: 32px 20px;
+  background:
+    linear-gradient(rgba(252, 255, 251, .84), rgba(246, 252, 247, .94)),
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(25, 141, 67, .035) 18px 19px);
+  color: var(--offline-ink);
+}
+
+.offline-page__glow {
+  position: absolute;
+  z-index: -1;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: rgba(74, 194, 111, .18);
+  filter: blur(8px);
+}
+
+.offline-page__glow--top { top: -210px; right: -100px; }
+.offline-page__glow--bottom { bottom: -250px; left: -130px; }
+
+.offline-card {
+  width: min(100%, 560px);
+  padding: clamp(30px, 7vw, 56px);
+  border: 1px solid rgba(25, 141, 67, .18);
+  border-radius: 32px 8px 32px 8px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 30px 80px rgba(23, 53, 31, .13);
+  text-align: center;
+}
+
+.offline-card__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 36px;
+  color: #244b2f;
+  font-family: var(--font-display, sans-serif);
+  font-size: .9rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.offline-card__brand-mark {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px 3px 10px 3px;
+  background: var(--offline-green);
+  color: #fff;
+  font-size: 1.25rem;
+  place-items: center;
+}
+
+.offline-card__signal {
+  position: relative;
+  width: 112px;
+  height: 88px;
+  margin: 0 auto 28px;
+}
+
+.offline-card__signal-ring {
+  position: absolute;
+  left: 50%;
+  border: 8px solid var(--offline-green);
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.offline-card__signal-ring--outer { top: 2px; width: 98px; height: 98px; }
+.offline-card__signal-ring--inner { top: 33px; width: 48px; height: 48px; }
+
+.offline-card__signal-dot {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--offline-green);
+  transform: translateX(-50%);
+}
+
+.offline-card__signal-slash {
+  position: absolute;
+  top: -7px;
+  left: 51px;
+  width: 10px;
+  height: 108px;
+  border: 3px solid #fff;
+  border-radius: 99px;
+  background: #d15342;
+  box-shadow: 0 0 0 2px rgba(209, 83, 66, .12);
+  transform: rotate(-43deg);
+}
+
+.offline-card__eyebrow {
+  margin: 0 0 10px;
+  color: var(--offline-green);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.offline-card h1 {
+  max-width: 430px;
+  margin: 0 auto;
+  color: var(--offline-ink);
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.03;
+}
+
+.offline-card__copy {
+  max-width: 440px;
+  margin: 20px auto 26px;
+  color: #5f7164;
+  font-size: .98rem;
+  line-height: 1.7;
+}
+
+.offline-card__retry {
+  display: inline-flex;
+  min-width: 158px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 22px;
+  border: 0;
+  border-radius: 14px 4px 14px 4px;
+  background: var(--offline-green);
+  box-shadow: 0 10px 24px rgba(25, 141, 67, .22);
+  color: #fff;
+  cursor: pointer;
+  font-size: .92rem;
+  font-weight: 800;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+
+.offline-card__retry:hover:not(:disabled) {
+  box-shadow: 0 14px 30px rgba(25, 141, 67, .27);
+  transform: translateY(-2px);
+}
+
+.offline-card__retry:focus-visible { outline: 3px solid rgba(25, 141, 67, .28); outline-offset: 4px; }
+.offline-card__retry:disabled { cursor: wait; opacity: .7; }
+
+.offline-card__status {
+  min-height: 38px;
+  margin: 18px 0 0;
+  color: #76877b;
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 520px) {
+  .offline-page { padding: 16px; }
+  .offline-card { padding: 32px 22px; border-radius: 24px 7px 24px 7px; }
+  .offline-card__brand { margin-bottom: 27px; }
+  .offline-card__signal { transform: scale(.88); margin-bottom: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offline-card__retry { transition: none; }
+}

@@ -8,6 +8,8 @@ const {sendEmailWithRetry}=require("../utils/EmailQueue");
 const {requestproduct}=require("../mailtemplates/Request");
 const {shedulevenue}=require("../mailtemplates/Shedule");
 const mongoose=require("mongoose");
+const MeetingLocation=require("../models/MeetingLocation");
+const {isTimeWithinRange}=require("./meetingLocations");
 require("dotenv").config();
 
 
@@ -26,7 +28,7 @@ exports.productrequest=async (req,res)=>{
             })
         }
 
-        const productdata=await Product.findById(productid).populate("owner", "firstname lastname email");
+        const productdata=await Product.findOne({_id:productid,publicationStatus:"published"}).populate("owner", "firstname lastname email");
         if(!productdata){
             return res.status(404).json({
                 success:false,
@@ -106,10 +108,10 @@ catch(err){
 
 exports.shedulemeet=async (req,res)=>{
     try{
-        const {id,email}=req.user;
-        let {requestid, venue, date , time, sellername, productid}=req.body;
+        const {id}=req.user;
+        let {requestid,locationId,date,time}=req.body;
 
-        if(!requestid || !venue || !date || !time){
+        if(!requestid || !locationId || !date || !time){
             return res.json({
                 success:false, 
                 message:"All feilds are required"
@@ -122,20 +124,35 @@ exports.shedulemeet=async (req,res)=>{
                 message:"Meeting already sheduled Kindly delete previous shedule then create new"
             })
         }
-        const requestdata=await Request.findById(requestid).populate("buyer");
+        const requestdata=await Request.findById(requestid)
+            .populate("buyer","firstname lastname email image")
+            .populate("seller", "firstname lastname email image");
         if(!requestdata){
             return res.json({
                 success:false,
                 message:"No such request exist."
             })
         }
-        if(requestdata.seller.toString()!==id){
+        if(String(requestdata.seller?._id)!==String(id)){
             return res.json({
                 success:false,
                 message:"You are not authorized to schedule this meeting"
             })
         }
-        const productdata=await Product.findById(productid || requestdata.product);
+        if(!mongoose.Types.ObjectId.isValid(locationId)) return res.status(400).json({ success:false, message:"A valid meeting location is required" });
+        const location=await MeetingLocation.findOne({ _id:locationId, active:true });
+        if(!location) return res.status(400).json({ success:false, message:"This meeting location is no longer available" });
+        const selectedDate=new Date(`${date}T00:00:00.000Z`);
+        const today=new Date();
+        today.setUTCHours(0,0,0,0);
+        const validDate=/^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(selectedDate.getTime()) && selectedDate.toISOString().slice(0,10)===date && selectedDate>=today;
+        if(!validDate) {
+            return res.status(400).json({success:false,message:"Choose a valid meeting date that is not in the past"});
+        }
+        if(!isTimeWithinRange(time,location)) {
+            return res.status(400).json({ success:false, message:`Choose a time between ${location.startTime} and ${location.endTime} for this location` });
+        }
+        const productdata=await Product.findOne({_id:requestdata.product,publicationStatus:"published",status:"Forsale"});
         if(!productdata){
             return res.json({
                 success:false,
@@ -145,11 +162,14 @@ exports.shedulemeet=async (req,res)=>{
         
 
         const buyername=requestdata.buyer.firstname + " " + requestdata.buyer.lastname;
-        const mailresposne=await mailsender(requestdata.buyer.email,"Shedule Venue",shedulevenue(buyername, sellername, productdata.productname, productid,venue, date ,time, requestdata.quantity));
+        const sellername=`${requestdata.seller.firstname} ${requestdata.seller.lastname}`;
+        await mailsender(requestdata.buyer.email,"Shedule Venue",shedulevenue(buyername, sellername, productdata.productname, productdata._id,location.name, date ,time, requestdata.quantity));
 
         const saveshedule=await Shedule.create({
             requestid:requestid,
-            venue:venue,
+            venue:location.name,
+            location:location._id,
+            locationSnapshot:{ name:location.name, address:location.address, startTime:location.startTime, endTime:location.endTime },
             date:date, 
             time:time
         })
@@ -177,7 +197,7 @@ exports.shedulemeet=async (req,res)=>{
 
 exports.deleterequest=async (req,res)=>{
     try{
-        const {id,email}=req.user;
+        const {id}=req.user;
         let {requestid}=req.body;
         if(!requestid){
             return res.json({
@@ -222,16 +242,26 @@ catch(err){
 
 exports.all_send_request=async (req,res)=>{
     try{
-        const {id,email}=req.user;
-        
+        const {id}=req.user;
         const sendreqdata=await Request.find({
             buyer:id
-        }).populate("buyer").populate("seller").populate("product");
+        })
+            .populate("buyer","firstname lastname email image")
+            .populate("seller","firstname lastname email image")
+            .populate("product","productname productdescription price images status quantity publicationStatus");
+
+        const schedules=await Shedule.find({requestid:{$in:sendreqdata.map((request)=>request._id)}}).select("requestid").lean();
+        const scheduledIds=new Set(schedules.map((schedule)=>String(schedule.requestid)));
+        const data=sendreqdata.map((request)=>{
+            const item=request.toObject();
+            if(!scheduledIds.has(String(item._id))) item.seller={_id:item.seller?._id};
+            return item;
+        });
 
         res.json({
             success:true,
             message:"fetched send requset data successfully", 
-            data:sendreqdata
+            data
         })
         
 
@@ -253,24 +283,23 @@ catch(err){
 exports.all_received_request=async (req,res)=>{
     try{
         const {id}=req.user;
-       
-        const getreqdata=await Request.find({
-            seller:id
-        }).populate("buyer").populate("seller").populate("product");
+        const getreqdata=await Request.find({ seller:id })
+            .populate("buyer","firstname lastname email image")
+            .populate("seller","firstname lastname email image")
+            .populate("product","productname productdescription price images status quantity publicationStatus");
         logger.debug("all_received_request fetched");
-        res.json({
-            success:true,
-            message:"fetched get request data successfully", 
-            data:getreqdata
-        })
-}
-catch(err){
-    return res.json({
-        success:false,
-        message:err.message,
-    })
+        return res.json({ success:true, message:"fetched get request data successfully", data:getreqdata });
+    }
+    catch(err){
+        return res.json({ success:false, message:err.message })
+    }
 }
 
+exports.available_meeting_locations=async (_req,res)=>{
+    try{
+        const locations=await MeetingLocation.find({active:true}).select("name address startTime endTime").sort({name:1}).lean();
+        return res.json({success:true,data:locations});
+    }catch(err){ return res.status(500).json({success:false,message:"Could not load meeting locations"}); }
 }
 
 

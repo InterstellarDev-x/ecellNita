@@ -35,7 +35,7 @@ function WhyJoinUs() {
                 <div className='landing-why-join-us-main-cards-row'>
                     <div className='why-join-us-points'>
                         <h6>Flexible Payments</h6>
-                        <p>While we don't handle payments directly, you can easily arrange payments and deliveries outside the platform after negotiation</p>
+                        <p>We do not handle payments directly. Agree on payment with the seller and use the platform’s approved campus meeting workflow.</p>
                     </div>
                     <div className='why-join-us-points'>
                         <h6>Community Impact</h6>

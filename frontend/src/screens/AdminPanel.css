@@ -11,8 +11,24 @@
   grid-template-columns: 247px minmax(0, 1fr);
   background: #f5f7fb;
   color: var(--admin-ink);
-  font-family: "Noto Sans", sans-serif;
+  font-family: var(--font-sans);
 }
+
+.admin-location-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.admin-location-form label { display: grid; gap: 6px; color: #48634d; font-size: .76rem; font-weight: 800; }
+.admin-location-form input { width: 100%; box-sizing: border-box; padding: 10px 11px; border: 1px solid #cfddcf; border-radius: 9px; color: #243c29; background: #fff; font: inherit; font-size: .84rem; }
+.admin-location-form > div { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 9px; }
+.admin-location-form button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 13px; border: 0; border-radius: 8px; color: #fff; background: #22733b; font-size: .78rem; font-weight: 800; cursor: pointer; }
+.admin-location-form button:disabled { opacity: .6; cursor: not-allowed; }
+.admin-location-form .admin-form-cancel { color: #45664b; background: #edf4ed; }
+.admin-location-list { display: grid; gap: 9px; margin-top: 16px; }
+.admin-location-list article { display: flex; align-items: center; gap: 11px; padding: 13px; border: 1px solid #e2ebe1; border-radius: 11px; color: #246138; background: #fbfdfb; }
+.admin-location-list article.is-inactive { opacity: .62; }
+.admin-location-list article > div { min-width: 0; flex: 1; }
+.admin-location-list strong { font-size: .86rem; }
+.admin-location-list p { margin: 3px 0 0; color: #68806e; font-size: .75rem; }
+.admin-location-list button { display: grid; width: 30px; height: 30px; place-items: center; border: 0; border-radius: 7px; color: #426c4b; background: #edf4ed; cursor: pointer; }
+@media (max-width: 640px) { .admin-location-form { grid-template-columns: 1fr; } }
 
 .admin-sidebar {
   min-height: 100vh;
@@ -25,6 +41,9 @@
 .admin-brand { display: flex; align-items: center; gap: 10px; padding: 0 10px; color: var(--admin-ink); font-size: 1.04rem; font-weight: 800; letter-spacing: -.02em; }
 .admin-brand svg { color: var(--admin-green); }
 .admin-sidebar-kicker, .admin-eyebrow { display: block; color: #7c8798; font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+
+.admin-review-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 14px 0; }
+.admin-review-images img { width: 100%; aspect-ratio: 1; border-radius: 12px; object-fit: cover; background: #eef2f6; }
 .admin-sidebar-kicker { margin: 34px 10px 10px; }
 .admin-sidebar nav { display: grid; gap: 5px; }
 
@@ -155,3 +174,22 @@
   .admin-sidebar nav button { padding: 9px; }
   .admin-sidebar nav button svg { display: none; }
 }
+
+.admin-report-list, .admin-feature-list { display: grid; gap: 12px; }
+.admin-report-list > article, .admin-feature-list > article { padding: 16px; border: 1px solid #e3e9e4; border-radius: 13px; background: #fafdf9; }
+.admin-report-list__head { display: flex; justify-content: space-between; gap: 12px; }
+.admin-report-list__head strong { color: #a24434; font-size: .82rem; }
+.admin-report-list__head span, .admin-report-list small, .admin-feature-list small { color: #78877a; font-size: .73rem; }
+.admin-report-list__quote { margin: 11px 0 7px; color: #334a38; font-size: .9rem; font-style: italic; line-height: 1.5; white-space: pre-wrap; }
+.admin-report-list__reason { margin: 7px 0; color: #746133; font-size: .78rem; }
+.admin-report-list__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+.admin-report-list__actions button { padding: 7px 9px; border: 0; border-radius: 7px; color: #406647; background: #eaf4eb; font-size: .72rem; font-weight: 800; cursor: pointer; }
+.admin-report-list__actions .keep-hidden { color: #89412e; background: #fff0ea; }
+.admin-report-list__actions .block { display: inline-flex; align-items: center; gap: 5px; color: #fff; background: #b64235; }
+.admin-feature-list > article { display: flex; justify-content: space-between; gap: 18px; }
+.admin-feature-list > article > div { min-width: 0; }
+.admin-feature-list span { display: block; color: #778a7b; font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.admin-feature-list strong { display: block; margin-top: 5px; color: #284c30; font-size: .92rem; }
+.admin-feature-list p { margin: 7px 0 0; white-space: pre-wrap; }
+.admin-feature-list small { flex: 0 0 190px; text-align: right; }
+@media (max-width: 640px) { .admin-feature-list > article { display: grid; } .admin-feature-list small { text-align: left; } }

@@ -3,6 +3,8 @@ import { Trash2 } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
+import { useActiveMeetingLocations } from "../../../hooks/useBuyerQueries";
+import { toast } from "react-toastify";
 
 function ProductrequestListItem({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
@@ -27,8 +29,10 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingOTP, setIsLoadingOTP] = useState(false);
   const [scheduleData, setScheduleData] = useState(null);
+  const locationsQuery = useActiveMeetingLocations();
+  const locations = locationsQuery.data || [];
   const [scheduleFormData, setScheduleFormData] = useState({
-    venue: "",
+    locationId: "",
     time: "",
     date: "",
   });
@@ -47,14 +51,12 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
     try {
       const api_header = {
         Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-        "Content-Type": "multipart/form-data",
       };
       const bodyData = {
         requestid: request._id,
-        venue: scheduleFormData.venue,
+        locationId: scheduleFormData.locationId,
         date: scheduleFormData.date,
         time: scheduleFormData.time,
-        sellername: request.seller.firstname + request.seller.lastname,
         productid: request.product._id,
       };
       const response = await apiConnector(
@@ -66,11 +68,14 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
       if (response.data.success) {
         setIsScheduled(true);
         setIsLoading(false);
+        toast.success("Meeting scheduled");
       }else{
         setIsLoading(false);
+        toast.error(response.data.message || "Could not schedule the meeting");
       }
     } catch (error) {
       console.error(error);
+      toast.error(error?.response?.data?.message || "Could not schedule the meeting");
       setIsLoading(false);
     }
   };
@@ -94,6 +99,8 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
       if (response.data.success) {
         setIsScheduled(false);
         setIsLoading(false);
+        setScheduleData(null);
+        toast.success("Meeting schedule deleted");
       }else{
         setIsLoading(false);
       }
@@ -127,7 +134,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
     }
   }, [request._id]);
 
-  const sendTransactionOTP = async (buyeremail, productid) => {
+  const sendTransactionOTP = async () => {
     if (!hasProduct) return;
     setIsLoadingOTP(true);
     try {
@@ -136,8 +143,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
         "Content-Type": "multipart/form-data",
       };
       const bodyData = {
-        buyermail: buyeremail,
-        productid: productid
+        requestid: request._id,
       };
       const response = await apiConnector(
         "POST",
@@ -148,11 +154,14 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
       if (response.data.success) {
         setIsScheduled(true);
         setIsLoadingOTP(false);
+        toast.success("Verification OTP sent to the buyer");
       }else{
         setIsLoadingOTP(false);
+        toast.error(response.data.message || "Could not send the OTP");
       }
     } catch (error) {
       console.error(error);
+      toast.error(error?.response?.data?.message || "Could not send the OTP");
       setIsLoadingOTP(false);
     }
   }
@@ -160,6 +169,9 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
   useEffect(() => {
     fetchScheduleData();
   }, [fetchScheduleData]);
+  const selectedLocation = locations.find((location) => location._id === scheduleFormData.locationId);
+  const now = new Date();
+  const minimumDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   return (
     <>
       <div className="requested-product-item">
@@ -182,15 +194,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
           </p>
           <p>
             <b>Date: </b>
-            {`${new Date(request.requestdate)
-              .getDate()
-              .toString()
-              .padStart(2, "0")}/${new Date(request.requestdate)
-              .getMonth()
-              .toString()
-              .padStart(2, "0")}/${new Date(
-              request.requestdate
-            ).getFullYear()}`}
+            {new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(request.requestdate))}
           </p>
         </div>
         <div className="requested-product-item-btns">
@@ -221,7 +225,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
           {hasProduct && isScheduled && (
             <button
               className="schedule-btn"
-              onClick={() => sendTransactionOTP(request.buyer.email, request.product._id)}
+              onClick={sendTransactionOTP}
               style={{ minWidth: '150px' }}
             >
               Send OTP
@@ -305,13 +309,17 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
               <div className="delete-action-edit-product">
                 <form onSubmit={handleScheduleMeet}>
                   <div className="edit-product-form-section">
-                    <label>Venue</label>
-                    <input
-                      type="text"
-                      name="venue"
-                      value={scheduleFormData.venue}
+                    <label>Approved meeting location</label>
+                    <select
+                      name="locationId"
+                      value={scheduleFormData.locationId}
                       onChange={handleScheduleOnchange}
-                    />
+                      disabled={locationsQuery.isLoading}
+                    >
+                      <option value="">{locationsQuery.isLoading ? "Loading locations…" : "Select a location"}</option>
+                      {locations.map((location) => <option key={location._id} value={location._id}>{location.name} · {location.address}</option>)}
+                    </select>
+                    {selectedLocation && <small>Allowed time: {selectedLocation.startTime}–{selectedLocation.endTime}</small>}
                   </div>
                   <div className="edit-product-form-section">
                     <label>Date</label>
@@ -319,6 +327,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
                       type="date"
                       name="date"
                       value={scheduleFormData.date}
+                      min={minimumDate}
                       onChange={handleScheduleOnchange}
                     />
                   </div>
@@ -328,7 +337,10 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
                       type="time"
                       name="time"
                       value={scheduleFormData.time}
+                      min={selectedLocation?.startTime}
+                      max={selectedLocation?.endTime}
                       onChange={handleScheduleOnchange}
+                      disabled={!selectedLocation}
                     />
                   </div>
                   <div className="schedule-product-request-form-btn-section">
@@ -342,7 +354,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
                     <button
                       type="submit"
                       className="edit-product-modal-btn"
-                      data-bs-dismiss="modal"
+                      disabled={!selectedLocation || !scheduleFormData.date || !scheduleFormData.time || isLoading}
                     >
                       Schedule{" "}
                     </button>
@@ -383,7 +395,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
                   <div className="schedule-data-view-component-content">
                     <div>
                       <b>Name </b>
-                      <p>{request.buyer.firstname + request.buyer.lastname} </p>
+                      <p>{`${request.buyer.firstname || ""} ${request.buyer.lastname || ""}`.trim()} </p>
                     </div>
                     <div>
                       <b>Email </b>
@@ -400,7 +412,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
                   <div className="schedule-data-view-component-content">
                     <div>
                       <b>Venue </b>
-                      <p>{scheduleData && scheduleData.venue} </p>
+                      <p>{scheduleData?.locationSnapshot?.name || scheduleData?.venue} {scheduleData?.locationSnapshot?.address ? `· ${scheduleData.locationSnapshot.address}` : ""}</p>
                     </div>
                     <div>
                       <b>Date </b>

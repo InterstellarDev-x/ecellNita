@@ -23,6 +23,7 @@ const productschema=new mongoose.Schema({
     status:{
         type:String,
         enum:["Sold","Purchased","Forsale"],
+        default:"Forsale",
     },
     publicationStatus:{
         type:String,

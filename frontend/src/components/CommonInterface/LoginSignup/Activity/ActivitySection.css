@@ -4,7 +4,7 @@
 .auth-page {
   display: flex;
   min-height: 100vh;
-  font-family: "Noto Sans", sans-serif;
+  font-family: var(--font-sans);
   background: #f7f8fa;
 }
 
@@ -146,7 +146,7 @@
   cursor: pointer;
   color: #999;
   font-size: 0.82rem;
-  font-family: "Noto Sans", sans-serif;
+  font-family: var(--font-sans);
   font-weight: 500;
   padding: 0;
   transition: color 0.2s;
@@ -237,7 +237,7 @@
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   font-size: 0.9rem;
-  font-family: "Noto Sans", sans-serif;
+  font-family: var(--font-sans);
   background: #fafafa;
   color: #111;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -286,6 +286,12 @@
   gap: 4px;
 }
 
+.auth-success {
+  font-size: 0.8rem;
+  color: #067647;
+  font-weight: 700;
+}
+
 /* Forgot link */
 .auth-forgot {
   font-size: 0.82rem;
@@ -308,7 +314,7 @@
   color: #fff;
   font-size: 0.95rem;
   font-weight: 700;
-  font-family: "Noto Sans", sans-serif;
+  font-family: var(--font-sans);
   cursor: pointer;
   display: flex;
   align-items: center;

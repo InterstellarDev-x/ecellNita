@@ -1,10 +1,10 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, PackagePlus, CircleGauge, Package, PackageSearch, ChevronDown } from 'lucide-react';
+import { LogOut, PackagePlus, CircleGauge, Package, PackageSearch, ChevronDown, MessageCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import './SellerSidebar.css';
 
-function SellerSidebar({ open, onClose }) {
+function SellerSidebar({ open }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -61,6 +61,14 @@ function SellerSidebar({ open, onClose }) {
             <Link to='/seller/product-requests'>
               <Package size={20}/>
               <span>Active Requests</span>
+            </Link>
+            <Link to='/seller/questions'>
+              <MessageCircle size={20}/>
+              <span>Buyer Questions</span>
+            </Link>
+            <Link to='/feature-request'>
+              <PackagePlus size={20}/>
+              <span>Request a Feature</span>
             </Link>
             <Link className="logout-button" onClick={handleLogout}>
               <LogOut size={20}/>

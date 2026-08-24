@@ -18,7 +18,6 @@ function ProductListing() {
   const productsQuery = useMarketplaceProducts();
   const categoriesQuery = useMarketplaceCategories();
   const wishlistQuery = useWishlist();
-  const allProducts = productsQuery.data || [];
 
   const [searchTerm, setSearchTerm] = useState("");
   const [alphabeticalSortingOrder, setAlphabeticalSortingOrder] = useState("Alphabeticalasc");
@@ -34,8 +33,8 @@ function ProductListing() {
   const productsLoading = productsQuery.isLoading || categoriesQuery.isLoading || wishlistQuery.isLoading;
 
   const availableProducts = useMemo(
-    () => (allProducts || []).filter((product) => product?.status !== "Sold"),
-    [allProducts]
+    () => (productsQuery.data || []).filter((product) => product?.status === "Forsale" && Number(product?.quantity) > 0),
+    [productsQuery.data]
   );
 
   const maxProductPrice = useMemo(() => {

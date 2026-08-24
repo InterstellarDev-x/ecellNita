@@ -146,6 +146,7 @@ const createSubmission = async ({ seller, listing, files, reviewMode, aiDecision
     const submission = await ListingSubmission.create({
         seller,
         product,
+        operation: product ? "update" : "create",
         listing,
         stagedAssets,
         reviewMode,

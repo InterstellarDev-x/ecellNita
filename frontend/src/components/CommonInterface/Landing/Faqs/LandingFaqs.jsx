@@ -10,7 +10,7 @@ function LandingFaqs() {
       <h4>FAQs</h4>
       {
         allFaqs.map((faq)=>{
-          return <FaqBlocks question={faq.question} answer={faq.answer}/>
+          return <FaqBlocks key={faq.question} question={faq.question} answer={faq.answer}/>
         })
       }
     </div>

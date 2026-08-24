@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./SellerTopNavbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import NotificationBell from "../../CommonInterface/Notifications/NotificationBell";
 
 function SellerTopNavbar() {
   const [userDetails, setUserDetails] = useState(null);
@@ -52,6 +53,8 @@ function SellerTopNavbar() {
         <img src="/logo.png" alt="Campus Recycle" onClick={() => navigate("/seller/seller-dashboard")} />
       </div>
 
+      <div className="seller-top-navbar-actions">
+      <NotificationBell audience="seller" />
       <div className="profile" onClick={() => setProfileDrop(o => !o)} ref={dropdownRef}>
         <img
           src={profilePicture || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}
@@ -65,9 +68,11 @@ function SellerTopNavbar() {
           <div className="dropdown">
             <Link to="/student-profile" onClick={() => setProfileDrop(false)}>See Profile</Link>
             <Link to="/buyer/productlist" onClick={() => setProfileDrop(false)}>Switch to Buyer</Link>
+            <Link to="/feature-request" onClick={() => setProfileDrop(false)}>Request a feature</Link>
             <Link onClick={() => { setProfileDrop(false); handleLogout(); }} className="logout-button">Logout</Link>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

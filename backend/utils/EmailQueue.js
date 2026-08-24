@@ -63,24 +63,11 @@ class EmailQueue {
         
         this.processing = false;
     }
-
-    // Method to send email immediately (for critical emails)
-    async sendImmediate(email, title, body) {
-        try {
-            return await mailsender(email, title, body);
-        } catch (error) {
-            logger.warn('immediate email failed for %s, queuing for retry', email);
-            this.addToQueue(email, title, body);
-            throw error;
-        }
-    }
 }
 
 // Create a singleton instance
 const emailQueue = new EmailQueue();
 
 module.exports = {
-    emailQueue,
     sendEmailWithRetry: (email, title, body) => emailQueue.addToQueue(email, title, body),
-    sendEmailImmediate: (email, title, body) => emailQueue.sendImmediate(email, title, body)
 };

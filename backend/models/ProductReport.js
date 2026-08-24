@@ -10,4 +10,6 @@ const productReportSchema = new mongoose.Schema({
     resolvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 }, { timestamps: true });
 
+productReportSchema.index({ reporter: 1, product: 1, status: 1 });
+
 module.exports = mongoose.model("ProductReport", productReportSchema);

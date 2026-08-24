@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:4000/api/v1";
+const BASE_URL = import.meta.env.VITE_BASE_URL || import.meta.env.REACT_APP_BASE_URL || "http://localhost:4000/api/v1";
 //user routes apis
 export const authroutes={
     LOGIN_API:BASE_URL+"/auth/login",
@@ -13,6 +13,9 @@ export const authroutes={
     PRODUCT_REQUEST:BASE_URL+"/conversation/productrequest",
     GET_ALL_PRODUCT_REQUESTS:BASE_URL+"/conversation/all_received_request",
     GET_ALL_PRODUCTS:BASE_URL+"/product/getallproduct",
+    GET_MY_PRODUCTS:BASE_URL+"/product/mine",
+    MARKETPLACE_STATS:BASE_URL+"/product/stats",
+    PRODUCT_REPORTS:BASE_URL+"/product/reports",
     DELETE_PRODUCT_REQUEST:BASE_URL+"/conversation/deleterequest",
     SCHEDULE_MEET:BASE_URL+"/conversation/shedulemeet",
     GET_SCHEDULE_DATA:BASE_URL+"/conversation/get_shedule_data",
@@ -31,4 +34,12 @@ export const authroutes={
     ,ADMIN_USERS:BASE_URL+"/admin/users"
     ,ADMIN_SUBMISSIONS:BASE_URL+"/admin/submissions"
     ,ADMIN_SETTINGS:BASE_URL+"/admin/settings"
+    ,QUESTIONS:BASE_URL+"/questions"
+    ,NOTIFICATIONS:BASE_URL+"/notifications"
+    ,ADMIN_CONTENT_REPORTS:BASE_URL+"/admin/content-reports"
+    ,ADMIN_PRODUCT_REPORTS:BASE_URL+"/admin/product-reports"
+    ,ADMIN_MEETING_LOCATIONS:BASE_URL+"/admin/meeting-locations"
+    ,MEETING_LOCATIONS:BASE_URL+"/conversation/meeting-locations"
+    ,FEATURE_REQUESTS:BASE_URL+"/feature-requests"
+    ,ADMIN_FEATURE_REQUESTS:BASE_URL+"/admin/feature-requests"
 }

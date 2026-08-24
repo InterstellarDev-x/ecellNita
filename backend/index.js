@@ -18,6 +18,9 @@ const transactionroutes=require("./routes/checktransaction");
 const ratingandreviewsroutes=require("./routes/ratingandreviews");
 const wishlistroutes=require("./routes/wishlist");
 const adminroutes=require("./routes/admin");
+const questionroutes=require("./routes/questions");
+const notificationroutes=require("./routes/notification");
+const featureRequestroutes=require("./routes/featureRequests");
 //
 
 logger.info("Frontend URL: %s", process.env.HOST);
@@ -40,16 +43,26 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.json())
+app.use(express.json({limit:"100kb"}))
 app.use(cookieparser());
 const allowedOrigins = process.env.HOST
     ? process.env.HOST.split(",").map(o => o.trim())
-    : ["http://localhost:3000"];
+    : ["http://localhost:5173"];
 
-app.use(cors())
+app.use(cors({
+    origin:(origin,callback)=>{
+        if(!origin || allowedOrigins.includes(origin)) return callback(null,true);
+        return callback(new Error("Origin is not allowed by CORS"));
+    },
+    credentials:true,
+}))
 app.use(fileupload({
     useTempFiles:true,
-    tempFileDir:'/tmp/',
+    tempFileDir:process.env.UPLOAD_TMP_DIR || '/tmp/',
+    limits:{fileSize:3*1024*1024,files:6,fields:30},
+    abortOnLimit:true,
+    safeFileNames:true,
+    preserveExtension:true,
 }))
 
 //
@@ -62,6 +75,9 @@ app.use("/api/v1/transaction",transactionroutes);
 app.use("/api/v1/ratingandreviews", ratingandreviewsroutes);
 app.use("/api/v1/wishlist", wishlistroutes);
 app.use("/api/v1/admin", adminroutes);
+app.use("/api/v1/questions", questionroutes);
+app.use("/api/v1/notifications", notificationroutes);
+app.use("/api/v1/feature-requests", featureRequestroutes);
 
 //
 app.get("/",(req,res)=>{
@@ -80,6 +96,14 @@ app.get("/health", (req, res) => {
     });
 });
 
+app.use((error,_req,res,_next)=>{
+    if(error?.message==="Origin is not allowed by CORS"){
+        return res.status(403).json({success:false,message:"Origin is not allowed"});
+    }
+    logger.error("Unhandled request error: %s",error?.message || error);
+    return res.status(500).json({success:false,message:"Unexpected server error"});
+});
+
 
 
 
@@ -91,7 +115,7 @@ databaseConnect().then(()=> {
             })
         
     }).catch((e) => {
-        console.log("error ocuured")
+        console.log("error ocuured during startup")
         throw new Error(e)
     })
 

@@ -5,6 +5,7 @@ const ListingSubmission = require("../models/ListingSubmission");
 const ModerationReview = require("../models/ModerationReview");
 const ReviewConfiguration = require("../models/ReviewConfiguration");
 const AdminAuditLog = require("../models/AdminAuditLog");
+const ContentReport = require("../models/ContentReport");
 const cloudinary = require("cloudinary").v2;
 const { getReviewConfiguration, publishSubmission, destroyStagedAssets } = require("../services/listingReview");
 
@@ -116,4 +117,47 @@ exports.updateUserStatus = async (req, res) => {
         await logAction(req.user.id, "user_status_updated", "User", user._id, { accountStatus: before }, { accountStatus: user.accountStatus });
         return res.json({ success: true, data: user });
     } catch (error) { return res.status(500).json({ success: false, message: "Could not update user" }); }
+};
+
+exports.listContentReports = async (_req, res) => {
+    try {
+        const reports = await ContentReport.find({ status: "pending" })
+            .populate("reporter", "firstname lastname email")
+            .populate("reportedUser", "firstname lastname email accountStatus")
+            .populate({ path: "question", populate: { path: "product", select: "productname" } })
+            .sort({ createdAt: 1 })
+            .lean();
+        return res.json({ success: true, data: reports });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Could not load content reports" });
+    }
+};
+
+exports.reviewContentReport = async (req, res) => {
+    try {
+        const { resolution } = req.body;
+        if (!['dismissed', 'actioned'].includes(resolution)) {
+            return res.status(400).json({ success: false, message: "A valid report resolution is required" });
+        }
+        const report = await ContentReport.findById(req.params.reportId);
+        if (!report || report.status !== "pending") return res.status(404).json({ success: false, message: "Report not found" });
+        report.status = resolution;
+        report.reviewedBy = req.user.id;
+        report.reviewedAt = new Date();
+        await report.save();
+
+        if (resolution === "dismissed") {
+            const ProductQuestion = require("../models/ProductQuestion");
+            const question = await ProductQuestion.findById(report.question);
+            if (question) {
+                if (report.targetType === "question") question.questionHidden = false;
+                else if (question.answer) question.answer.hidden = false;
+                await question.save();
+            }
+        }
+        await logAction(req.user.id, `content_report_${resolution}`, "ContentReport", report._id, { status: "pending" }, { status: resolution });
+        return res.json({ success: true, data: report });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Could not review content report" });
+    }
 };
