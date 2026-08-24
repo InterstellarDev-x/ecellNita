@@ -1,0 +1,33 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+
+env:
+  VM_APP_DIR: /home/azureuser/ecellNita
+  DEPLOY_BRANCH: master
+  BACKEND_PM2_NAME: backend
+  FRONTEND_PM2_NAME: frontend
+
+jobs:
+  deploy:
+    name: Build and deploy on the VM
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: ${{ secrets.VM_PORT || 22 }}
+          command_timeout: 30m
+          script: |
+            ls -l
+            
+
+          
