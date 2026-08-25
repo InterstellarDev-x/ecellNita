@@ -107,8 +107,8 @@ MAIL_PASS=your-email-password-or-app-password
 # JWT secret
 JWT_SECRET=change_this_to_a_strong_secret
 
-# Optional: Host (printed by server)
-HOST=http://localhost:4000
+# Allowed frontend origins for CORS (comma-separated when there is more than one)
+HOST=http://localhost:3000,http://localhost:5173
 
 # Optional: upload temp dir (if you hit issues on Windows)
 # UPLOAD_TMP_DIR=C:\\Temp\\uploads
@@ -233,4 +233,3 @@ cd d:\\campus_recyle\\frontend; npm install; npm start
 
 
 If you want, I can create `backend/.env.example` and `frontend/.env.example` files, and optionally adjust the backend fileupload configuration to read a configurable temp folder so Windows hosts are supported without Docker.
-

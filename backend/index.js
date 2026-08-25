@@ -45,17 +45,29 @@ app.use((req, res, next) => {
 
 app.use(express.json({limit:"100kb"}))
 app.use(cookieparser());
-const allowedOrigins = process.env.HOST
-    ? process.env.HOST.split(",").map(o => o.trim())
-    : ["http://localhost:5173"];
-
-app.use(cors({
+const normalizeOrigin = (origin) => origin.trim().replace(/\/$/, "");
+const configuredOrigins = (process.env.HOST || "")
+    .split(",")
+    .map(normalizeOrigin)
+    .filter(Boolean);
+const developmentOrigins = process.env.NODE_ENV === "production" ? [] : [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+];
+const allowedOrigins = new Set([...configuredOrigins, ...developmentOrigins]);
+const corsOptions = {
     origin:(origin,callback)=>{
-        if(!origin || allowedOrigins.includes(origin)) return callback(null,true);
+        if(!origin || allowedOrigins.has(normalizeOrigin(origin))) return callback(null,true);
         return callback(new Error("Origin is not allowed by CORS"));
     },
     credentials:true,
-}))
+    methods:["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    allowedHeaders:["Authorization", "Content-Type"],
+};
+
+app.use(cors(corsOptions))
 app.use(fileupload({
     useTempFiles:true,
     tempFileDir:process.env.UPLOAD_TMP_DIR || '/tmp/',
