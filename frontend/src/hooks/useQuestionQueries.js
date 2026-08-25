@@ -76,3 +76,11 @@ export function useMarkNotificationRead() {
     onSuccess: () => client.invalidateQueries({ queryKey: questionKeys.notifications }),
   });
 }
+
+export function useMarkAllNotificationsRead() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async () => read(await apiConnector("PATCH", `${authroutes.NOTIFICATIONS}/read-all`, {}, headers()), "Could not update notifications."),
+    onSuccess: () => client.invalidateQueries({ queryKey: questionKeys.notifications }),
+  });
+}
