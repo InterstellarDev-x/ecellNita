@@ -3,6 +3,7 @@ import './ProductRequest.css';
 import ProductRequestElim from './ProductRequestElim';
 import { ClipboardList, PackageOpen } from 'lucide-react';
 import PageLoader from '../../CommonInterface/PageLoader/PageLoader';
+import BuyerPageHeader from '../BuyerPageHeader/BuyerPageHeader';
 import { useBuyerRequests, useDeleteBuyerRequest } from '../../../hooks/useBuyerQueries';
 
 function ProductRequest() {
@@ -17,17 +18,16 @@ function ProductRequest() {
         }
     };
   return (
-    <div className='buyer-product-request'>
-        <section className="buyer-request-hero">
-            <span className="buyer-request-hero-icon"><ClipboardList size={22} /></span>
-            <div>
-                <span className="buyer-request-kicker">Your activity</span>
-                <h1>Product requests</h1>
-                <p>Track seller responses, meeting details, and your pending pickups.</p>
-            </div>
-            <span className="buyer-request-count">{requests.length} active</span>
-        </section>
-        <div className="buyer-product-request-container">
+    <main className='buyer-page-shell buyer-product-request'>
+        <BuyerPageHeader
+            icon={ClipboardList}
+            kicker="Your activity"
+            title="Product requests"
+            description="Track seller responses, meeting details, and your pending pickups."
+            count={`${requests.length} active`}
+            accent="blue"
+        />
+        <div className="buyer-page-shell__content buyer-product-request-container">
             {loading ? <PageLoader /> : requests.length > 0 &&
                 requests.map((request, i)=>{
                 return <ProductRequestElim key={request._id || i} request={request} handleDeleteProductRequest={handleDeleteProductRequest} />
@@ -43,7 +43,7 @@ function ProductRequest() {
                 )
             }
         </div>
-    </div>
+    </main>
   )
 }
 

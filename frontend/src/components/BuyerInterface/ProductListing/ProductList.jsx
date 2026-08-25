@@ -4,16 +4,18 @@ import ProductCard from "./ProductCard";
 import { PackageSearch, RotateCcw } from "lucide-react";
 import PageLoader from "../../CommonInterface/PageLoader/PageLoader";
 
-function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onResetFilters, kicker = "Browse listings", title, totalLabel, emptyTitle, emptyDescription }) {
+function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onResetFilters, kicker = "Browse listings", title, totalLabel, emptyTitle, emptyDescription, hideHeader = false }) {
   return (
-    <section className="product-list">
-      <div className="product-list-header">
-        <div>
-          <span className="product-list-kicker">{kicker}</span>
-          <h2>{title || `${products.length} product${products.length === 1 ? "" : "s"}`}</h2>
+    <section className={`product-list${hideHeader ? " product-list--headerless" : ""}`}>
+      {!hideHeader && (
+        <div className="product-list-header">
+          <div>
+            <span className="product-list-kicker">{kicker}</span>
+            <h2>{title || `${products.length} product${products.length === 1 ? "" : "s"}`}</h2>
+          </div>
+          <span>{totalLabel || `${totalProducts} available in marketplace`}</span>
         </div>
-        <span>{totalLabel || `${totalProducts} available in marketplace`}</span>
-      </div>
+      )}
 
       {isLoading ? (
         <PageLoader className="buyer-product-list-loader" />

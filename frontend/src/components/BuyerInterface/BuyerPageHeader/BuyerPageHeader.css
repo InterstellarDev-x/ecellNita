@@ -1,0 +1,149 @@
+.buyer-page-shell {
+  min-height: calc(100vh - 64px);
+  padding: 30px clamp(16px, 4vw, 48px) 48px;
+  background: #f8fafc;
+}
+
+.buyer-page-shell__content,
+.buyer-page-header {
+  width: 100%;
+  max-width: 1180px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.buyer-page-header {
+  --page-accent: #08782e;
+  --page-accent-soft: #e7f5ea;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 0 2px 24px;
+  border-bottom: 1px solid #dce3dd;
+}
+
+.buyer-page-header--blue {
+  --page-accent: #2563eb;
+  --page-accent-soft: #e8f0ff;
+}
+
+.buyer-page-header--red {
+  --page-accent: #c93636;
+  --page-accent-soft: #fdeaea;
+}
+
+.buyer-page-header__main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.buyer-page-header__icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--page-accent-soft);
+  color: var(--page-accent);
+}
+
+.buyer-page-header__copy {
+  min-width: 0;
+}
+
+.buyer-page-header__kicker {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--page-accent);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.buyer-page-header h1,
+.buyer-page-header p {
+  margin: 0;
+}
+
+.buyer-page-header h1 {
+  color: #111827;
+  font-size: clamp(1.55rem, 2.2vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.buyer-page-header p {
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.buyer-page-header__count {
+  flex: 0 0 auto;
+  padding-bottom: 3px;
+  color: var(--page-accent);
+  font-size: 0.78rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .buyer-page-shell {
+    min-height: calc(100vh - 60px);
+    padding: 18px 16px calc(96px + env(safe-area-inset-bottom));
+    background: #f8f9fb;
+  }
+
+  .buyer-page-header {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 0 0 18px;
+  }
+
+  .buyer-page-header__main {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .buyer-page-header__icon {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    border-radius: 13px;
+  }
+
+  .buyer-page-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .buyer-page-header p {
+    max-width: 520px;
+    font-size: 0.8rem;
+  }
+
+  .buyer-page-header__count {
+    padding-top: 5px;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .buyer-page-header {
+    display: block;
+  }
+
+  .buyer-page-header__count {
+    display: block;
+    margin: 12px 0 0 54px;
+    padding: 0;
+  }
+}
