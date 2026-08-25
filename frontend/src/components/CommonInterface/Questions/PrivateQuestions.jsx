@@ -58,7 +58,7 @@ function QuestionCard({ item, audience }) {
   );
 }
 
-function PrivateQuestions({ audience }) {
+function PrivateQuestions({ audience, embedded = false }) {
   const buyerQuery = useBuyerQuestions(audience === "buyer");
   const sellerQuery = useSellerQuestions(audience === "seller");
   const query = audience === "seller" ? sellerQuery : buyerQuery;
@@ -66,9 +66,17 @@ function PrivateQuestions({ audience }) {
   const headline = audience === "seller" ? "Buyer questions" : "My private questions";
   const description = audience === "seller" ? "Answer product questions once. Keep every reply useful and respectful." : "Only you and the seller can see these conversations.";
 
+  const content = <>
+    {query.isLoading ? <div className="private-questions__empty">Loading private questions…</div> : query.isError ? <div className="private-questions__empty">{query.error.message || "Could not load questions."}</div> : questions.length === 0 ? <div className="private-questions__empty"><MessageCircle size={26} /><strong>No questions yet</strong><span>{audience === "seller" ? "Questions about your listings will appear here." : "Ask a seller from any product page when you need more detail."}</span></div> : <section className="private-questions__list">{questions.map((item) => <QuestionCard key={item._id} item={item} audience={audience} />)}</section>}
+  </>;
+
+  if (embedded) {
+    return <div className="private-questions private-questions--embedded">{content}</div>;
+  }
+
   return <main className="private-questions">
     <section className="private-questions__hero"><div className="private-questions__eyebrow"><MessageCircle size={16} /> Private conversations</div><h1>{headline}</h1><p>{description}</p></section>
-    {query.isLoading ? <div className="private-questions__empty">Loading private questions…</div> : query.isError ? <div className="private-questions__empty">{query.error.message || "Could not load questions."}</div> : questions.length === 0 ? <div className="private-questions__empty"><MessageCircle size={26} /><strong>No questions yet</strong><span>{audience === "seller" ? "Questions about your listings will appear here." : "Ask a seller from any product page when you need more detail."}</span></div> : <section className="private-questions__list">{questions.map((item) => <QuestionCard key={item._id} item={item} audience={audience} />)}</section>}
+    {content}
   </main>;
 }
 

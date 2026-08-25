@@ -14,7 +14,7 @@ function BuyerPageHeader({ icon: Icon, kicker, title, description, count, accent
           <p>{description}</p>
         </div>
       </div>
-      <span className="buyer-page-header__count">{count}</span>
+      {count && <span className="buyer-page-header__count">{count}</span>}
     </header>
   );
 }
