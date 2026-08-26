@@ -35,10 +35,12 @@ test("signup and reset validation reject weak or mismatched passwords", () => {
 
 test("listing image validation enforces count, MIME type, size, and temp storage", () => {
     const image = { mimetype: "image/jpeg", size: 1024, tempFilePath: "/tmp/product.jpg" };
-    assert.doesNotThrow(() => validateFiles([image, image, image]));
-    assert.throws(() => validateFiles([image, image]), /between 3 and 6 images/);
-    assert.throws(() => validateFiles([image, image, { ...image, mimetype: "text/html" }]), /JPG, PNG, or WebP/);
-    assert.throws(() => validateFiles([image, image, { ...image, size: 4 * 1024 * 1024 }]), /smaller than 3MB/);
+    assert.doesNotThrow(() => validateFiles([image]));
+    assert.doesNotThrow(() => validateFiles(Array(6).fill(image)));
+    assert.throws(() => validateFiles([]), /between 1 and 6 images/);
+    assert.throws(() => validateFiles(Array(7).fill(image)), /between 1 and 6 images/);
+    assert.throws(() => validateFiles([{ ...image, mimetype: "text/html" }]), /JPG, PNG, or WebP/);
+    assert.throws(() => validateFiles([{ ...image, size: 4 * 1024 * 1024 }]), /smaller than 3MB/);
 });
 
 test("listing quantity validation accepts bounded integers and rejects extreme values", () => {

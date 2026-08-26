@@ -30,7 +30,7 @@ const INITIAL_PRODUCT_DATA = {
   categoryid: "",
 };
 
-const MIN_IMAGES = 3;
+const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_MB = 3;
 

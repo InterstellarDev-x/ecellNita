@@ -12,7 +12,7 @@ const { cloudinaryuploader } = require("../utils/cloudinaryuploader");
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
-const MIN_IMAGES = 3;
+const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 
 const getReviewConfiguration = () => ReviewConfiguration.findOneAndUpdate(

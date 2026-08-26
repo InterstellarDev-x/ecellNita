@@ -7,7 +7,7 @@ import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema 
 
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
 const MAX_IMAGE_SIZE_MB = 3;
-const MIN_IMAGES = 3;
+const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 
 function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onReviewSubmitted }) {
