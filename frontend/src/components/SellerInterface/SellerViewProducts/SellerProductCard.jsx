@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
@@ -23,6 +23,8 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
   const [isLoading, setIsLoading] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
+  const editModalRef = useRef(null);
+  const editModalCloseRef = useRef(null);
 
   const imagePreviews = useMemo(
     () => editFormData.images.map((file) => ({ file, preview: URL.createObjectURL(file) })),
@@ -87,6 +89,18 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
     });
   };
 
+  const hideEditModal = () => new Promise((resolve) => {
+    const modalElement = editModalRef.current;
+    const closeButton = editModalCloseRef.current;
+    if (!modalElement?.classList.contains("show") || !closeButton) {
+      resolve();
+      return;
+    }
+
+    modalElement.addEventListener("hidden.bs.modal", resolve, { once: true });
+    closeButton.click();
+  });
+
   const handleSubmitEditProductForm = async (e) => {
     e.preventDefault();
     const quantityValidation = listingQuantitySchema.safeParse(editFormData.quantity);
@@ -121,13 +135,17 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
       if (response.data.success) {
         if (response.data.pendingReview) {
           setEditSuccess(response.data.message || "Your changes are awaiting review.");
+        } else {
+          setEditSuccess("Product updated successfully.");
+        }
+        setEditFormData((prev) => ({ ...prev, images: [] }));
+        await hideEditModal();
+        if (response.data.pendingReview) {
           onReviewSubmitted?.();
         } else {
           onProductUpdated(response.data.data);
-          setEditSuccess("Product updated successfully.");
           onReviewSubmitted?.();
         }
-        setEditFormData((prev) => ({ ...prev, images: [] }));
       } else {
         setEditError(response.data.message || "Could not update product.");
       }
@@ -172,12 +190,12 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
         </button>
       </div>
 
-      <div className="modal fade" id={modalId} tabIndex="-1" aria-hidden="true">
+      <div className="modal fade" id={modalId} tabIndex="-1" aria-hidden="true" ref={editModalRef}>
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content seller-product-modal">
             <div className="modal-header">
               <h5 className="modal-title">Edit Product</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" ref={editModalCloseRef}></button>
             </div>
             <div className="modal-body">
               <form onSubmit={handleSubmitEditProductForm} className="edit-product-form">
