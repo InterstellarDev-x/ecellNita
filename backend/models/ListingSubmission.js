@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { MAX_LISTING_QUANTITY } = require("../validation/product");
 
 const listingSubmissionSchema = new mongoose.Schema({
     seller: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
@@ -8,7 +9,16 @@ const listingSubmissionSchema = new mongoose.Schema({
         productname: String,
         productdescription: String,
         price: Number,
-        quantity: Number,
+        quantity: {
+            type: Number,
+            required: true,
+            min: [1, "Quantity cannot be less than 1"],
+            max: [MAX_LISTING_QUANTITY, `Quantity cannot exceed ${MAX_LISTING_QUANTITY}`],
+            validate: {
+                validator: Number.isSafeInteger,
+                message: "Quantity must be a safe whole number",
+            },
+        },
         status: String,
         category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
     },

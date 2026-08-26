@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema } from "../../../validation/product";
 
 const INITIAL_PRODUCT_DATA = {
   productname: "",
@@ -137,12 +138,13 @@ function AddProductForm() {
 
   const isFormValid = () => {
     const { productname, productdescription, price, quantity, categoryid } = addProductData;
+    const quantityValidation = listingQuantitySchema.safeParse(quantity);
 
     return (
       productname.trim() !== "" &&
       productdescription.trim() !== "" &&
       Number(price) > 0 &&
-      Number(quantity) > 0 &&
+      quantityValidation.success &&
       categoryid.trim() !== "" &&
       productImageFiles.length >= MIN_IMAGES
     );
@@ -153,7 +155,7 @@ function AddProductForm() {
   const readinessItems = [
     { label: "Product name", ready: Boolean(addProductData.productname.trim()) },
     { label: "Clear description", ready: Boolean(addProductData.productdescription.trim()) },
-    { label: "Price and quantity", ready: Number(addProductData.price) > 0 && Number(addProductData.quantity) > 0 },
+    { label: "Price and quantity", ready: Number(addProductData.price) > 0 && listingQuantitySchema.safeParse(addProductData.quantity).success },
     { label: "Category selected", ready: Boolean(addProductData.categoryid) },
     { label: `${MIN_IMAGES} or more photos`, ready: productImageFiles.length >= MIN_IMAGES },
   ];
@@ -166,6 +168,12 @@ function AddProductForm() {
     if (productImageFiles.length < MIN_IMAGES) {
       setIsImageAddErr(true);
       setStatusMessage({ type: "error", message: `Please add at least ${MIN_IMAGES} product images.` });
+      return;
+    }
+
+    const quantityValidation = listingQuantitySchema.safeParse(addProductData.quantity);
+    if (!quantityValidation.success) {
+      setStatusMessage({ type: "error", message: getFirstValidationMessage(quantityValidation.error) });
       return;
     }
 
@@ -362,7 +370,7 @@ function AddProductForm() {
               </div>
 
               <div className="form-segment">
-                <label htmlFor="quantity">Available quantity <span>*</span></label>
+                <label htmlFor="quantity">Available quantity (max {MAX_LISTING_QUANTITY}) <span>*</span></label>
                 <div className="input-with-icon">
                   <Boxes size={17} />
                   <input
@@ -371,6 +379,7 @@ function AddProductForm() {
                     placeholder="1"
                     name="quantity"
                     min="1"
+                    max={MAX_LISTING_QUANTITY}
                     step="1"
                     value={addProductData.quantity}
                     onChange={handleOnChange}

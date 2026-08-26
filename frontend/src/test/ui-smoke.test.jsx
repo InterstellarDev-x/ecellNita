@@ -6,6 +6,17 @@ import AdminRoute from "../router/AdminRoute";
 import NotFound from "../screens/NotFound";
 import ActivitySection from "../components/CommonInterface/LoginSignup/Activity/ActivitySection";
 import Getstarted from "../components/CommonInterface/LoginSignup/Getstarted/Getstarted";
+import { MAX_LISTING_QUANTITY, listingQuantitySchema } from "../validation/product";
+
+describe("product listing validation", () => {
+  it("accepts bounded whole-number quantities and rejects extreme values", () => {
+    expect(listingQuantitySchema.parse("1")).toBe(1);
+    expect(listingQuantitySchema.parse(String(MAX_LISTING_QUANTITY))).toBe(MAX_LISTING_QUANTITY);
+    for (const quantity of ["", "0", "1.5", "101", "1e100", "not-a-number"]) {
+      expect(listingQuantitySchema.safeParse(quantity).success).toBe(false);
+    }
+  });
+});
 
 describe("role and fallback routing", () => {
   it("allows moderators into the control panel", () => {

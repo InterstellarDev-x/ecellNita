@@ -3,6 +3,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const { signupSchema, resetPasswordSchema } = require("../validation/auth");
+const { MAX_LISTING_QUANTITY, listingQuantitySchema } = require("../validation/product");
 const { validateFiles } = require("../services/listingReview");
 const Profile = require("../models/Profile");
 const User = require("../models/User");
@@ -34,6 +35,14 @@ test("listing image validation enforces count, MIME type, size, and temp storage
     assert.throws(() => validateFiles([image, image]), /between 3 and 6 images/);
     assert.throws(() => validateFiles([image, image, { ...image, mimetype: "text/html" }]), /JPG, PNG, or WebP/);
     assert.throws(() => validateFiles([image, image, { ...image, size: 4 * 1024 * 1024 }]), /smaller than 3MB/);
+});
+
+test("listing quantity validation accepts bounded integers and rejects extreme values", () => {
+    assert.equal(listingQuantitySchema.parse("1"), 1);
+    assert.equal(listingQuantitySchema.parse(String(MAX_LISTING_QUANTITY)), MAX_LISTING_QUANTITY);
+    for (const quantity of ["", "0", "1.5", "101", "1e100", "not-a-number"]) {
+        assert.equal(listingQuantitySchema.safeParse(quantity).success, false, `expected ${quantity || "empty input"} to be rejected`);
+    }
 });
 
 test("profile schema rejects invalid contact numbers and graduation years", () => {

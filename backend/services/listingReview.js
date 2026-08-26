@@ -180,7 +180,7 @@ const publishSubmission = async (submission, reviewerId) => {
             ...submission.listing.toObject(),
             ...(uploadedAssets.length ? { images: uploadedAssets.map((asset) => asset.url), imageAssets: uploadedAssets } : {}),
             moderation: { policyVersion: "human-review", finalDecision: "human_approved", reviewedAt: new Date(), reviewedBy: reviewerId },
-        }, { new: true });
+        }, { new: true, runValidators: true });
         return product;
     }
     const product = await Product.create({

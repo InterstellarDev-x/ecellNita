@@ -1,4 +1,5 @@
 const mongoose=require("mongoose");
+const { MAX_LISTING_QUANTITY } = require("../validation/product");
 
 const productschema=new mongoose.Schema({
     productname:{
@@ -53,6 +54,11 @@ const productschema=new mongoose.Schema({
     quantity:{
         type:Number,
         min:[1,"Quantity cannot be less than 1"],
+        max:[MAX_LISTING_QUANTITY,`Quantity cannot exceed ${MAX_LISTING_QUANTITY}`],
+        validate:{
+            validator:Number.isSafeInteger,
+            message:"Quantity must be a safe whole number",
+        },
         default:1,
     },
     owner:{

@@ -3,6 +3,7 @@ import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { Edit3, ImagePlus, IndianRupee, Package, Save, Trash2, X } from "lucide-react";
+import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema } from "../../../validation/product";
 
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
 const MAX_IMAGE_SIZE_MB = 3;
@@ -88,6 +89,11 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
 
   const handleSubmitEditProductForm = async (e) => {
     e.preventDefault();
+    const quantityValidation = listingQuantitySchema.safeParse(editFormData.quantity);
+    if (!quantityValidation.success) {
+      setEditError(getFirstValidationMessage(quantityValidation.error));
+      return;
+    }
     if (editFormData.images.length > 0 && editFormData.images.length < MIN_IMAGES) {
       setEditError(`Upload at least ${MIN_IMAGES} replacement images, or leave images unchanged.`);
       return;
@@ -127,7 +133,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
       }
     } catch (error) {
       console.error(error);
-      setEditError("Something went wrong while updating product.");
+      setEditError(error?.response?.data?.message || "Something went wrong while updating product.");
     } finally {
       setIsLoading(false);
     }
@@ -196,8 +202,8 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
                     <input type="number" min="1" name="price" value={editFormData.price} onChange={handleEditProductOnChange} required />
                   </div>
                   <div className="edit-product-form-section">
-                    <label>Quantity</label>
-                    <input type="number" min="1" name="quantity" value={editFormData.quantity} onChange={handleEditProductOnChange} required />
+                    <label>Quantity (max {MAX_LISTING_QUANTITY})</label>
+                    <input type="number" min="1" max={MAX_LISTING_QUANTITY} step="1" name="quantity" value={editFormData.quantity} onChange={handleEditProductOnChange} required />
                   </div>
                 </div>
 

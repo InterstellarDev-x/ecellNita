@@ -3,6 +3,7 @@ const mongoose=require("mongoose");
 const Category = require("../models/Category");
 const Product = require("../models/Product");
 const ListingSubmission = require("../models/ListingSubmission");
+const { listingQuantitySchema, getFirstValidationMessage } = require("../validation/product");
 
 const User=require("../models/User");
 const {cloudinaryuploader}=require("../utils/cloudinaryuploader");
@@ -24,15 +25,18 @@ exports.createproduct=async (req,res)=>{
         const imagearr=req.files?.images || req.files?.['images[]'];
         const {productname,productdescription,price,quantity,categoryid}=req.body;
         const numericPrice=Number(price);
-        const numericQuantity=Number(quantity);
+        const quantityValidation=listingQuantitySchema.safeParse(quantity);
         if(!id || typeof productname!=="string" || !productname.trim() || typeof productdescription!=="string" || !productdescription.trim() || !mongoose.Types.ObjectId.isValid(categoryid)){
             return res.status(400).json({
                 success:false,
                 message:"All fields are required"
             })
         }
-        if(!Number.isFinite(numericPrice) || numericPrice<1 || !Number.isInteger(numericQuantity) || numericQuantity<1){
-            return res.status(400).json({success:false,message:"Price and quantity must be positive"});
+        if(!Number.isFinite(numericPrice) || numericPrice<1){
+            return res.status(400).json({success:false,message:"Price must be at least 1"});
+        }
+        if(!quantityValidation.success){
+            return res.status(400).json({success:false,message:getFirstValidationMessage(quantityValidation.error)});
         }
         if(!imagearr){
             return res.status(400).json({
@@ -52,7 +56,7 @@ exports.createproduct=async (req,res)=>{
         const category = await Category.findById(categoryid);
         if (!category) return res.status(400).json({ success: false, message: "Category not found" });
 
-        const listing = { productname: productname.trim(), productdescription: productdescription.trim(), price: numericPrice, status: "Forsale", quantity: numericQuantity, category: categoryid };
+        const listing = { productname: productname.trim(), productdescription: productdescription.trim(), price: numericPrice, status: "Forsale", quantity: quantityValidation.data, category: categoryid };
         const configuration = await getReviewConfiguration();
         let response;
         if (configuration.mode === "no_review") {
@@ -127,15 +131,18 @@ exports.updateproduct=async (req,res)=>{
         if(productdescription!==undefined) updateData.productdescription=String(productdescription).trim();
         if(price!==undefined) updateData.price=Number(price);
         if(status!==undefined) updateData.status=status;
-        if(quantity!==undefined) updateData.quantity=Number(quantity);
+        if(quantity!==undefined){
+            const quantityValidation=listingQuantitySchema.safeParse(quantity);
+            if(!quantityValidation.success){
+                return res.status(400).json({success:false,message:getFirstValidationMessage(quantityValidation.error)});
+            }
+            updateData.quantity=quantityValidation.data;
+        }
         if((updateData.productname!==undefined && !updateData.productname) || (updateData.productdescription!==undefined && !updateData.productdescription)){
             return res.status(400).json({success:false,message:"Product name and description cannot be empty"});
         }
         if(updateData.price!==undefined && (!Number.isFinite(updateData.price) || updateData.price<1)){
             return res.status(400).json({success:false,message:"Price must be at least 1"});
-        }
-        if(updateData.quantity!==undefined && (!Number.isInteger(updateData.quantity) || updateData.quantity<1)){
-            return res.status(400).json({success:false,message:"Quantity must be a whole number of at least 1"});
         }
         if(updateData.status!==undefined && !["Forsale","Sold","Purchased"].includes(updateData.status)){
             return res.status(400).json({success:false,message:"Invalid product status"});
