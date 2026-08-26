@@ -76,6 +76,34 @@ const listFor = (field) => async (req, res) => {
 exports.listBuyerQuestions = listFor("buyer");
 exports.listSellerQuestions = listFor("seller");
 
+exports.deleteQuestion = async (req, res) => {
+    try {
+        const { questionId } = req.params;
+        if (!validId(questionId)) {
+            return res.status(400).json({ success: false, message: "A valid question is required" });
+        }
+
+        const deleted = await ProductQuestion.findOneAndDelete({
+            _id: questionId,
+            buyer: req.user.id,
+            questionHidden: false,
+            "answer.body": { $exists: false },
+        });
+
+        if (!deleted) {
+            const question = await ProductQuestion.findOne({ _id: questionId, buyer: req.user.id }).select("answer.body questionHidden").lean();
+            if (!question) return res.status(404).json({ success: false, message: "Question not found" });
+            if (question.questionHidden) return res.status(409).json({ success: false, message: "A question under review cannot be unsent" });
+            return res.status(409).json({ success: false, message: "A question cannot be unsent after the seller replies" });
+        }
+
+        await Notification.deleteMany({ question: deleted._id });
+        return res.json({ success: true, message: "Question unsent", data: { questionId: deleted._id } });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Could not unsend the question" });
+    }
+};
+
 exports.answerQuestion = async (req, res) => {
     try {
         const { questionId } = req.params;

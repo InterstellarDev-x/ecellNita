@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Flag, MessageCircle, Send } from "lucide-react";
+import { Flag, MessageCircle, Send, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
-import { useAnswerProductQuestion, useBuyerQuestions, useReportProductQuestion, useSellerQuestions } from "../../../hooks/useQuestionQueries";
+import { useAnswerProductQuestion, useBuyerQuestions, useDeleteProductQuestion, useReportProductQuestion, useSellerQuestions } from "../../../hooks/useQuestionQueries";
 import "./PrivateQuestions.css";
 
 const formatDate = (value) => new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -21,7 +21,9 @@ function ReportButton({ questionId, targetType }) {
 
 function QuestionCard({ item, audience }) {
   const [answer, setAnswer] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const reply = useAnswerProductQuestion();
+  const deleteQuestion = useDeleteProductQuestion();
   const seller = audience === "seller";
   const submitReply = async (event) => {
     event.preventDefault();
@@ -33,17 +35,43 @@ function QuestionCard({ item, audience }) {
     } catch (error) { toast.error(error.message || "Could not send the reply."); }
   };
 
+  const submitDelete = async () => {
+    try {
+      await deleteQuestion.mutateAsync(item._id);
+      toast.success("Question unsent.");
+    } catch (error) {
+      setConfirmingDelete(false);
+      toast.error(error?.response?.data?.message || error.message || "Could not unsend the question.");
+    }
+  };
+
   return (
     <article className="private-questions__card">
       <header>
         <div className="private-questions__product"><img src={item.product?.images?.[0] || "/logo192.png"} alt="" /><span><strong>{item.product?.productname || "Product"}</strong><small>{formatDate(item.createdAt)}</small></span></div>
-        <span className={`private-questions__status ${item.answer ? "is-answered" : ""}`}>{item.answer ? "Answered" : "Awaiting reply"}</span>
+        <div className="private-questions__header-actions">
+          <span className={`private-questions__status ${item.answer ? "is-answered" : ""}`}>{item.answer ? "Answered" : "Awaiting reply"}</span>
+          {!seller && !item.answer && !item.questionHidden && (
+            <button type="button" className="private-questions__unsend" onClick={() => setConfirmingDelete(true)} disabled={deleteQuestion.isPending}>
+              <Trash2 size={13} /> Unsend
+            </button>
+          )}
+        </div>
       </header>
       <section className="private-questions__message">
         <div className="private-questions__label">Buyer’s question</div>
         {item.questionHidden ? <p className="private-questions__hidden">This question is hidden pending admin review.</p> : <p>{item.question}</p>}
         {seller && !item.questionHidden && <ReportButton questionId={item._id} targetType="question" />}
       </section>
+      {confirmingDelete && (
+        <section className="private-questions__unsend-confirm" role="alert">
+          <span><strong>Unsend this question?</strong><small>It will disappear for both you and the seller.</small></span>
+          <div>
+            <button type="button" className="is-cancel" onClick={() => setConfirmingDelete(false)} disabled={deleteQuestion.isPending}>Keep it</button>
+            <button type="button" className="is-danger" onClick={submitDelete} disabled={deleteQuestion.isPending}>{deleteQuestion.isPending ? "Unsending…" : "Yes, unsend"}</button>
+          </div>
+        </section>
+      )}
       {item.answer && <section className="private-questions__message private-questions__answer">
         <div className="private-questions__label">Seller’s reply <small>{formatDate(item.answer.respondedAt)}</small></div>
         {item.answer.hidden ? <p className="private-questions__hidden">This reply is hidden pending admin review.</p> : <p>{item.answer.body}</p>}

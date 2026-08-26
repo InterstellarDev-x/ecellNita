@@ -2,11 +2,15 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
+const mongoose = require("mongoose");
 const { signupSchema, resetPasswordSchema } = require("../validation/auth");
 const { MAX_LISTING_QUANTITY, listingQuantitySchema } = require("../validation/product");
 const { validateFiles } = require("../services/listingReview");
 const Profile = require("../models/Profile");
 const User = require("../models/User");
+const ProductQuestion = require("../models/ProductQuestion");
+const Notification = require("../models/Notification");
+const questionController = require("../controllers/questions");
 
 const validSignup = {
     firstname: "Aditi",
@@ -54,4 +58,43 @@ test("authentication fields are excluded from user queries by default", () => {
     assert.equal(User.schema.path("hashedpassword").options.select, false);
     assert.equal(User.schema.path("forgotpasswordlink").options.select, false);
     assert.equal(User.schema.path("forgotpasswordlinkexpires").options.select, false);
+});
+
+test("buyers can unsend only their unanswered, unreported questions", async () => {
+    const questionId = new mongoose.Types.ObjectId().toString();
+    const buyerId = new mongoose.Types.ObjectId().toString();
+    const originalFindOneAndDelete = ProductQuestion.findOneAndDelete;
+    const originalFindOne = ProductQuestion.findOne;
+    const originalDeleteMany = Notification.deleteMany;
+    const response = () => ({
+        statusCode: 200,
+        status(code) { this.statusCode = code; return this; },
+        json(body) { this.body = body; return this; },
+    });
+
+    try {
+        ProductQuestion.findOneAndDelete = async (filter) => {
+            assert.equal(filter._id, questionId);
+            assert.equal(filter.buyer, buyerId);
+            assert.equal(filter.questionHidden, false);
+            assert.deepEqual(filter["answer.body"], { $exists: false });
+            return { _id: questionId };
+        };
+        Notification.deleteMany = async (filter) => assert.equal(filter.question, questionId);
+        const deletedResponse = response();
+        await questionController.deleteQuestion({ params: { questionId }, user: { id: buyerId } }, deletedResponse);
+        assert.equal(deletedResponse.statusCode, 200);
+        assert.equal(deletedResponse.body.success, true);
+
+        ProductQuestion.findOneAndDelete = async () => null;
+        ProductQuestion.findOne = () => ({ select: () => ({ lean: async () => ({ questionHidden: false, answer: { body: "Already answered" } }) }) });
+        const answeredResponse = response();
+        await questionController.deleteQuestion({ params: { questionId }, user: { id: buyerId } }, answeredResponse);
+        assert.equal(answeredResponse.statusCode, 409);
+        assert.match(answeredResponse.body.message, /after the seller replies/);
+    } finally {
+        ProductQuestion.findOneAndDelete = originalFindOneAndDelete;
+        ProductQuestion.findOne = originalFindOne;
+        Notification.deleteMany = originalDeleteMany;
+    }
 });

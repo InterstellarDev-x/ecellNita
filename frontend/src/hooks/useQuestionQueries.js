@@ -49,6 +49,18 @@ export function useAnswerProductQuestion() {
   });
 }
 
+export function useDeleteProductQuestion() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (questionId) => read(await apiConnector("DELETE", `${authroutes.QUESTIONS}/${questionId}`, null, headers()), "Could not unsend the question."),
+    onSuccess: () => Promise.all([
+      client.invalidateQueries({ queryKey: questionKeys.buyer }),
+      client.invalidateQueries({ queryKey: questionKeys.seller }),
+      client.invalidateQueries({ queryKey: questionKeys.notifications }),
+    ]),
+  });
+}
+
 export function useReportProductQuestion() {
   const client = useQueryClient();
   return useMutation({
