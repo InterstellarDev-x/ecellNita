@@ -11,6 +11,7 @@ const User = require("../models/User");
 const ProductQuestion = require("../models/ProductQuestion");
 const Notification = require("../models/Notification");
 const questionController = require("../controllers/questions");
+const { PRODUCT_IMAGE_TRANSFORMATION, productImageUploadOptions } = require("../utils/productImageUpload");
 
 const validSignup = {
     firstname: "Aditi",
@@ -41,6 +42,15 @@ test("listing image validation enforces count, MIME type, size, and temp storage
     assert.throws(() => validateFiles(Array(7).fill(image)), /between 1 and 6 images/);
     assert.throws(() => validateFiles([{ ...image, mimetype: "text/html" }]), /JPG, PNG, or WebP/);
     assert.throws(() => validateFiles([{ ...image, size: 4 * 1024 * 1024 }]), /smaller than 3MB/);
+});
+
+test("Cloudinary product uploads cap dimensions and use automatic quality", () => {
+    assert.deepEqual(PRODUCT_IMAGE_TRANSFORMATION, [{ width: 1600, height: 1600, crop: "limit", quality: "auto:good" }]);
+    assert.deepEqual(productImageUploadOptions({ type: "authenticated" }), {
+        resource_type: "image",
+        transformation: PRODUCT_IMAGE_TRANSFORMATION,
+        type: "authenticated",
+    });
 });
 
 test("listing quantity validation accepts bounded integers and rejects extreme values", () => {

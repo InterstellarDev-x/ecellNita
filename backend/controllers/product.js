@@ -7,6 +7,7 @@ const { listingQuantitySchema, getFirstValidationMessage } = require("../validat
 
 const User=require("../models/User");
 const {cloudinaryuploader}=require("../utils/cloudinaryuploader");
+const {productImageUploadOptions}=require("../utils/productImageUpload");
 const {
     getReviewConfiguration, normaliseFiles, validateFiles, cleanupTempFiles,
     runAiReview, publishProduct, createSubmission,
@@ -180,7 +181,7 @@ exports.updateproduct=async (req,res)=>{
         if(files.length){
             const uploadedAssets = await Promise.all(
                 files.map(file =>
-                    cloudinaryuploader(file, process.env.FOLDER_NAME, 1000, 1000)
+                    cloudinaryuploader(file, process.env.FOLDER_NAME, null, null, productImageUploadOptions())
                         .then(result => ({ url: result.secure_url, publicId: result.public_id, assetId: result.asset_id, resourceType: result.resource_type }))
                 )
             );

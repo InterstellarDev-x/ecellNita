@@ -7,6 +7,7 @@ import NotFound from "../screens/NotFound";
 import ActivitySection from "../components/CommonInterface/LoginSignup/Activity/ActivitySection";
 import Getstarted from "../components/CommonInterface/LoginSignup/Getstarted/Getstarted";
 import { MAX_LISTING_QUANTITY, listingQuantitySchema } from "../validation/product";
+import { MAX_PRODUCT_IMAGE_SIZE_MB, validateProductImage } from "../utils/productImageCompression";
 
 describe("product listing validation", () => {
   it("accepts bounded whole-number quantities and rejects extreme values", () => {
@@ -15,6 +16,14 @@ describe("product listing validation", () => {
     for (const quantity of ["", "0", "1.5", "101", "1e100", "not-a-number"]) {
       expect(listingQuantitySchema.safeParse(quantity).success).toBe(false);
     }
+  });
+
+  it("accepts supported product images up to 3MB", () => {
+    const validImage = new File([new Uint8Array(1024)], "product.jpg", { type: "image/jpeg" });
+    const oversizedImage = { ...validImage, name: "large.jpg", type: "image/jpeg", size: (MAX_PRODUCT_IMAGE_SIZE_MB * 1024 * 1024) + 1 };
+    expect(validateProductImage(validImage)).toBe("");
+    expect(validateProductImage(oversizedImage)).toMatch(/3MB or smaller/);
+    expect(validateProductImage(new File(["text"], "product.txt", { type: "text/plain" }))).toMatch(/JPG, PNG, or WebP/);
   });
 });
 

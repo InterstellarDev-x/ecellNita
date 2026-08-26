@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema } from "../../../validation/product";
+import { MAX_PRODUCT_IMAGE_SIZE_MB, compressProductImage, validateProductImage } from "../../../utils/productImageCompression";
 
 const INITIAL_PRODUCT_DATA = {
   productname: "",
@@ -32,10 +33,10 @@ const INITIAL_PRODUCT_DATA = {
 
 const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
-const MAX_IMAGE_SIZE_MB = 3;
 
 function AddProductForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [isImageAddErr, setIsImageAddErr] = useState(false);
   const [productImageFiles, setProductImageFiles] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
@@ -78,48 +79,53 @@ function AddProductForm() {
     setAddProductData({ ...addProductData, [event.target.name]: event.target.value });
   };
 
-  const validateImageFile = (file) => {
-    if (!file.type.startsWith("image/")) {
-      return "Only image files are allowed.";
-    }
-
-    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-      return `Each image must be smaller than ${MAX_IMAGE_SIZE_MB}MB.`;
-    }
-
-    return "";
-  };
-
-  const productImagefilesOnchange = (event) => {
+  const productImagefilesOnchange = async (event) => {
     const selectedFiles = Array.from(event.target.files || []);
+    event.target.value = "";
     if (!selectedFiles.length) return;
 
     const newFiles = [...productImageFiles];
+    let processingError = "";
+    setIsCompressing(true);
+    setStatusMessage({ type: "info", message: "Optimizing photos for a faster upload…" });
 
-    for (const file of selectedFiles) {
-      const validationError = validateImageFile(file);
-      if (validationError) {
-        setStatusMessage({ type: "error", message: validationError });
-        continue;
+    try {
+      for (const file of selectedFiles) {
+        if (newFiles.length >= MAX_IMAGES) break;
+        const validationError = validateProductImage(file);
+        if (validationError) {
+          processingError ||= validationError;
+          continue;
+        }
+
+        const alreadyAdded = newFiles.some((currentFile) => currentFile.name === file.name && currentFile.lastModified === file.lastModified);
+        if (!alreadyAdded) {
+          try {
+            newFiles.push(await compressProductImage(file));
+          } catch (error) {
+            console.error("Could not optimize image:", error);
+            processingError ||= `Could not optimize ${file.name}. Please choose another image.`;
+          }
+        }
       }
 
-      const alreadyAdded = newFiles.find((currentFile) => currentFile.name === file.name && currentFile.size === file.size);
-      if (!alreadyAdded && newFiles.length < MAX_IMAGES) {
-        newFiles.push(file);
+      setProductImageFiles(newFiles);
+      setIsImageAddErr(false);
+      if (processingError) {
+        setStatusMessage({ type: "error", message: processingError });
+      } else if (newFiles.length >= MAX_IMAGES) {
+        setStatusMessage({ type: "info", message: `Maximum ${MAX_IMAGES} images can be uploaded.` });
+      } else {
+        setStatusMessage({ type: "success", message: "Photos optimized and ready to upload." });
       }
+    } finally {
+      setIsCompressing(false);
     }
-
-    if (newFiles.length >= MAX_IMAGES && selectedFiles.length) {
-      setStatusMessage({ type: "info", message: `Maximum ${MAX_IMAGES} images can be uploaded.` });
-    }
-
-    setProductImageFiles(newFiles);
-    setIsImageAddErr(false);
-    event.target.value = "";
   };
 
   const handleDrop = (event) => {
     event.preventDefault();
+    if (isLoading || isCompressing) return;
     productImagefilesOnchange({ target: { files: event.dataTransfer.files, value: "" } });
   };
 
@@ -440,7 +446,7 @@ function AddProductForm() {
               <span className="image-dropzone-icon"><UploadCloud size={27} /></span>
               <strong>Drop product photos here</strong>
               <span><b>Browse files</b> or drag and drop</span>
-              <small>JPG, PNG, JPEG or WebP · max {MAX_IMAGE_SIZE_MB}MB each</small>
+              <small>JPG, PNG, JPEG or WebP · max {MAX_PRODUCT_IMAGE_SIZE_MB}MB each · optimized before upload</small>
               <input
                 type="file"
                 id="product_images"
@@ -450,7 +456,7 @@ function AddProductForm() {
                 onChange={productImagefilesOnchange}
                 multiple
                 hidden
-                disabled={isLoading || productImageFiles.length >= MAX_IMAGES}
+                disabled={isLoading || isCompressing || productImageFiles.length >= MAX_IMAGES}
               />
             </label>
 
@@ -462,7 +468,7 @@ function AddProductForm() {
                   <article key={`${file.name}-${file.size}`} className="image-preview-card">
                     <img src={preview} alt={`${addProductData.productname || "Product"} view ${index + 1}`} />
                     {index === 0 && <span className="cover-badge">Cover</span>}
-                    <button type="button" onClick={() => removeProductImageFile(file)} aria-label={`Remove ${file.name}`} disabled={isLoading}>
+                    <button type="button" onClick={() => removeProductImageFile(file)} aria-label={`Remove ${file.name}`} disabled={isLoading || isCompressing}>
                       <X size={15} />
                     </button>
                     <div>
@@ -478,11 +484,13 @@ function AddProductForm() {
           <footer className="add-product-form-footer">
             <p><ShieldCheck size={16} /> You can edit listing details later from My Products.</p>
             <div>
-              <button type="button" className="btn-reset-product" onClick={resetForm} disabled={isLoading}>
+              <button type="button" className="btn-reset-product" onClick={resetForm} disabled={isLoading || isCompressing}>
                 <RotateCcw size={16} /> Reset
               </button>
-              <button type="submit" className="btn-submit-product" disabled={isLoading || !formValid}>
-                {isLoading ? (
+              <button type="submit" className="btn-submit-product" disabled={isLoading || isCompressing || !formValid}>
+                {isCompressing ? (
+                  <><SmallLoader className="add-product-spinner" size={13} color="#ffffff" /> Optimizing photos…</>
+                ) : isLoading ? (
                   <><SmallLoader className="add-product-spinner" size={13} color="#ffffff" /> Submitting…</>
                 ) : (
                   <><Save size={16} /> Submit listing</>

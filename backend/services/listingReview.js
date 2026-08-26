@@ -9,6 +9,7 @@ const Product = require("../models/Product");
 const ReviewConfiguration = require("../models/ReviewConfiguration");
 const User = require("../models/User");
 const { cloudinaryuploader } = require("../utils/cloudinaryuploader");
+const { productImageUploadOptions } = require("../utils/productImageUpload");
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
@@ -117,12 +118,12 @@ const runAiReview = async ({ files, listing, configuration }) => {
 };
 
 const uploadPublicAssets = async (files) => Promise.all(files.map(async (file) => {
-    const result = await cloudinaryuploader(file, process.env.FOLDER_NAME, 1000, 1000);
+    const result = await cloudinaryuploader(file, process.env.FOLDER_NAME, null, null, productImageUploadOptions());
     return { url: result.secure_url, publicId: result.public_id, assetId: result.asset_id, resourceType: result.resource_type };
 }));
 
 const stageAssets = async (files) => Promise.all(files.map(async (file) => {
-    const result = await cloudinaryuploader(file, "listing-submissions", 1000, 1000, { type: "authenticated" });
+    const result = await cloudinaryuploader(file, "listing-submissions", null, null, productImageUploadOptions({ type: "authenticated" }));
     return { publicId: result.public_id, assetId: result.asset_id, resourceType: result.resource_type, mimeType: file.mimetype, size: file.size };
 }));
 

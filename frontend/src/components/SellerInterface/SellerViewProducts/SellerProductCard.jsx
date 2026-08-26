@@ -4,9 +4,9 @@ import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { Edit3, ImagePlus, IndianRupee, Package, Save, Trash2, X } from "lucide-react";
 import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema } from "../../../validation/product";
+import { MAX_PRODUCT_IMAGE_SIZE_MB, compressProductImage, validateProductImage } from "../../../utils/productImageCompression";
 
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
-const MAX_IMAGE_SIZE_MB = 3;
 const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 
@@ -21,6 +21,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
     images: [],
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
   const editModalRef = useRef(null);
@@ -35,34 +36,40 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
     return () => imagePreviews.forEach((item) => URL.revokeObjectURL(item.preview));
   }, [imagePreviews]);
 
-  const handleEditProductOnChange = (e) => {
+  const handleEditProductOnChange = async (e) => {
     setEditError("");
     setEditSuccess("");
     if (e.target.name === "images") {
       const selectedFiles = Array.from(e.target.files || []);
-      const validFiles = [];
-
-      for (const file of selectedFiles) {
-        if (!file.type.startsWith("image/")) {
-          setEditError("Only image files are allowed.");
-          continue;
-        }
-        if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-          setEditError(`Each image must be smaller than ${MAX_IMAGE_SIZE_MB}MB.`);
-          continue;
-        }
-        validFiles.push(file);
-      }
-
-      setEditFormData((prev) => {
-        const images = [...prev.images, ...validFiles];
-        if (images.length > MAX_IMAGES) {
-          setEditError(`Upload no more than ${MAX_IMAGES} replacement images.`);
-          return prev;
-        }
-        return { ...prev, images };
-      });
       e.target.value = "";
+      const compressedFiles = [];
+      let processingError = "";
+      setIsCompressing(true);
+
+      try {
+        const availableSlots = Math.max(0, MAX_IMAGES - editFormData.images.length);
+        for (const file of selectedFiles.slice(0, availableSlots)) {
+          const validationError = validateProductImage(file);
+          if (validationError) {
+            processingError ||= validationError;
+            continue;
+          }
+          try {
+            compressedFiles.push(await compressProductImage(file));
+          } catch (error) {
+            console.error("Could not optimize replacement image:", error);
+            processingError ||= `Could not optimize ${file.name}. Please choose another image.`;
+          }
+        }
+
+        setEditFormData((prev) => ({ ...prev, images: [...prev.images, ...compressedFiles].slice(0, MAX_IMAGES) }));
+        if (selectedFiles.length > availableSlots) {
+          processingError ||= `Upload no more than ${MAX_IMAGES} replacement images.`;
+        }
+        setEditError(processingError);
+      } finally {
+        setIsCompressing(false);
+      }
     } else {
       setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
     }
@@ -233,7 +240,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
                 <div className="edit-product-form-image-section">
                   <div>
                     <label>Replace Images</label>
-                    <p>Leave empty to keep current images. Uploading new images will replace old images.</p>
+                    <p>Leave empty to keep current images. New images are optimized before upload (max {MAX_PRODUCT_IMAGE_SIZE_MB}MB each).</p>
                   </div>
 
                   {imagePreviews.length > 0 && (
@@ -241,7 +248,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
                       {imagePreviews.map(({ file, preview }) => (
                         <div className="product-edit-img" key={`${file.name}-${file.size}`}>
                           <img src={preview} alt={file.name} />
-                          <button type="button" onClick={() => handleRemoveProductImage(file)}><X size={15} /></button>
+                          <button type="button" onClick={() => handleRemoveProductImage(file)} disabled={isCompressing}><X size={15} /></button>
                         </div>
                       ))}
                     </div>
@@ -249,15 +256,15 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
 
                   <label className="image-upload-container" htmlFor={`edit-product-image-upload-${product._id}`}>
                     <ImagePlus size={22} />
-                    <span>Upload new images</span>
-                    <input type="file" accept="image/*" id={`edit-product-image-upload-${product._id}`} name="images" onChange={handleEditProductOnChange} multiple hidden />
+                    <span>{isCompressing ? "Optimizing images…" : "Upload new images"}</span>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" id={`edit-product-image-upload-${product._id}`} name="images" onChange={handleEditProductOnChange} multiple hidden disabled={isLoading || isCompressing || editFormData.images.length >= MAX_IMAGES} />
                   </label>
                 </div>
 
                 <div className="edit-product-form-btn-section">
                   <button type="button" className="edit-product-modal-btn secondary" data-bs-dismiss="modal">Cancel</button>
-                  <button type="submit" className="edit-product-modal-btn primary" disabled={isLoading}>
-                    {isLoading ? <><SmallLoader size={13} /> Updating...</> : <><Save size={16} /> Update Product</>}
+                  <button type="submit" className="edit-product-modal-btn primary" disabled={isLoading || isCompressing}>
+                    {isCompressing ? <><SmallLoader size={13} /> Optimizing...</> : isLoading ? <><SmallLoader size={13} /> Updating...</> : <><Save size={16} /> Update Product</>}
                   </button>
                 </div>
               </form>
