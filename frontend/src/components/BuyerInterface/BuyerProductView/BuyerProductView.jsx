@@ -20,6 +20,7 @@ import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import PageLoader from "../../CommonInterface/PageLoader/PageLoader";
 import { useBuyerRequests, useCreateBuyerRequest, useMarketplaceProduct } from "../../../hooks/useBuyerQueries";
 import { useCreateProductQuestion } from "../../../hooks/useQuestionQueries";
+import { formatProductStatus } from "../../../utils/productStatus";
 
 const FALLBACK_PROFILE_IMAGE = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
@@ -172,7 +173,7 @@ function BuyerProductView() {
             <section className="product-price-card">
               <span className="product-price-label">Price per item</span>
               <div className="product-price-row"><h2>₹{Number(product.price).toLocaleString("en-IN")}</h2><span className={`product-stock-pill${isUnavailable ? " is-unavailable" : ""}`}>{isUnavailable ? "Unavailable" : `${product.quantity} left`}</span></div>
-              <p className="product-stock-copy">Listed as {product.status}</p>
+              <p className="product-stock-copy">Listed as {formatProductStatus(product.status)}</p>
               <div className="product-purchase-divider" />
               <div className="product-quantity-heading">
                 <div><span>Quantity</span><small>Maximum {product.quantity}</small></div>

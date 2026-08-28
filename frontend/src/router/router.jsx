@@ -8,7 +8,6 @@ import ProductListing from '../screens/ProductListing';
 
 import AccessAccount from '../components/CommonInterface/LoginSignup/AccessAccount/AccessAccount';
 import ProductView from '../screens/ProductView';
-import Getstart from '../screens/Getstarted';
 import Studentprofile from '../screens/Studentprofile';
 import SellerDashboard from '../screens/SellerDashboard';
 import SellerWelcome from '../screens/SellerWelcome';
@@ -36,7 +35,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <PublicRoute><LandingPage /></PublicRoute> },
       { path: 'access-account', element: <PublicRoute><AccessAccount /></PublicRoute> },
-      { path: 'getStarted', element: <PrivateRoute><Getstart /></PrivateRoute> },
       { path: 'student-login', element: <PublicRoute><LoginSignup /></PublicRoute> },
       { path: 'student-signup', element: <PublicRoute><LoginSignup /></PublicRoute> },
       { path: 'forgotpassword', element: <PublicRoute><ForgotPassword /></PublicRoute> },

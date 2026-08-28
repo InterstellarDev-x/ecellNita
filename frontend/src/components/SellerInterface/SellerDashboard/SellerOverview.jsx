@@ -13,6 +13,7 @@ import {
 import "./SellerOverview.css";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
+import { formatProductStatus } from "../../../utils/productStatus";
 
 const YEAR_LABELS = { "1": "1st Year", "2": "2nd Year", "3": "3rd Year", "4": "4th Year" };
 const DEFAULT_PROFILE_IMAGE = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
@@ -190,7 +191,7 @@ function SellerOverview() {
                   </div>
                   <div className="seller-product-meta">
                     <strong>{formatCurrency(product.price)}</strong>
-                    <span className={product.status === "Sold" ? "sold" : "active"}>{product.status || "Active"}</span>
+                    <span className={product.status === "Sold" ? "sold" : "active"}>{formatProductStatus(product.status, "Active")}</span>
                   </div>
                 </div>
               ))}

@@ -18,6 +18,7 @@ export const authroutes={
     PRODUCT_REPORTS:BASE_URL+"/product/reports",
     DELETE_PRODUCT_REQUEST:BASE_URL+"/conversation/deleterequest",
     SCHEDULE_MEET:BASE_URL+"/conversation/shedulemeet",
+    ACCEPT_MEETING:BASE_URL+"/conversation/accept_shedule",
     GET_SCHEDULE_DATA:BASE_URL+"/conversation/get_shedule_data",
     DELETE_SCHEDULED_MEET:BASE_URL+"/conversation/delete_shedule_data",
     GET_ALL_SENT_PRODUCT_REQUESTS:BASE_URL+"/conversation/all_send_request",

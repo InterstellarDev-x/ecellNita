@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema } from "../../../validation/product";
-import { MAX_PRODUCT_IMAGE_SIZE_MB, compressProductImage, validateProductImage } from "../../../utils/productImageCompression";
+import { MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB, compressProductImage, validateProductImage } from "../../../utils/productImageCompression";
 
 const INITIAL_PRODUCT_DATA = {
   productname: "",
@@ -446,7 +446,7 @@ function AddProductForm() {
               <span className="image-dropzone-icon"><UploadCloud size={27} /></span>
               <strong>Drop product photos here</strong>
               <span><b>Browse files</b> or drag and drop</span>
-              <small>JPG, PNG, JPEG or WebP · max {MAX_PRODUCT_IMAGE_SIZE_MB}MB each · optimized before upload</small>
+              <small>JPG, PNG, JPEG or WebP · max {MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB}MB each · optimized before upload</small>
               <input
                 type="file"
                 id="product_images"

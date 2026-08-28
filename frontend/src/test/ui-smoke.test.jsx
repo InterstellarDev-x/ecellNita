@@ -5,11 +5,17 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import AdminRoute from "../router/AdminRoute";
 import NotFound from "../screens/NotFound";
 import ActivitySection from "../components/CommonInterface/LoginSignup/Activity/ActivitySection";
-import Getstarted from "../components/CommonInterface/LoginSignup/Getstarted/Getstarted";
 import { MAX_LISTING_QUANTITY, listingQuantitySchema } from "../validation/product";
-import { MAX_PRODUCT_IMAGE_SIZE_MB, validateProductImage } from "../utils/productImageCompression";
+import { MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB, validateProductImage } from "../utils/productImageCompression";
+import { formatProductStatus } from "../utils/productStatus";
 
 describe("product listing validation", () => {
+  it("formats the internal Forsale status for display", () => {
+    expect(formatProductStatus("Forsale")).toBe("For sale");
+    expect(formatProductStatus("ForSale")).toBe("For sale");
+    expect(formatProductStatus("Sold")).toBe("Sold");
+  });
+
   it("accepts bounded whole-number quantities and rejects extreme values", () => {
     expect(listingQuantitySchema.parse("1")).toBe(1);
     expect(listingQuantitySchema.parse(String(MAX_LISTING_QUANTITY))).toBe(MAX_LISTING_QUANTITY);
@@ -18,11 +24,11 @@ describe("product listing validation", () => {
     }
   });
 
-  it("accepts supported product images up to 3MB", () => {
+  it("accepts supported source images up to 10MB", () => {
     const validImage = new File([new Uint8Array(1024)], "product.jpg", { type: "image/jpeg" });
-    const oversizedImage = { ...validImage, name: "large.jpg", type: "image/jpeg", size: (MAX_PRODUCT_IMAGE_SIZE_MB * 1024 * 1024) + 1 };
+    const oversizedImage = { ...validImage, name: "large.jpg", type: "image/jpeg", size: (MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB * 1024 * 1024) + 1 };
     expect(validateProductImage(validImage)).toBe("");
-    expect(validateProductImage(oversizedImage)).toMatch(/3MB or smaller/);
+    expect(validateProductImage(oversizedImage)).toMatch(/10MB or smaller/);
     expect(validateProductImage(new File(["text"], "product.txt", { type: "text/plain" }))).toMatch(/JPG, PNG, or WebP/);
   });
 });
@@ -63,12 +69,4 @@ describe("account entry UI", () => {
     expect(password).toHaveAttribute("type", "text");
   });
 
-  it("keeps Get Started disabled until a marketplace role is selected", () => {
-    render(<MemoryRouter><Getstarted /></MemoryRouter>);
-    const start = screen.getByRole("button", { name: /get started/i });
-    expect(start).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: /i’m here to buy/i }));
-    expect(start).toBeEnabled();
-    expect(screen.getByText(/discover useful products/i)).toBeInTheDocument();
-  });
 });

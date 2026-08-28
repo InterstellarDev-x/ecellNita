@@ -3,7 +3,6 @@ const Profile = require("../models/Profile");
 const Shedule =require("../models/Shedule");
 const Request= require("../models/Request");
 const Product=require("../models/Product");
-const {mailsender}=require("../utils/SendMail");
 const {sendEmailWithRetry}=require("../utils/EmailQueue");
 const {requestproduct}=require("../mailtemplates/Request");
 const {shedulevenue}=require("../mailtemplates/Shedule");
@@ -117,13 +116,6 @@ exports.shedulemeet=async (req,res)=>{
                 message:"All feilds are required"
             })
         }
-        const checkshedule=await Shedule.findOne({requestid:requestid});
-        if(checkshedule) {
-            return res.json({
-                success:false,
-                message:"Meeting already sheduled Kindly delete previous shedule then create new"
-            })
-        }
         const requestdata=await Request.findById(requestid)
             .populate("buyer","firstname lastname email image")
             .populate("seller", "firstname lastname email image");
@@ -133,10 +125,12 @@ exports.shedulemeet=async (req,res)=>{
                 message:"No such request exist."
             })
         }
-        if(String(requestdata.seller?._id)!==String(id)){
+        const isBuyer=String(requestdata.buyer?._id)===String(id);
+        const isSeller=String(requestdata.seller?._id)===String(id);
+        if(!isBuyer && !isSeller){
             return res.json({
                 success:false,
-                message:"You are not authorized to schedule this meeting"
+                message:"You are not authorized to propose this meeting"
             })
         }
         if(!mongoose.Types.ObjectId.isValid(locationId)) return res.status(400).json({ success:false, message:"A valid meeting location is required" });
@@ -161,30 +155,64 @@ exports.shedulemeet=async (req,res)=>{
         }
         
 
-        const buyername=requestdata.buyer.firstname + " " + requestdata.buyer.lastname;
-        const sellername=`${requestdata.seller.firstname} ${requestdata.seller.lastname}`;
-        await mailsender(requestdata.buyer.email,"Shedule Venue",shedulevenue(buyername, sellername, productdata.productname, productdata._id,location.name, date ,time, requestdata.quantity));
-
-        const saveshedule=await Shedule.create({
-            requestid:requestid,
+        const saveshedule=await Shedule.findOneAndUpdate({requestid},{
+            requestid,
             venue:location.name,
             location:location._id,
             locationSnapshot:{ name:location.name, address:location.address, startTime:location.startTime, endTime:location.endTime },
-            date:date, 
-            time:time
-        })
+            date,
+            time,
+            status:"proposed",
+            proposedBy:id,
+            confirmedAt:null,
+        },{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
 
-        res.json({
+        return res.json({
             success:true,
-            message:"Sheduled meet successfully", 
+            message:"Meeting proposal sent", 
             data:saveshedule
         })
+    }catch(err){
+        return res.status(500).json({success:false,message:err.message});
+    }
 }
-    catch(err){
-        return res.json({
-        success:false,
-        message:err.message,
-        })
+
+exports.accept_shedule=async (req,res)=>{
+    try{
+        const {id}=req.user;
+        const {requestid}=req.body;
+        if(!mongoose.Types.ObjectId.isValid(requestid)) return res.status(400).json({success:false,message:"A valid request is required"});
+        const requestdata=await Request.findById(requestid)
+            .populate("buyer","firstname lastname email")
+            .populate("seller","firstname lastname email")
+            .populate("product","productname");
+        if(!requestdata) return res.status(404).json({success:false,message:"Request not found"});
+        const isParticipant=[requestdata.buyer,requestdata.seller].some((user)=>String(user?._id)===String(id));
+        if(!isParticipant) return res.status(403).json({success:false,message:"You are not authorized to accept this proposal"});
+        const existingSchedule=await Shedule.findOne({requestid});
+        if(!existingSchedule) return res.status(404).json({success:false,message:"No meeting proposal found"});
+        if((existingSchedule.status || "confirmed")==="confirmed") return res.json({success:true,message:"Meeting is already confirmed",data:existingSchedule});
+        if(String(existingSchedule.proposedBy)===String(id)) return res.status(400).json({success:false,message:"The other participant must accept your proposal"});
+        const schedule=await Shedule.findOneAndUpdate({
+            requestid,
+            status:"proposed",
+            proposedBy:{$ne:id},
+        },{
+            status:"confirmed",
+            confirmedAt:new Date(),
+        },{new:true,runValidators:true});
+        if(!schedule) return res.status(409).json({success:false,message:"The proposal changed. Review the latest details before accepting"});
+
+        const buyername=`${requestdata.buyer.firstname} ${requestdata.buyer.lastname}`;
+        const sellername=`${requestdata.seller.firstname} ${requestdata.seller.lastname}`;
+        const emailBody=shedulevenue(buyername,sellername,requestdata.product?.productname || "Product",requestdata.product?._id,schedule.locationSnapshot?.name || schedule.venue,schedule.date,schedule.time,requestdata.quantity);
+        await Promise.allSettled([
+            sendEmailWithRetry(requestdata.buyer.email,"Meeting confirmed",emailBody),
+            sendEmailWithRetry(requestdata.seller.email,"Meeting confirmed",emailBody),
+        ]);
+        return res.json({success:true,message:"Meeting confirmed",data:schedule});
+    }catch(err){
+        return res.status(500).json({success:false,message:err.message});
     }
 }
 
@@ -250,7 +278,10 @@ exports.all_send_request=async (req,res)=>{
             .populate("seller","firstname lastname email image")
             .populate("product","productname productdescription price images status quantity publicationStatus");
 
-        const schedules=await Shedule.find({requestid:{$in:sendreqdata.map((request)=>request._id)}}).select("requestid").lean();
+        const schedules=await Shedule.find({
+            requestid:{$in:sendreqdata.map((request)=>request._id)},
+            $or:[{status:"confirmed"},{status:{$exists:false}}]
+        }).select("requestid").lean();
         const scheduledIds=new Set(schedules.map((schedule)=>String(schedule.requestid)));
         const data=sendreqdata.map((request)=>{
             const item=request.toObject();

@@ -2,35 +2,19 @@ import React, { useRef, useState } from "react";
 import { Trash2, Flag, CalendarDays, UserRound } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
-import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
-import { useDeleteRequestSchedule, useRequestSchedule } from "../../../hooks/useBuyerQueries";
+import { useRequestSchedule } from "../../../hooks/useBuyerQueries";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import MeetingPlanner from "../../CommonInterface/MeetingPlanner/MeetingPlanner";
 
 function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
   const productImage = request?.product?.images?.[0] || "https://via.placeholder.com/120x70?text=Deleted";
 
-  const numToMonthMap = new Map([
-    [1, "Jan"],
-    [2, "Feb"],
-    [3, "Mar"],
-    [4, "Apr"],
-    [5, "May"],
-    [6, "Jun"],
-    [7, "Jul"],
-    [8, "Aug"],
-    [9, "Sep"],
-    [10, "Oct"],
-    [11, "Nov"],
-    [12, "Dec"]
-  ]);
-
   const { data: scheduleData } = useRequestSchedule(request?._id);
-  const deleteSchedule = useDeleteRequestSchedule();
   const queryClient = useQueryClient();
   const isScheduled = Boolean(scheduleData);
-  const isLoading = deleteSchedule.isPending;
+  const isConfirmed = Boolean(scheduleData) && (scheduleData.status || "confirmed") === "confirmed";
   const requestedOn = new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
@@ -64,14 +48,6 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
   }
 
 
-
-  const handleDeleteSchedule = async () => {
-    try {
-      await deleteSchedule.mutateAsync(request._id);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const submitCompleteOTP = async () => {
     if (!hasProduct) return;
@@ -145,8 +121,8 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         <div className="requested-product-item-img">
           <img src={productImage} alt="" />
           <div className="product-info">
-            <span className={`request-status-badge${isScheduled ? " request-status-badge--scheduled" : ""}`}>
-              {isScheduled ? "Meeting scheduled" : "Awaiting seller"}
+            <span className={`request-status-badge${isConfirmed ? " request-status-badge--scheduled" : ""}`}>
+              {isConfirmed ? "Meeting confirmed" : isScheduled ? "Time proposed" : "Plan a meeting"}
             </span>
             <b>{request.product?.productname || "Product no longer available"}</b>
             <p>{request.product?.productdescription || "This product was deleted by the seller."}</p>
@@ -154,23 +130,20 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
           </div>
         </div>
         <div className="requested-product-item-status">
-          <p><UserRound size={15} /><span><b>Seller</b>{isScheduled ? `${request.seller?.firstname || "Seller"} ${request.seller?.lastname || ""}` : "Seller"}<small>{isScheduled ? request.seller?.email : "Identity is shared after a meeting is scheduled."}</small></span></p>
+          <p><UserRound size={15} /><span><b>Seller</b>{isConfirmed ? `${request.seller?.firstname || "Seller"} ${request.seller?.lastname || ""}` : "Seller"}<small>{isConfirmed ? request.seller?.email : "Identity is shared after both sides confirm."}</small></span></p>
           <p><CalendarDays size={15} /><span><b>Requested</b>{requestedOn}</span></p>
         </div>
         <div className="requested-product-item-btns">
-          {hasProduct && isScheduled && (
+          {hasProduct && (
             <button
               className="schedule-btn"
               data-bs-toggle="modal"
               data-bs-target={`#schedule_data_view_product_request_modal-${request._id}`}
             >
-              Get Schedule Data
-              {isLoading && (
-                <SmallLoader className="product-meet-schedule-spinner" size={13} />
-              )}
+              {isScheduled ? "Review meeting" : "Propose meeting"}
             </button>
           )}
-          {hasProduct && isScheduled && (
+          {hasProduct && isConfirmed && (
             <button
               className="schedule-btn"
               data-bs-toggle="modal"
@@ -179,7 +152,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
               Complete
             </button>
           )}
-          {hasProduct && isScheduled && (
+          {hasProduct && isConfirmed && (
             <button
               className="delete-btn"
               aria-label={`Report ${request.product.productname}`}
@@ -251,7 +224,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="exampleModalLabel">
-                Schedule Data
+                Meeting plan
               </h5>
               <button
                 type="button"
@@ -261,58 +234,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
               ></button>
             </div>
             <div className="modal-body">
-              <div className="schedule-data-view-container">
-                <div className="schedule-data-view-component">
-                  <h6>Seller details: </h6>
-                  <div className="schedule-data-view-component-content">
-                    <div>
-                      <b>Name </b>
-                      <p>
-                        {(request.seller?.firstname || "Seller") + " " + (request.seller?.lastname || "")}
-                      </p>
-                    </div>
-                    <div>
-                      <b>Email </b>
-                      <p>{request.seller?.email || "Available after a meeting is scheduled"} </p>
-                    </div>
-                    <div>
-                      <b>Requested on </b>
-                      <p>{new Date(request.requestdate).getDate()}-{numToMonthMap.get(new Date(request.requestdate).getMonth()+1)}-{new Date(request.requestdate).getFullYear()} </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="schedule-data-view-component">
-                  <h6>Meeting details: </h6>
-                  <div className="schedule-data-view-component-content">
-                    <div>
-                      <b>Venue </b>
-                      <p>{scheduleData?.locationSnapshot?.name || scheduleData?.venue} {scheduleData?.locationSnapshot?.address ? `· ${scheduleData.locationSnapshot.address}` : ""}</p>
-                    </div>
-                    <div>
-                      <b>Date </b>
-                      <p>{scheduleData && scheduleData.date} </p>
-                    </div>
-                    <div>
-                      <b>Time </b>
-                      <p>{scheduleData && scheduleData.time} </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="schedule-data-view-buttons">
-                  <button
-                    data-bs-dismiss="modal"
-                    onClick={handleDeleteSchedule}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    type="button"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                    style={{ backgroundColor: 'black' }}
-                  >Close</button>
-                </div>
-              </div>
+              <MeetingPlanner requestId={request._id} schedule={scheduleData} />
             </div>
           </div>
         </div>

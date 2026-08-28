@@ -4,7 +4,8 @@ import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { Edit3, ImagePlus, IndianRupee, Package, Save, Trash2, X } from "lucide-react";
 import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema } from "../../../validation/product";
-import { MAX_PRODUCT_IMAGE_SIZE_MB, compressProductImage, validateProductImage } from "../../../utils/productImageCompression";
+import { MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB, compressProductImage, validateProductImage } from "../../../utils/productImageCompression";
+import { formatProductStatus } from "../../../utils/productStatus";
 
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
 const MIN_IMAGES = 1;
@@ -172,7 +173,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
     <div className="seller-product-card">
       <div className="seller-product-image-wrap">
         <img src={product.images?.[0] || DEFAULT_PRODUCT_IMAGE} alt={product.productname} />
-        <span className={`product-status-badge ${statusClass}`}>{product.status || "Forsale"}</span>
+        <span className={`product-status-badge ${statusClass}`}>{formatProductStatus(product.status)}</span>
       </div>
 
       <div className="seller-product-content">
@@ -240,7 +241,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
                 <div className="edit-product-form-image-section">
                   <div>
                     <label>Replace Images</label>
-                    <p>Leave empty to keep current images. New images are optimized before upload (max {MAX_PRODUCT_IMAGE_SIZE_MB}MB each).</p>
+                    <p>Leave empty to keep current images. New images are optimized before upload (max {MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB}MB each).</p>
                   </div>
 
                   {imagePreviews.length > 0 && (

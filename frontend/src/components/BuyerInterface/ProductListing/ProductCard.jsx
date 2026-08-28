@@ -4,6 +4,7 @@ import { Heart, ImageOff, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useToggleWishlist, useWishlist } from "../../../hooks/useBuyerQueries";
+import { formatProductStatus } from "../../../utils/productStatus";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ function ProductCard({ product }) {
         </p>
         <div className="product-card-footer">
           <span><MapPin size={14} /> Campus pickup</span>
-          <strong>{product?.status || "Forsale"}</strong>
+          <strong>{formatProductStatus(product?.status)}</strong>
         </div>
       </div>
     </article>

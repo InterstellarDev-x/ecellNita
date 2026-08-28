@@ -10,6 +10,7 @@ const Profile = require("../models/Profile");
 const User = require("../models/User");
 const ProductQuestion = require("../models/ProductQuestion");
 const Notification = require("../models/Notification");
+const Shedule = require("../models/Shedule");
 const questionController = require("../controllers/questions");
 const { PRODUCT_IMAGE_TRANSFORMATION, productImageUploadOptions } = require("../utils/productImageUpload");
 
@@ -70,6 +71,22 @@ test("authentication fields are excluded from user queries by default", () => {
     assert.equal(User.schema.path("hashedpassword").options.select, false);
     assert.equal(User.schema.path("forgotpasswordlink").options.select, false);
     assert.equal(User.schema.path("forgotpasswordlinkexpires").options.select, false);
+});
+
+test("meeting plans require agreement before they are confirmed", () => {
+    const proposal = new Shedule({
+        requestid: new mongoose.Types.ObjectId(),
+        proposedBy: new mongoose.Types.ObjectId(),
+        venue: "Library entrance",
+        date: "2026-09-01",
+        time: "14:00",
+        status: "proposed",
+    });
+    assert.equal(proposal.status, "proposed");
+    proposal.status = "confirmed";
+    assert.equal(proposal.validateSync(), undefined);
+    proposal.status = "accepted-without-consensus";
+    assert.ok(proposal.validateSync());
 });
 
 test("buyers can unsend only their unanswered, unreported questions", async () => {

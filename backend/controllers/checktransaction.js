@@ -44,9 +44,12 @@ exports.sendtransotp=async (req,res)=>{
                 message:"The requested quantity is no longer available"
             })
         }
-        const scheduled=await Shedule.exists({requestid:request._id});
+        const scheduled=await Shedule.exists({
+            requestid:request._id,
+            $or:[{status:"confirmed"},{status:{$exists:false}}]
+        });
         if(!scheduled){
-            return res.status(409).json({success:false,message:"Schedule a meeting before sending the transaction OTP"});
+            return res.status(409).json({success:false,message:"Both participants must confirm the meeting before sending the transaction OTP"});
         }
 
         const otp=otpgenerator.generate(6,{
@@ -174,4 +177,3 @@ exports.verifytransotp=async (req,res)=>{
         })
     }
 }
-

@@ -107,7 +107,7 @@ function ActivitySection() {
         localStorage.setItem("campusrecycletoken", res.data.token);
         localStorage.setItem("campusrecycleuser", JSON.stringify(res.data.data));
         setLoading(false);
-        navigate("/getstarted");
+        navigate("/buyer/productlist");
       } else {
         if (res.data.message === "User Not Registered")
           setErrorMsg({ msg: "No account found with this email", type: "email does not exists" });

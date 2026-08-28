@@ -26,9 +26,20 @@ const sheduleschema=new mongoose.Schema({
     },
     time:{
         type:String
-        
+    },
+    status:{
+        type:String,
+        enum:["proposed","confirmed"],
+        default:"confirmed",
+        index:true,
+    },
+    proposedBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+    },
+    confirmedAt:{
+        type:Date
     }
 }, { timestamps:true })
-
 
 module.exports=mongoose.model("Shedule",sheduleschema);

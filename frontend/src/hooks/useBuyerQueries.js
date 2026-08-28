@@ -164,3 +164,28 @@ export function useDeleteRequestSchedule() {
     onSuccess: (_, requestid) => queryClient.invalidateQueries({ queryKey: buyerQueryKeys.schedule(requestid) }),
   });
 }
+
+export function useProposeRequestSchedule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ requestid, locationId, date, time }) => requireSuccess(
+      await apiConnector("POST", authroutes.SCHEDULE_MEET, { requestid, locationId, date, time }, authHeaders()),
+      "Could not send the meeting proposal."
+    ),
+    onSuccess: (_, variables) => queryClient.invalidateQueries({ queryKey: buyerQueryKeys.schedule(variables.requestid) }),
+  });
+}
+
+export function useAcceptRequestSchedule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (requestid) => requireSuccess(
+      await apiConnector("POST", authroutes.ACCEPT_MEETING, { requestid }, authHeaders()),
+      "Could not confirm the meeting."
+    ),
+    onSuccess: (_, requestid) => Promise.all([
+      queryClient.invalidateQueries({ queryKey: buyerQueryKeys.schedule(requestid) }),
+      queryClient.invalidateQueries({ queryKey: ["buyer-requests"] }),
+    ]),
+  });
+}
