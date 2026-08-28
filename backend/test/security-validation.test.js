@@ -12,6 +12,7 @@ const ProductQuestion = require("../models/ProductQuestion");
 const Notification = require("../models/Notification");
 const Shedule = require("../models/Shedule");
 const questionController = require("../controllers/questions");
+const productController = require("../controllers/product");
 const { PRODUCT_IMAGE_TRANSFORMATION, productImageUploadOptions } = require("../utils/productImageUpload");
 
 const validSignup = {
@@ -87,6 +88,17 @@ test("meeting plans require agreement before they are confirmed", () => {
     assert.equal(proposal.validateSync(), undefined);
     proposal.status = "accepted-without-consensus";
     assert.ok(proposal.validateSync());
+});
+
+test("marketplace pagination rejects unsafe page sizes before querying", async () => {
+    const response = {
+        statusCode: 200,
+        status(code) { this.statusCode = code; return this; },
+        json(body) { this.body = body; return this; },
+    };
+    await productController.getallproduct({ body: { page: 0, limit: 1000 } }, response);
+    assert.equal(response.statusCode, 400);
+    assert.equal(response.body.success, false);
 });
 
 test("buyers can unsend only their unanswered, unreported questions", async () => {

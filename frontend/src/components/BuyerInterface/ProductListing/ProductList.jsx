@@ -4,7 +4,7 @@ import ProductCard from "./ProductCard";
 import { PackageSearch, RotateCcw } from "lucide-react";
 import PageLoader from "../../CommonInterface/PageLoader/PageLoader";
 
-function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onResetFilters, kicker = "Browse listings", title, totalLabel, emptyTitle, emptyDescription, hideHeader = false }) {
+function ProductList({ products, totalProducts, isLoading, isLoadingMore = false, hasMore = false, onLoadMore, hasActiveFilters, onResetFilters, kicker = "Browse listings", title, totalLabel, emptyTitle, emptyDescription, hideHeader = false }) {
   return (
     <section className={`product-list${hideHeader ? " product-list--headerless" : ""}`}>
       {!hideHeader && (
@@ -35,11 +35,14 @@ function ProductList({ products, totalProducts, isLoading, hasActiveFilters, onR
           )}
         </div>
       ) : (
-        <div className="product-grid">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="product-grid">
+            {products.map((product, index) => (
+              <ProductCard key={product._id} product={product} priority={index === 0} />
+            ))}
+          </div>
+          {hasMore && <div className="product-load-more"><button type="button" onClick={onLoadMore} disabled={isLoadingMore}>{isLoadingMore ? "Loading more…" : `Load more products (${products.length} of ${totalProducts})`}</button></div>}
+        </>
       )}
     </section>
   );

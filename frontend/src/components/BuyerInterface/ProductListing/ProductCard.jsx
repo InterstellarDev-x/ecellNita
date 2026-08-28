@@ -5,8 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useToggleWishlist, useWishlist } from "../../../hooks/useBuyerQueries";
 import { formatProductStatus } from "../../../utils/productStatus";
+import { productCardImageProps } from "../../../utils/cloudinaryImage";
 
-function ProductCard({ product }) {
+function ProductCard({ product, priority = false }) {
   const navigate = useNavigate();
   const { data: wishlistProducts = [] } = useWishlist();
   const toggleWishlist = useToggleWishlist();
@@ -40,7 +41,7 @@ function ProductCard({ product }) {
       }}
     >
       <div className="product-card-image">
-        {image ? <img src={image} alt={product?.productname || "Product"} /> : <div className="product-image-fallback"><ImageOff size={34} /></div>}
+        {image ? <img {...productCardImageProps(image, priority)} alt={product?.productname || "Product"} /> : <div className="product-image-fallback"><ImageOff size={34} /></div>}
         <span className="product-category-badge">{categoryName}</span>
         <button
           type="button"

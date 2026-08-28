@@ -5,6 +5,7 @@ import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { toast } from "react-toastify";
 import MeetingPlanner from "../../CommonInterface/MeetingPlanner/MeetingPlanner";
+import { productThumbnailImageProps } from "../../../utils/cloudinaryImage";
 
 function ProductrequestListItem({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
@@ -78,7 +79,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
     <>
       <div className="requested-product-item">
         <div className="requested-product-item-img">
-          <img src={productImage} alt="" />
+          <img {...productThumbnailImageProps(productImage)} alt="" />
           <div className="product-info">
             <b>{request.product?.productname || "Product no longer available"}</b>
             <p>{request.product?.productdescription || "This product was deleted by the seller."}</p>

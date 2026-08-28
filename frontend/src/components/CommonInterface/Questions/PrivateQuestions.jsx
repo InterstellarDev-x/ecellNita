@@ -3,6 +3,7 @@ import { Flag, MessageCircle, Send, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAnswerProductQuestion, useBuyerQuestions, useDeleteProductQuestion, useReportProductQuestion, useSellerQuestions } from "../../../hooks/useQuestionQueries";
 import "./PrivateQuestions.css";
+import { productThumbnailImageProps } from "../../../utils/cloudinaryImage";
 
 const formatDate = (value) => new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 
@@ -48,7 +49,7 @@ function QuestionCard({ item, audience }) {
   return (
     <article className="private-questions__card">
       <header>
-        <div className="private-questions__product"><img src={item.product?.images?.[0] || "/logo192.png"} alt="" /><span><strong>{item.product?.productname || "Product"}</strong><small>{formatDate(item.createdAt)}</small></span></div>
+        <div className="private-questions__product"><img {...productThumbnailImageProps(item.product?.images?.[0] || "/logo192.png")} alt="" /><span><strong>{item.product?.productname || "Product"}</strong><small>{formatDate(item.createdAt)}</small></span></div>
         <div className="private-questions__header-actions">
           <span className={`private-questions__status ${item.answer ? "is-answered" : ""}`}>{item.answer ? "Answered" : "Awaiting reply"}</span>
           {!seller && !item.answer && !item.questionHidden && (

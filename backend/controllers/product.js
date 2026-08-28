@@ -366,16 +366,68 @@ exports.getproductpagedetails=async (req,res)=>{
 
 exports.getallproduct=async (req,res)=>{
     try{
-        const products=await Product.find(
-            {publicationStatus:"published",status:"Forsale",quantity:{$gt:0}},
-            "productname productdescription price images status quantity createdat owner category"
-        )
-        .populate("category","name")
-        .lean();
+        const page=Number(req.body?.page ?? 1);
+        const limit=Number(req.body?.limit ?? 12);
+        if(!Number.isSafeInteger(page) || page<1 || page>10000 || !Number.isSafeInteger(limit) || limit<1 || limit>48){
+            return res.status(400).json({success:false,message:"Page and limit must be valid positive integers"});
+        }
+
+        const baseMarketplaceFilter={publicationStatus:"published",status:"Forsale",quantity:{$gt:0}};
+        const filter={...baseMarketplaceFilter};
+        const search=String(req.body?.search || "").trim().slice(0,100);
+        if(search){
+            const escapedSearch=search.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+            const searchPattern=new RegExp(escapedSearch,"i");
+            const matchingCategories=await Category.find({name:searchPattern}).select("_id").lean();
+            filter.$or=[
+                {productname:searchPattern},
+                {productdescription:searchPattern},
+                {category:{$in:matchingCategories.map((category)=>category._id)}},
+            ];
+        }
+        const categoryid=req.body?.categoryid;
+        if(categoryid){
+            if(!mongoose.Types.ObjectId.isValid(categoryid)) return res.status(400).json({success:false,message:"Choose a valid category"});
+            filter.category=categoryid;
+        }
+        const maxPrice=Number(req.body?.maxPrice);
+        if(req.body?.maxPrice!==undefined && req.body?.maxPrice!==null && req.body?.maxPrice!==""){
+            if(!Number.isFinite(maxPrice) || maxPrice<1) return res.status(400).json({success:false,message:"Maximum price must be a positive number"});
+            filter.price={$lte:maxPrice};
+        }
+
+        const sortOptions={
+            newest:{createdat:-1,_id:-1},
+            oldest:{createdat:1,_id:1},
+            name_asc:{productname:1,_id:1},
+            name_desc:{productname:-1,_id:-1},
+        };
+        const sort=sortOptions[req.body?.sort] || sortOptions.newest;
+        const [products,totalProducts,highestPricedProduct]=await Promise.all([
+            Product.find(filter)
+                .select("productname productdescription price images status quantity createdat owner category")
+                .slice("images",1)
+                .sort(sort)
+                .skip((page-1)*limit)
+                .limit(limit)
+                .populate("category","name")
+                .lean(),
+            Product.countDocuments(filter),
+            Product.findOne(baseMarketplaceFilter).select("price").sort({price:-1}).lean(),
+        ]);
+        const totalPages=Math.ceil(totalProducts/limit);
         res.json({
             success:true,
             message:"All Products fetched successfully",
-            data:products.map(marketplaceProduct)
+            data:{
+                products:products.map(marketplaceProduct),
+                page,
+                limit,
+                totalProducts,
+                totalPages,
+                hasNextPage:page<totalPages,
+                marketplaceMaxPrice:Number(highestPricedProduct?.price || 0),
+            }
         })
     }
     catch(err){

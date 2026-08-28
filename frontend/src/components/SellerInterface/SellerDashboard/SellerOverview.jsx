@@ -14,6 +14,7 @@ import "./SellerOverview.css";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import { formatProductStatus } from "../../../utils/productStatus";
+import { getOptimizedImageUrl, productThumbnailImageProps } from "../../../utils/cloudinaryImage";
 
 const YEAR_LABELS = { "1": "1st Year", "2": "2nd Year", "3": "3rd Year", "4": "4th Year" };
 const DEFAULT_PROFILE_IMAGE = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
@@ -120,7 +121,7 @@ function SellerOverview() {
       <section className="seller-hero-card">
         <div className="seller-hero-left">
           <div className="seller-avatar-wrap">
-            <img src={user?.image || DEFAULT_PROFILE_IMAGE} alt="Seller profile" />
+            <img src={getOptimizedImageUrl(user?.image || DEFAULT_PROFILE_IMAGE, { width: 128, height: 128 })} decoding="async" alt="Seller profile" />
           </div>
           <div>
            
@@ -184,7 +185,7 @@ function SellerOverview() {
             <div className="seller-product-list">
               {recentProducts.map((product) => (
                 <div className="seller-product-row" key={product._id}>
-                  <img src={product.images?.[0] || DEFAULT_PROFILE_IMAGE} alt={product.productname} />
+                  <img {...productThumbnailImageProps(product.images?.[0] || DEFAULT_PROFILE_IMAGE)} alt={product.productname} />
                   <div>
                     <h5>{product.productname}</h5>
                     <p>{product.category?.name || "Uncategorized"} · Qty {product.quantity || 1}</p>

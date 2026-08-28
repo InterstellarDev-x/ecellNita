@@ -6,6 +6,7 @@ import { useRequestSchedule } from "../../../hooks/useBuyerQueries";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import MeetingPlanner from "../../CommonInterface/MeetingPlanner/MeetingPlanner";
+import { productThumbnailImageProps } from "../../../utils/cloudinaryImage";
 
 function ProductRequestElim({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
@@ -119,7 +120,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
     <>
       <div className="requested-product-item">
         <div className="requested-product-item-img">
-          <img src={productImage} alt="" />
+          <img {...productThumbnailImageProps(productImage)} alt="" />
           <div className="product-info">
             <span className={`request-status-badge${isConfirmed ? " request-status-badge--scheduled" : ""}`}>
               {isConfirmed ? "Meeting confirmed" : isScheduled ? "Time proposed" : "Plan a meeting"}

@@ -6,6 +6,7 @@ import { Edit3, ImagePlus, IndianRupee, Package, Save, Trash2, X } from "lucide-
 import { MAX_LISTING_QUANTITY, getFirstValidationMessage, listingQuantitySchema } from "../../../validation/product";
 import { MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB, compressProductImage, validateProductImage } from "../../../utils/productImageCompression";
 import { formatProductStatus } from "../../../utils/productStatus";
+import { productCardImageProps } from "../../../utils/cloudinaryImage";
 
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x400/eef2f6/667085?text=Product";
 const MIN_IMAGES = 1;
@@ -172,7 +173,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
   return (
     <div className="seller-product-card">
       <div className="seller-product-image-wrap">
-        <img src={product.images?.[0] || DEFAULT_PRODUCT_IMAGE} alt={product.productname} />
+        <img {...productCardImageProps(product.images?.[0] || DEFAULT_PRODUCT_IMAGE)} alt={product.productname} />
         <span className={`product-status-badge ${statusClass}`}>{formatProductStatus(product.status)}</span>
       </div>
 

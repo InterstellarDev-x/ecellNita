@@ -1,4 +1,4 @@
-import React, { useMemo, useState , useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import BuyerNavbar from "../components/BuyerInterface/BuyerNavbar/BuyerNavbar";
 import ProductList from "../components/BuyerInterface/ProductListing/ProductList";
 import {
@@ -11,15 +11,14 @@ import {
   SlidersHorizontal,
   X
 } from "lucide-react";
-import Fuse from "fuse.js";
-import { useMarketplaceCategories, useMarketplaceProducts, useWishlist } from "../hooks/useBuyerQueries";
+import { useMarketplaceCategories, useMarketplaceProducts } from "../hooks/useBuyerQueries";
+
+const EMPTY_PRODUCT_PAGES = [];
 
 function ProductListing() {
-  const productsQuery = useMarketplaceProducts();
   const categoriesQuery = useMarketplaceCategories();
-  const wishlistQuery = useWishlist();
-
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [alphabeticalSortingOrder, setAlphabeticalSortingOrder] = useState("Alphabeticalasc");
   const [dateSortingOrder, setDateSortingOrder] = useState("Datedesc");
   const [activeDateSort, setDateSortActive] = useState(true);
@@ -29,71 +28,23 @@ function ProductListing() {
   const [isCategoryDropdown, setIsCategoryDropdown] = useState(false);
   const [categoryFilterText, setCategoryFilterText] = useState("All Categories");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const sort = activeAlphabeticalSort
+    ? alphabeticalSortingOrder === "Alphabeticalasc" ? "name_asc" : "name_desc"
+    : dateSortingOrder === "Dateasc" ? "oldest" : "newest";
+  const productFilters = useMemo(() => ({
+    ...(debouncedSearchTerm ? { search: debouncedSearchTerm } : {}),
+    ...(categoryFilter ? { categoryid: categoryFilter } : {}),
+    ...(isFilter ? { maxPrice: Number(priceFilterValue) } : {}),
+    sort,
+  }), [categoryFilter, debouncedSearchTerm, isFilter, priceFilterValue, sort]);
+  const productsQuery = useMarketplaceProducts(productFilters);
   const allCategories = categoriesQuery.data || [];
-  const productsLoading = productsQuery.isLoading || categoriesQuery.isLoading || wishlistQuery.isLoading;
-
-  const availableProducts = useMemo(
-    () => (productsQuery.data || []).filter((product) => product?.status === "Forsale" && Number(product?.quantity) > 0),
-    [productsQuery.data]
-  );
-
-  const maxProductPrice = useMemo(() => {
-    const highestPrice = availableProducts.reduce(
-      (max, product) => Math.max(max, Number(product?.price) || 0),
-      0
-    );
-    return Math.max(highestPrice, 5000);
-  }, [availableProducts]);
-
-  const fuse = useMemo(
-    () => new Fuse(availableProducts, {
-      includeScore: true,
-      threshold: 0.35,
-      keys: ["productname", "productdescription", "category.name"]
-    }),
-    [availableProducts]
-  );
-
-  const visibleProducts = useMemo(() => {
-    const searched = searchTerm.trim()
-      ? fuse.search(searchTerm.trim()).map((result) => result.item)
-      : [...availableProducts];
-
-    const filtered = searched
-      .filter((product) => !categoryFilter || product?.category?.name === categoryFilter)
-      .filter((product) => !isFilter || Number(product?.price) <= Number(priceFilterValue));
-
-    if (activeAlphabeticalSort) {
-      return filtered.sort((a, b) => {
-        const first = a?.productname || "";
-        const second = b?.productname || "";
-        return alphabeticalSortingOrder === "Alphabeticalasc"
-          ? first.localeCompare(second)
-          : second.localeCompare(first);
-      });
-    }
-
-    if (activeDateSort) {
-      return filtered.sort((a, b) => {
-        const dateA = new Date(a?.createdat || a?.createdAt || 0);
-        const dateB = new Date(b?.createdat || b?.createdAt || 0);
-        return dateSortingOrder === "Dateasc" ? dateA - dateB : dateB - dateA;
-      });
-    }
-
-    return filtered;
-  }, [
-    activeAlphabeticalSort,
-    activeDateSort,
-    alphabeticalSortingOrder,
-    availableProducts,
-    categoryFilter,
-    dateSortingOrder,
-    fuse,
-    isFilter,
-    priceFilterValue,
-    searchTerm
-  ]);
+  const productsLoading = productsQuery.isLoading || categoriesQuery.isLoading;
+  const productPages = productsQuery.data?.pages || EMPTY_PRODUCT_PAGES;
+  const visibleProducts = useMemo(() => productPages.flatMap((page) => page.products || []), [productPages]);
+  const firstPage = productPages[0];
+  const totalProducts = Number(firstPage?.totalProducts || 0);
+  const maxProductPrice = Math.max(Number(firstPage?.marketplaceMaxPrice || 0), 5000);
 
   const hasActiveFilters = Boolean(searchTerm.trim() || categoryFilter || isFilter);
 
@@ -126,8 +77,13 @@ function ProductListing() {
   };
 
   useEffect(() => {
-    setPriceFilterValue(maxProductPrice);
-  }, [maxProductPrice]);
+    const timeoutId = window.setTimeout(() => setDebouncedSearchTerm(searchTerm.trim()), 300);
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (!isFilter) setPriceFilterValue(maxProductPrice);
+  }, [isFilter, maxProductPrice]);
 
   return (
     <>
@@ -171,7 +127,7 @@ function ProductListing() {
                   {allCategories.map((category) => (
                     <li
                       key={category._id || category.name}
-                      onClick={() => handleApplyCategoryFilter(category.name, category.name)}
+                      onClick={() => handleApplyCategoryFilter(category._id, category.name)}
                     >
                       {category.name}
                     </li>
@@ -200,8 +156,8 @@ function ProductListing() {
 
           {hasActiveFilters && (
             <div className="active-filter-row">
-              <span>{visibleProducts.length} result{visibleProducts.length === 1 ? "" : "s"} found</span>
-              {categoryFilter && <span className="filter-pill">{categoryFilter}</span>}
+              <span>{totalProducts} result{totalProducts === 1 ? "" : "s"} found</span>
+              {categoryFilter && <span className="filter-pill">{categoryFilterText}</span>}
               {isFilter && <span className="filter-pill">Under ₹{priceFilterValue}</span>}
               {searchTerm && <span className="filter-pill">“{searchTerm}”</span>}
               <button type="button" onClick={resetFilters}>Clear all</button>
@@ -253,8 +209,11 @@ function ProductListing() {
 
         <ProductList
           products={visibleProducts}
-          totalProducts={availableProducts.length}
+          totalProducts={totalProducts}
           isLoading={productsLoading}
+          isLoadingMore={productsQuery.isFetchingNextPage}
+          hasMore={Boolean(productsQuery.hasNextPage)}
+          onLoadMore={() => productsQuery.fetchNextPage()}
           hasActiveFilters={hasActiveFilters}
           onResetFilters={resetFilters}
         />

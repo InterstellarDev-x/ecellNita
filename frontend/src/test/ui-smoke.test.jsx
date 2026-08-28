@@ -8,8 +8,16 @@ import ActivitySection from "../components/CommonInterface/LoginSignup/Activity/
 import { MAX_LISTING_QUANTITY, listingQuantitySchema } from "../validation/product";
 import { MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB, validateProductImage } from "../utils/productImageCompression";
 import { formatProductStatus } from "../utils/productStatus";
+import { getOptimizedImageUrl, getResponsiveImageSrcSet } from "../utils/cloudinaryImage";
 
 describe("product listing validation", () => {
+  it("builds responsive Cloudinary delivery URLs without changing other hosts", () => {
+    const source = "https://res.cloudinary.com/demo/image/upload/v1/products/chair.jpg";
+    expect(getOptimizedImageUrl(source, { width: 480, height: 360 })).toContain("/image/upload/w_480,h_360,c_fill,g_auto,q_auto:good,f_auto/");
+    expect(getResponsiveImageSrcSet(source, [320, 480], { aspectRatio: 4 / 3 })).toContain("320w");
+    expect(getOptimizedImageUrl("https://example.com/chair.jpg", { width: 480 })).toBe("https://example.com/chair.jpg");
+  });
+
   it("formats the internal Forsale status for display", () => {
     expect(formatProductStatus("Forsale")).toBe("For sale");
     expect(formatProductStatus("ForSale")).toBe("For sale");

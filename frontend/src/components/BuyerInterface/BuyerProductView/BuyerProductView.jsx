@@ -21,6 +21,7 @@ import PageLoader from "../../CommonInterface/PageLoader/PageLoader";
 import { useBuyerRequests, useCreateBuyerRequest, useMarketplaceProduct } from "../../../hooks/useBuyerQueries";
 import { useCreateProductQuestion } from "../../../hooks/useQuestionQueries";
 import { formatProductStatus } from "../../../utils/productStatus";
+import { getOptimizedImageUrl, productDetailImageProps, productThumbnailImageProps } from "../../../utils/cloudinaryImage";
 
 const FALLBACK_PROFILE_IMAGE = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
@@ -119,7 +120,7 @@ function BuyerProductView() {
         <section className={`product-detail-gallery${productImages.length < 2 ? " is-single" : ""}`} aria-label="Product images">
           <div className="product-detail-main-image">
             {activeImage && !failedImages[activeImageIndex] ? (
-              <img src={activeImage} alt={`${product.productname} view ${activeImageIndex + 1}`} onError={() => setFailedImages((current) => ({ ...current, [activeImageIndex]: true }))} />
+              <img {...productDetailImageProps(activeImage, true)} alt={`${product.productname} view ${activeImageIndex + 1}`} onError={() => setFailedImages((current) => ({ ...current, [activeImageIndex]: true }))} />
             ) : (
               <div className="product-detail-image-fallback"><ImageOff size={34} /><span>Image unavailable</span></div>
             )}
@@ -129,7 +130,7 @@ function BuyerProductView() {
             <div className="product-detail-thumbnails">
               {productImages.map((image, index) => (
                 <button key={`${image}-${index}`} type="button" className={activeImageIndex === index ? "is-active" : ""} onClick={() => setActiveImageIndex(index)} aria-label={`View product image ${index + 1}`} aria-pressed={activeImageIndex === index}>
-                  {!failedImages[index] ? <img src={image} alt="" onError={() => setFailedImages((current) => ({ ...current, [index]: true }))} /> : <ImageOff size={22} />}
+                  {!failedImages[index] ? <img {...productThumbnailImageProps(image)} alt="" onError={() => setFailedImages((current) => ({ ...current, [index]: true }))} /> : <ImageOff size={22} />}
                 </button>
               ))}
             </div>
@@ -155,7 +156,7 @@ function BuyerProductView() {
 
             <section className="product-detail-panel">
               <div className="product-seller-summary">
-                <img src={sellerImage} alt="Seller profile" onError={(event) => { event.currentTarget.src = FALLBACK_PROFILE_IMAGE; }} />
+                <img src={getOptimizedImageUrl(sellerImage, { width: 96, height: 96 })} loading="lazy" decoding="async" alt="Seller profile" onError={(event) => { event.currentTarget.src = FALLBACK_PROFILE_IMAGE; }} />
                 <div><span>Campus seller</span><h2>Identity protected</h2><p>Seller contact details are shared only after a meeting is scheduled.</p></div>
                 <span className="product-seller-privacy"><LockKeyhole size={14} /> Private</span>
               </div>

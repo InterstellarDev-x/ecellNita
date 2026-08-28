@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authroutes } from "../apis/apis";
 import { apiConnector } from "../utils/Apiconnecter";
 
@@ -30,8 +30,8 @@ const buyerQueryKeys = {
   meetingLocations: ["active-meeting-locations"],
 };
 
-const fetchProducts = async () => requireSuccess(
-  await apiConnector("POST", authroutes.GET_ALL_PRODUCTS, {}, authHeaders()),
+const fetchProducts = async ({ pageParam = 1, filters = {} }) => requireSuccess(
+  await apiConnector("POST", authroutes.GET_ALL_PRODUCTS, { page: pageParam, limit: 12, ...filters }, authHeaders()),
   "Could not load products."
 );
 
@@ -65,8 +65,14 @@ const fetchMeetingLocations = async () => requireSuccess(
   "Could not load meeting locations."
 );
 
-export function useMarketplaceProducts() {
-  return useQuery({ queryKey: buyerQueryKeys.products, queryFn: fetchProducts, staleTime: 2 * 60 * 1000 });
+export function useMarketplaceProducts(filters = {}) {
+  return useInfiniteQuery({
+    queryKey: [...buyerQueryKeys.products, filters],
+    queryFn: ({ pageParam }) => fetchProducts({ pageParam, filters }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage?.hasNextPage ? lastPage.page + 1 : undefined,
+    staleTime: 2 * 60 * 1000,
+  });
 }
 
 export function useMarketplaceCategories() {
