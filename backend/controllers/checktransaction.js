@@ -215,6 +215,7 @@ exports.verifytransotp=async (req,res)=>{
         await Promise.all([
             Checktransaction.deleteMany({requestid}),
             Shedule.deleteMany({requestid}),
+            Notification.deleteMany({request:requestid,type:"meeting_proposed"}),
             Request.findByIdAndDelete(requestid),
         ]);
         logger.info("transaction OTP verified for request %s",requestid);

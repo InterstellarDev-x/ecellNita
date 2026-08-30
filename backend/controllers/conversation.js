@@ -8,6 +8,7 @@ const {requestproduct}=require("../mailtemplates/Request");
 const {shedulevenue}=require("../mailtemplates/Shedule");
 const mongoose=require("mongoose");
 const MeetingLocation=require("../models/MeetingLocation");
+const Notification=require("../models/Notification");
 const {isTimeWithinRange}=require("./meetingLocations");
 require("dotenv").config();
 
@@ -167,6 +168,21 @@ exports.shedulemeet=async (req,res)=>{
             confirmedAt:null,
         },{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
 
+        const recipient=isBuyer ? requestdata.seller?._id : requestdata.buyer?._id;
+        const proposerRole=isBuyer ? "The buyer" : "The seller";
+        try{
+            await Notification.create({
+                recipient,
+                type:"meeting_proposed",
+                title:"New meeting proposal",
+                message:`${proposerRole} proposed ${location.name} on ${date} at ${time} for ${productdata.productname}.`,
+                request:requestdata._id,
+                product:productdata._id,
+            });
+        }catch(notificationError){
+            logger.error("Could not create meeting proposal notification: %s",notificationError.message);
+        }
+
         return res.json({
             success:true,
             message:"Meeting proposal sent", 
@@ -249,6 +265,7 @@ exports.deleterequest=async (req,res)=>{
 
         await Request.findByIdAndDelete(requestid);
         await Shedule.findOneAndDelete({requestid:requestid});
+        await Notification.deleteMany({request:requestid});
 
         res.json({
             success:true,
@@ -418,6 +435,7 @@ exports.delete_shedule_data=async (req,res)=>{
         await Shedule.findOneAndDelete({
             requestid: requestid
         })
+        await Notification.deleteMany({request:requestid,type:"meeting_proposed"});
 
         res.json({
             success:true,

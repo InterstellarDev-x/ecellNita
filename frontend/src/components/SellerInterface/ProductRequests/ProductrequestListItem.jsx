@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
@@ -6,38 +6,15 @@ import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import { toast } from "react-toastify";
 import MeetingPlanner from "../../CommonInterface/MeetingPlanner/MeetingPlanner";
 import { productThumbnailImageProps } from "../../../utils/cloudinaryImage";
+import { useRequestSchedule } from "../../../hooks/useBuyerQueries";
 
 function ProductrequestListItem({ request, handleDeleteProductRequest }) {
   const hasProduct = Boolean(request?.product);
   const productImage = request?.product?.images?.[0] || "https://via.placeholder.com/120x70?text=Deleted";
 
-  const [isScheduled, setIsScheduled] = useState(false);
   const [isLoadingOTP, setIsLoadingOTP] = useState(false);
-  const [scheduleData, setScheduleData] = useState(null);
-
-  const fetchScheduleData = useCallback(async () => {
-    try {
-      const api_header = {
-        Authorization: `Bearer ${localStorage.getItem("campusrecycletoken")}`,
-        "Content-Type": "multipart/form-data",
-      };
-      const bodyData = {
-        requestid: request._id,
-      };
-      const response = await apiConnector(
-        "POST",
-        authroutes.GET_SCHEDULE_DATA,
-        bodyData,
-        api_header
-      );
-      if (response.data.success) {
-        setScheduleData(response.data.data);
-        setIsScheduled(true);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [request._id]);
+  const { data: scheduleData, refetch: refetchSchedule } = useRequestSchedule(request?._id);
+  const isScheduled = Boolean(scheduleData);
 
   const sendTransactionOTP = async () => {
     if (!hasProduct) return;
@@ -57,7 +34,6 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
         api_header
       );
       if (response.data.success) {
-        setIsScheduled(true);
         setIsLoadingOTP(false);
         toast.success("Verification OTP sent to the buyer");
       }else{
@@ -71,9 +47,6 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
     }
   }
 
-  useEffect(() => {
-    fetchScheduleData();
-  }, [fetchScheduleData]);
   const isConfirmed = isScheduled && (scheduleData?.status || "confirmed") === "confirmed";
   return (
     <>
@@ -194,7 +167,7 @@ function ProductrequestListItem({ request, handleDeleteProductRequest }) {
               ></button>
             </div>
             <div className="modal-body">
-              <MeetingPlanner requestId={request._id} schedule={scheduleData} onChanged={fetchScheduleData} />
+              <MeetingPlanner requestId={request._id} schedule={scheduleData} onChanged={refetchSchedule} />
             </div>
           </div>
         </div>

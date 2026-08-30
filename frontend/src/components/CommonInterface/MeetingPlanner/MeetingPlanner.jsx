@@ -17,7 +17,7 @@ function MeetingPlanner({ requestId, schedule, onChanged }) {
   const locationsQuery = useActiveMeetingLocations();
   const proposeMeeting = useProposeRequestSchedule();
   const acceptMeeting = useAcceptRequestSchedule();
-  const [editing, setEditing] = useState(!schedule);
+  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ locationId: "", date: "", time: "" });
   const locations = locationsQuery.data || [];
   const selectedLocation = locations.find((location) => location._id === form.locationId);

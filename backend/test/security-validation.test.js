@@ -13,7 +13,11 @@ const Notification = require("../models/Notification");
 const CompletedTransaction = require("../models/CompletedTransaction");
 const TransactionReview = require("../models/TransactionReview");
 const Shedule = require("../models/Shedule");
+const Request = require("../models/Request");
+const Product = require("../models/Product");
+const MeetingLocation = require("../models/MeetingLocation");
 const questionController = require("../controllers/questions");
+const conversationController = require("../controllers/conversation");
 const productController = require("../controllers/product");
 const { PRODUCT_IMAGE_TRANSFORMATION, productImageUploadOptions } = require("../utils/productImageUpload");
 const { REVIEW_TAGS } = require("../controllers/transactionReviews");
@@ -111,6 +115,8 @@ test("completed transactions retain a product snapshot and notifications support
         requestid: new mongoose.Types.ObjectId(), buyer: new mongoose.Types.ObjectId(), seller: new mongoose.Types.ObjectId(), product: new mongoose.Types.ObjectId(),
     }).validateSync());
     assert.ok(Notification.schema.path("type").enumValues.includes("review_requested"));
+    assert.ok(Notification.schema.path("type").enumValues.includes("meeting_proposed"));
+    assert.equal(Notification.schema.path("request").options.ref, "Request");
 });
 
 test("meeting plans require agreement before they are confirmed", () => {
@@ -127,6 +133,76 @@ test("meeting plans require agreement before they are confirmed", () => {
     assert.equal(proposal.validateSync(), undefined);
     proposal.status = "accepted-without-consensus";
     assert.ok(proposal.validateSync());
+});
+
+test("meeting proposals notify the other participant", async () => {
+    const buyerId = new mongoose.Types.ObjectId();
+    const sellerId = new mongoose.Types.ObjectId();
+    const requestId = new mongoose.Types.ObjectId();
+    const productId = new mongoose.Types.ObjectId();
+    const locationId = new mongoose.Types.ObjectId();
+    const originals = {
+        requestFindById: Request.findById,
+        locationFindOne: MeetingLocation.findOne,
+        productFindOne: Product.findOne,
+        scheduleFindOneAndUpdate: Shedule.findOneAndUpdate,
+        notificationCreate: Notification.create,
+    };
+    let notification;
+    const response = {
+        statusCode: 200,
+        status(code) { this.statusCode = code; return this; },
+        json(body) { this.body = body; return this; },
+    };
+
+    try {
+        Request.findById = () => {
+            const query = {
+                populate() { return query; },
+                then(resolve, reject) {
+                    return Promise.resolve({
+                        _id: requestId,
+                        buyer: { _id: buyerId },
+                        seller: { _id: sellerId },
+                        product: productId,
+                    }).then(resolve, reject);
+                },
+            };
+            return query;
+        };
+        MeetingLocation.findOne = async () => ({
+            _id: locationId,
+            name: "Library entrance",
+            address: "Main library",
+            startTime: "09:00",
+            endTime: "18:00",
+        });
+        Product.findOne = async () => ({ _id: productId, productname: "Desk lamp" });
+        Shedule.findOneAndUpdate = async () => ({
+            requestid: requestId,
+            status: "proposed",
+            proposedBy: buyerId,
+        });
+        Notification.create = async (payload) => { notification = payload; return payload; };
+
+        await conversationController.shedulemeet({
+            user: { id: String(buyerId) },
+            body: { requestid: String(requestId), locationId: String(locationId), date: "2099-09-01", time: "14:00" },
+        }, response);
+
+        assert.equal(response.body.success, true);
+        assert.equal(String(notification.recipient), String(sellerId));
+        assert.equal(notification.type, "meeting_proposed");
+        assert.equal(String(notification.request), String(requestId));
+        assert.equal(String(notification.product), String(productId));
+        assert.match(notification.message, /Library entrance/);
+    } finally {
+        Request.findById = originals.requestFindById;
+        MeetingLocation.findOne = originals.locationFindOne;
+        Product.findOne = originals.productFindOne;
+        Shedule.findOneAndUpdate = originals.scheduleFindOneAndUpdate;
+        Notification.create = originals.notificationCreate;
+    }
 });
 
 test("marketplace pagination rejects unsafe page sizes before querying", async () => {

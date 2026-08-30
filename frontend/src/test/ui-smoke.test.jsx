@@ -9,6 +9,7 @@ import { MAX_LISTING_QUANTITY, listingQuantitySchema } from "../validation/produ
 import { MAX_SOURCE_PRODUCT_IMAGE_SIZE_MB, validateProductImage } from "../utils/productImageCompression";
 import { formatProductStatus } from "../utils/productStatus";
 import { getOptimizedImageUrl, getResponsiveImageSrcSet } from "../utils/cloudinaryImage";
+import { notificationDestination } from "../components/CommonInterface/Notifications/NotificationBell";
 
 describe("product listing validation", () => {
   it("builds responsive Cloudinary delivery URLs without changing other hosts", () => {
@@ -42,6 +43,12 @@ describe("product listing validation", () => {
 });
 
 describe("role and fallback routing", () => {
+  it("routes meeting proposal notifications to each participant's requests page", () => {
+    const notification = { type: "meeting_proposed" };
+    expect(notificationDestination(notification, "buyer")).toBe("/buyer/product-requests");
+    expect(notificationDestination(notification, "seller")).toBe("/seller/product-requests");
+  });
+
   it("allows moderators into the control panel", () => {
     localStorage.setItem("campusrecycleuser", JSON.stringify({ roles: ["moderator"] }));
     render(<MemoryRouter><AdminRoute><p>Control panel</p></AdminRoute></MemoryRouter>);

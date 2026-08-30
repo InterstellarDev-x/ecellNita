@@ -9,13 +9,14 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ["question_received", "question_answered", "review_requested"],
+        enum: ["question_received", "question_answered", "review_requested", "meeting_proposed"],
         required: true,
     },
     title: { type: String, required: true, trim: true, maxlength: 160 },
     message: { type: String, required: true, trim: true, maxlength: 500 },
     question: { type: mongoose.Schema.Types.ObjectId, ref: "ProductQuestion" },
     product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+    request: { type: mongoose.Schema.Types.ObjectId, ref: "Request" },
     transaction: { type: mongoose.Schema.Types.ObjectId, ref: "CompletedTransaction" },
     readAt: Date,
 }, { timestamps: true });

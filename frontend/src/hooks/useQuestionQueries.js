@@ -77,7 +77,8 @@ export function useNotifications() {
     queryKey: questionKeys.notifications,
     queryFn: async () => read(await apiConnector("GET", authroutes.NOTIFICATIONS, null, headers()), "Could not load notifications."),
     staleTime: 20 * 1000,
-    refetchInterval: 45 * 1000,
+    refetchInterval: 15 * 1000,
+    refetchOnWindowFocus: "always",
   });
 }
 
