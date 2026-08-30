@@ -32,6 +32,11 @@ const Checktransactionschema=new mongoose.Schema({
         type:Number,
         default:0,
     },
+    processing:{
+        type:Boolean,
+        default:false,
+        select:false,
+    },
     expiresAt:{
         type:Date,
         default:()=>new Date(Date.now()+5*60*1000),

@@ -1,6 +1,6 @@
 import React from "react";
 import "./ProductCard.css";
-import { Heart, ImageOff, MapPin } from "lucide-react";
+import { Heart, ImageOff, MapPin, ShieldCheck, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useToggleWishlist, useWishlist } from "../../../hooks/useBuyerQueries";
@@ -16,6 +16,7 @@ function ProductCard({ product, priority = false }) {
   const categoryName = product?.category?.name || "General";
   const price = Number(product?.price) || 0;
   const isSaved = wishlistProducts.some((savedProduct) => savedProduct._id === product?._id);
+  const sellerReputation = product?.owner?.sellerReputation;
 
   const handleWishlistToggle = async (event) => {
     event.stopPropagation();
@@ -62,6 +63,10 @@ function ProductCard({ product, priority = false }) {
         <p className="product-card-description">
           {description.length > 78 ? `${description.slice(0, 75)}...` : description}
         </p>
+        <div className="product-card-seller-rating">
+          {sellerReputation?.count ? <><Star size={13} fill="currentColor" /><strong>{Number(sellerReputation.average).toFixed(1)}</strong><span>({sellerReputation.count})</span></> : <><Star size={13} /><span>New seller</span></>}
+          {sellerReputation?.completedTransactions > 0 && <small><ShieldCheck size={12} /> {sellerReputation.completedTransactions} verified sale{sellerReputation.completedTransactions === 1 ? "" : "s"}</small>}
+        </div>
         <div className="product-card-footer">
           <span><MapPin size={14} /> Campus pickup</span>
           <strong>{formatProductStatus(product?.status)}</strong>

@@ -8,6 +8,7 @@ const { listingQuantitySchema, getFirstValidationMessage } = require("../validat
 const User=require("../models/User");
 const {cloudinaryuploader}=require("../utils/cloudinaryuploader");
 const {productImageUploadOptions}=require("../utils/productImageUpload");
+const {getReputationMap}=require("../services/reputation");
 const {
     getReviewConfiguration, normaliseFiles, validateFiles, cleanupTempFiles,
     runAiReview, publishProduct, createSubmission,
@@ -15,9 +16,12 @@ const {
 
 require("dotenv").config()
 
-const marketplaceProduct = (product) => ({
+const marketplaceProduct = (product, reputation) => ({
     ...product,
-    owner: product.owner ? { _id: product.owner._id || product.owner } : null,
+    owner: product.owner ? {
+        _id: product.owner._id || product.owner,
+        sellerReputation: reputation?.seller || {average:0,count:0,completedTransactions:0},
+    } : null,
 });
 
 exports.createproduct=async (req,res)=>{
@@ -350,10 +354,11 @@ exports.getproductpagedetails=async (req,res)=>{
                 message:"Product not found"
             })
         }
+        const reputationMap=await getReputationMap([productpage.owner]);
         res.json({
             success:true,
             message:"Product details fetched successfully",
-            data:marketplaceProduct(productpage)
+            data:marketplaceProduct(productpage,reputationMap.get(String(productpage.owner)))
         })
     }
     catch(err){
@@ -415,12 +420,13 @@ exports.getallproduct=async (req,res)=>{
             Product.countDocuments(filter),
             Product.findOne(baseMarketplaceFilter).select("price").sort({price:-1}).lean(),
         ]);
+        const reputationMap=await getReputationMap(products.map((product)=>product.owner));
         const totalPages=Math.ceil(totalProducts/limit);
         res.json({
             success:true,
             message:"All Products fetched successfully",
             data:{
-                products:products.map(marketplaceProduct),
+                products:products.map((product)=>marketplaceProduct(product,reputationMap.get(String(product.owner)))),
                 page,
                 limit,
                 totalProducts,

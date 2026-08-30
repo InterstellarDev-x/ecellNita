@@ -1,0 +1,72 @@
+.review-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(5px);
+  animation: review-backdrop-in 0.18s ease-out;
+}
+
+.review-prompt {
+  --review-green: #19a741;
+  --review-green-dark: #0f7d32;
+  position: relative;
+  width: min(530px, 100%);
+  max-height: min(760px, calc(100vh - 36px));
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+  animation: review-dialog-in 0.22s ease-out;
+}
+
+.review-prompt form { padding: 27px; }
+.review-prompt__close { position: absolute; z-index: 2; top: 15px; right: 15px; display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 50%; background: #f1f5f9; color: #64748b; cursor: pointer; }
+.review-prompt__close:hover { background: #e2e8f0; color: #0f172a; }
+.review-prompt__header { display: flex; align-items: flex-start; gap: 12px; padding-right: 32px; }
+.review-prompt__shield { display: grid; flex: 0 0 43px; height: 43px; place-items: center; border-radius: 14px; background: #eaf8ee; color: var(--review-green); }
+.review-prompt__eyebrow { margin: 0 0 5px; color: var(--review-green-dark); font-size: .69rem; font-weight: 900; letter-spacing: .075em; text-transform: uppercase; }
+.review-prompt h2 { margin: 0; color: #111827; font-size: 1.35rem; font-weight: 900; letter-spacing: -.035em; line-height: 1.2; }
+.review-prompt__transaction { display: flex; align-items: center; gap: 11px; margin: 19px 0; padding: 10px; border: 1px solid #e5e7eb; border-radius: 14px; background: #f8fafc; }
+.review-prompt__transaction img { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; background: #e2e8f0; }
+.review-prompt__transaction span { display: grid; gap: 2px; }
+.review-prompt__transaction small { color: #64748b; font-size: .72rem; font-weight: 700; }
+.review-prompt__transaction strong { color: #1f2937; font-size: .88rem; }
+.review-prompt__stars { margin: 0; padding: 17px; border: 1px solid #e5e7eb; border-radius: 16px; text-align: center; }
+.review-prompt__stars legend { float: none; width: auto; margin: 0 auto 5px; padding: 0 8px; color: #475569; font-size: .75rem; font-weight: 800; }
+.review-prompt__stars div { display: flex; justify-content: center; gap: 3px; }
+.review-prompt__stars button { padding: 3px; border: 0; background: transparent; color: #f5b82e; cursor: pointer; transition: transform .15s ease, color .15s ease; }
+.review-prompt__stars button:hover, .review-prompt__stars button:focus-visible { transform: translateY(-2px) scale(1.06); outline: none; }
+.review-prompt__stars > span { display: block; min-height: 18px; margin-top: 3px; color: #64748b; font-size: .75rem; font-weight: 700; }
+.review-prompt__tags { margin-top: 17px; }
+.review-prompt__tags > label { display: block; margin-bottom: 8px; color: #374151; font-size: .8rem; font-weight: 850; }
+.review-prompt__tags label span, .review-prompt__comment small { color: #94a3b8; font-weight: 650; }
+.review-prompt__tags > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.review-prompt__tags button { padding: 7px 10px; border: 1px solid #dce3ea; border-radius: 999px; background: #fff; color: #526071; font: inherit; font-size: .73rem; font-weight: 750; cursor: pointer; }
+.review-prompt__tags button.is-selected { border-color: #8ed8a5; background: #eaf8ee; color: var(--review-green-dark); }
+.review-prompt__comment { display: block; margin-top: 17px; }
+.review-prompt__comment > span { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; color: #374151; font-size: .8rem; font-weight: 850; }
+.review-prompt__comment > span small { margin-left: 2px; }
+.review-prompt__comment textarea { display: block; width: 100%; min-height: 90px; resize: vertical; padding: 11px 12px; border: 1px solid #dce3ea; border-radius: 12px; background: #f8fafc; color: #1f2937; font: inherit; font-size: .82rem; line-height: 1.5; outline: none; box-sizing: border-box; }
+.review-prompt__comment textarea:focus { border-color: var(--review-green); background: #fff; box-shadow: 0 0 0 3px rgba(25,167,65,.1); }
+.review-prompt__comment > small { display: block; margin-top: 4px; text-align: right; font-size: .68rem; }
+.review-prompt__error { margin: 10px 0 0; color: #b42318; font-size: .77rem; font-weight: 700; }
+.review-prompt__actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 18px; }
+.review-prompt__actions button, .review-prompt__state button, .review-prompt__success button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 41px; padding: 9px 14px; border: 1px solid #dce3ea; border-radius: 11px; background: #fff; color: #526071; font: inherit; font-size: .78rem; font-weight: 850; cursor: pointer; }
+.review-prompt__actions button[type="submit"], .review-prompt__success button { border-color: var(--review-green); background: var(--review-green); color: #fff; }
+.review-prompt__actions button:disabled { opacity: .55; cursor: not-allowed; }
+.review-prompt__privacy { margin: 12px 0 0; color: #94a3b8; font-size: .68rem; text-align: center; }
+.review-prompt__state, .review-prompt__success { display: grid; justify-items: center; padding: 50px 30px 38px; text-align: center; }
+.review-prompt__state p, .review-prompt__success > p:not(.review-prompt__eyebrow) { max-width: 400px; color: #64748b; font-size: .84rem; line-height: 1.55; }
+.review-prompt__state.is-error h2 { color: #b42318; }
+.review-prompt__success > span { display: grid; width: 54px; height: 54px; margin-bottom: 16px; place-items: center; border-radius: 18px; background: #eaf8ee; color: var(--review-green); }
+.review-prompt__success button { margin-top: 8px; min-width: 92px; }
+
+@keyframes review-backdrop-in { from { opacity: 0; } }
+@keyframes review-dialog-in { from { opacity: 0; transform: translateY(10px) scale(.98); } }
+@media (max-width: 560px) { .review-prompt form { padding: 23px 18px 20px; } .review-prompt__actions { flex-direction: column-reverse; } .review-prompt__actions button { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .review-prompt-backdrop, .review-prompt { animation: none; } }

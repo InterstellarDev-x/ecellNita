@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Bell, Check, CheckCheck, MessageCircle } from "lucide-react";
+import { Bell, Check, CheckCheck, MessageCircle, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications } from "../../../hooks/useQuestionQueries";
 import "./NotificationBell.css";
+import ReviewPrompt from "../Reviews/ReviewPrompt";
 
 function NotificationBell({ audience }) {
   const [open, setOpen] = useState(false);
+  const [reviewTransactionId, setReviewTransactionId] = useState(null);
   const ref = useRef(null);
   const navigate = useNavigate();
   const { data, isLoading } = useNotifications();
@@ -25,10 +27,15 @@ function NotificationBell({ audience }) {
   const openNotification = async (notification) => {
     if (!notification.readAt) await markRead.mutateAsync(notification._id);
     setOpen(false);
+    if (notification.type === "review_requested" && notification.transaction) {
+      setReviewTransactionId(notification.transaction);
+      return;
+    }
     navigate(audience === "seller" ? "/seller/questions" : "/buyer/questions");
   };
 
   return (
+    <>
     <div className="notification-bell" ref={ref}>
       <button type="button" className="notification-bell__button" onClick={() => setOpen((value) => !value)} aria-label="Notifications">
         <Bell size={19} />
@@ -55,7 +62,7 @@ function NotificationBell({ audience }) {
             {isLoading ? <p className="notification-bell__empty">Loading…</p> : notifications.length === 0 ? <p className="notification-bell__empty">No notifications yet.</p> : notifications.map((notification) => (
               <article key={notification._id} className={`notification-bell__item ${notification.readAt ? "" : "is-unread"}`}>
                 <button type="button" className="notification-bell__content" onClick={() => openNotification(notification)}>
-                  <MessageCircle size={17} />
+                  {notification.type === "review_requested" ? <Star size={17} /> : <MessageCircle size={17} />}
                   <span><strong>{notification.title}</strong><small>{notification.message}</small></span>
                 </button>
                 {!notification.readAt && (
@@ -76,6 +83,8 @@ function NotificationBell({ audience }) {
         </section>
       )}
     </div>
+    {reviewTransactionId && <ReviewPrompt transactionId={reviewTransactionId} onClose={() => setReviewTransactionId(null)} />}
+    </>
   );
 }
 

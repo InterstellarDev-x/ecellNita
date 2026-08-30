@@ -1,0 +1,57 @@
+.phone-verification-card {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #dce5df;
+  border-radius: 18px;
+  background: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.phone-verification-heading,
+.phone-verification-complete,
+.phone-verification-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.phone-verification-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border-radius: 13px;
+  background: #ecfdf3;
+  color: #0f7d32;
+}
+
+.phone-verification-card strong { color: #172033; font-size: .95rem; }
+.phone-verification-card p { margin: 4px 0 0; color: #667085; font-size: .78rem; line-height: 1.45; }
+
+.phone-verification-controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.phone-verification-controls label { display: grid; flex: 1 1 210px; gap: 6px; }
+.phone-verification-controls label > span { color: #475467; font-size: .72rem; font-weight: 800; }
+.phone-verification-controls label > div { display: flex; height: 43px; align-items: center; gap: 8px; padding: 0 11px; border: 1px solid #dfe5ed; border-radius: 11px; background: #f8fafc; color: #8190a3; }
+.phone-verification-controls label b { color: #475467; font-size: .78rem; }
+.phone-verification-controls input { width: 100%; border: 0; outline: 0; background: transparent; color: #172033; font: inherit; font-size: .82rem; }
+.phone-verification-controls button { display: inline-flex; min-height: 43px; align-items: center; justify-content: center; gap: 7px; padding: 9px 15px; border: 0; border-radius: 11px; background: #19a741; color: white; cursor: pointer; font: inherit; font-size: .75rem; font-weight: 850; }
+.phone-verification-controls button:disabled { cursor: not-allowed; opacity: .6; }
+.phone-verification-controls .phone-verification-link { background: transparent; color: #0f7d32; }
+.phone-verification-message.error { color: #b42318; }
+.phone-verification-message.success { color: #137333; }
+.phone-verification-complete { border-color: #b8efca; background: #f3fff7; }
+.phone-verification-loading { color: #667085; font-size: .8rem; }
+
+@media (max-width: 560px) {
+  .phone-verification-controls { align-items: stretch; flex-direction: column; }
+  .phone-verification-controls label { flex-basis: auto; }
+}

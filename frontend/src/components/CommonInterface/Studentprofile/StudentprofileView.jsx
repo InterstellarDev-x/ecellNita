@@ -4,6 +4,7 @@ import { AlertCircle, Camera, CheckCircle2, Pencil, Save, X } from "lucide-react
 import SmallLoader from "../SmallLoader/SmallLoader";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
+import ReputationPanel from "../Reviews/ReputationPanel";
 
 const getProfileDetails = (user) => user?.additionaldetails || {};
 const DEFAULT_PROFILE_IMAGE = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
@@ -216,6 +217,7 @@ function StudentprofileView() {
         )}
 
         {!isEditing ? (
+          <>
           <div className="profile-info-card">
             <div className="profile-info-grid">
               <div className="profile-info-item">
@@ -250,6 +252,8 @@ function StudentprofileView() {
               )}
             </div>
           </div>
+          <ReputationPanel />
+          </>
         ) : (
           <div className="edit-profile-form">
             <div className="edit-form-header">

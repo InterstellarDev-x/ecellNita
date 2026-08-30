@@ -10,10 +10,13 @@ const Profile = require("../models/Profile");
 const User = require("../models/User");
 const ProductQuestion = require("../models/ProductQuestion");
 const Notification = require("../models/Notification");
+const CompletedTransaction = require("../models/CompletedTransaction");
+const TransactionReview = require("../models/TransactionReview");
 const Shedule = require("../models/Shedule");
 const questionController = require("../controllers/questions");
 const productController = require("../controllers/product");
 const { PRODUCT_IMAGE_TRANSFORMATION, productImageUploadOptions } = require("../utils/productImageUpload");
+const { REVIEW_TAGS } = require("../controllers/transactionReviews");
 
 const validSignup = {
     firstname: "Aditi",
@@ -72,6 +75,42 @@ test("authentication fields are excluded from user queries by default", () => {
     assert.equal(User.schema.path("hashedpassword").options.select, false);
     assert.equal(User.schema.path("forgotpasswordlink").options.select, false);
     assert.equal(User.schema.path("forgotpasswordlinkexpires").options.select, false);
+});
+
+test("verified transaction reviews enforce roles, rating bounds, and one review per participant", () => {
+    const transactionId = new mongoose.Types.ObjectId();
+    const reviewerId = new mongoose.Types.ObjectId();
+    const reviewedUserId = new mongoose.Types.ObjectId();
+    const validReview = new TransactionReview({
+        transaction: transactionId,
+        reviewer: reviewerId,
+        reviewedUser: reviewedUserId,
+        direction: "buyer_to_seller",
+        rating: 5,
+        tags: ["Item as described"],
+    });
+    assert.equal(validReview.validateSync(), undefined);
+    assert.ok(new TransactionReview({ ...validReview.toObject(), direction: "peer_to_peer" }).validateSync());
+    assert.ok(new TransactionReview({ ...validReview.toObject(), rating: 6 }).validateSync());
+    const uniqueIndex = TransactionReview.schema.indexes().find(([fields]) => fields.transaction === 1 && fields.reviewer === 1);
+    assert.equal(uniqueIndex[1].unique, true);
+    assert.ok(REVIEW_TAGS.buyer_to_seller.includes("Item as described"));
+    assert.ok(REVIEW_TAGS.seller_to_buyer.includes("Smooth transaction"));
+});
+
+test("completed transactions retain a product snapshot and notifications support review requests", () => {
+    const transaction = new CompletedTransaction({
+        requestid: new mongoose.Types.ObjectId(),
+        buyer: new mongoose.Types.ObjectId(),
+        seller: new mongoose.Types.ObjectId(),
+        product: new mongoose.Types.ObjectId(),
+        productSnapshot: { name: "Desk lamp", unitPrice: 450, quantity: 1 },
+    });
+    assert.equal(transaction.validateSync(), undefined);
+    assert.ok(new CompletedTransaction({
+        requestid: new mongoose.Types.ObjectId(), buyer: new mongoose.Types.ObjectId(), seller: new mongoose.Types.ObjectId(), product: new mongoose.Types.ObjectId(),
+    }).validateSync());
+    assert.ok(Notification.schema.path("type").enumValues.includes("review_requested"));
 });
 
 test("meeting plans require agreement before they are confirmed", () => {

@@ -9,6 +9,8 @@ const Checktransaction=require("../models/Checktransaction");
 const Product=require("../models/Product");
 const Request=require("../models/Request");
 const Shedule=require("../models/Shedule");
+const CompletedTransaction=require("../models/CompletedTransaction");
+const Notification=require("../models/Notification");
 
 
 
@@ -67,6 +69,7 @@ exports.sendtransotp=async (req,res)=>{
                 productid:request.product._id,
                 otpHash,
                 failedAttempts:0,
+                processing:false,
                 expiresAt:new Date(Date.now()+5*60*1000),
             },
             {upsert:true,new:true,setDefaultsOnInsert:true}
@@ -117,7 +120,11 @@ exports.verifytransotp=async (req,res)=>{
         if(!request){
             return res.status(404).json({success:false,message:"Buyer request not found"});
         }
-        const verification=await Checktransaction.findOne({requestid,buyer:id}).select("+otpHash");
+        const existingTransaction=await CompletedTransaction.findOne({requestid}).lean();
+        if(existingTransaction){
+            return res.json({success:true,message:"Transaction completed successfully",data:{transactionId:existingTransaction._id,productid:existingTransaction.product}});
+        }
+        const verification=await Checktransaction.findOne({requestid,buyer:id}).select("+otpHash +processing");
         if(!verification || verification.expiresAt<=new Date()){
             return res.status(410).json({success:false,message:"OTP expired. Ask the seller to send a new one"});
         }
@@ -132,6 +139,15 @@ exports.verifytransotp=async (req,res)=>{
                 success:false,
                 message:"Incorrect OTP"
             })
+        }
+
+        const claimedVerification=await Checktransaction.findOneAndUpdate(
+            {_id:verification._id,processing:{$ne:true}},
+            {$set:{processing:true}},
+            {new:true}
+        );
+        if(!claimedVerification){
+            return res.status(409).json({success:false,message:"This transaction is already being completed"});
         }
 
         const remainingQuantity=Number(request.quantity);
@@ -150,8 +166,51 @@ exports.verifytransotp=async (req,res)=>{
             {new:true}
         );
         if(!product){
+            await Checktransaction.findByIdAndUpdate(verification._id,{$set:{processing:false}});
             return res.status(409).json({success:false,message:"The requested quantity is no longer available"});
         }
+
+        let completedTransaction;
+        try{
+            completedTransaction=await CompletedTransaction.create({
+                requestid:request._id,
+                buyer:request.buyer,
+                seller:verification.seller,
+                product:product._id,
+                productSnapshot:{
+                    name:product.productname,
+                    image:product.images?.[0] || "",
+                    unitPrice:product.price,
+                    quantity:remainingQuantity,
+                },
+                completedAt:new Date(),
+            });
+        }catch(transactionError){
+            await Promise.all([
+                Product.findByIdAndUpdate(product._id,[{$set:{quantity:{$add:["$quantity",remainingQuantity]},status:"Forsale"}}]),
+                Checktransaction.findByIdAndUpdate(verification._id,{$set:{processing:false}}),
+            ]);
+            throw transactionError;
+        }
+
+        const notificationWrites=[
+            {
+                recipient:request.buyer,
+                title:"How was your purchase?",
+                message:`Rate your experience with the seller of ${product.productname}.`,
+            },
+            {
+                recipient:verification.seller,
+                title:"How was your sale?",
+                message:`Rate your experience with the buyer of ${product.productname}.`,
+            },
+        ].map(({recipient,title,message})=>Notification.updateOne(
+            {recipient,type:"review_requested",transaction:completedTransaction._id},
+            {$setOnInsert:{recipient,type:"review_requested",transaction:completedTransaction._id,product:product._id,title,message}},
+            {upsert:true}
+        ));
+        const notificationResults=await Promise.allSettled(notificationWrites);
+        notificationResults.filter((result)=>result.status==="rejected").forEach((result)=>logger.error("Could not create review notification: %s",result.reason?.message));
 
         await Promise.all([
             Checktransaction.deleteMany({requestid}),
@@ -163,7 +222,7 @@ exports.verifytransotp=async (req,res)=>{
         res.json({
             success:true,
             message:"Transaction completed successfully",
-            data:{productid:product._id,quantity:product.quantity,status:product.status},
+            data:{transactionId:completedTransaction._id,productid:product._id,quantity:product.quantity,status:product.status},
         })
 
         

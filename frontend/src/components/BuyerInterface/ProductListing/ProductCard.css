@@ -142,6 +142,20 @@
   white-space: nowrap;
 }
 
+.product-card-seller-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+  color: #f5a623;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.product-card-seller-rating > strong { color: #374151; }
+.product-card-seller-rating > span { color: #94a3b8; }
+.product-card-seller-rating > small { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; color: #0f7d32; font-size: .67rem; font-weight: 800; }
+
 .product-card-footer {
   display: flex;
   align-items: center;

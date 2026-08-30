@@ -43,6 +43,7 @@ function BuyerProductView() {
   }, []);
   const productImages = (product?.images || []).filter(Boolean);
   const sellerImage = product?.owner?.image || FALLBACK_PROFILE_IMAGE;
+  const sellerReputation = product?.owner?.sellerReputation;
   const isOwnProduct = Boolean(product?.owner?._id) && String(product.owner._id) === String(currentUser?._id);
   const isUnavailable = product?.status !== "Forsale" || Number(product?.quantity) < 1;
   const isRequested = requests.some((data) => data.product?._id === productid);
@@ -157,7 +158,7 @@ function BuyerProductView() {
             <section className="product-detail-panel">
               <div className="product-seller-summary">
                 <img src={getOptimizedImageUrl(sellerImage, { width: 96, height: 96 })} loading="lazy" decoding="async" alt="Seller profile" onError={(event) => { event.currentTarget.src = FALLBACK_PROFILE_IMAGE; }} />
-                <div><span>Campus seller</span><h2>Identity protected</h2><p>Seller contact details are shared only after a meeting is scheduled.</p></div>
+                <div><span>Campus seller</span><h2>{sellerReputation?.count ? `${Number(sellerReputation.average).toFixed(1)} ★ seller rating` : "New campus seller"}</h2><p>{sellerReputation?.completedTransactions ? `${sellerReputation.completedTransactions} verified sale${sellerReputation.completedTransactions === 1 ? "" : "s"} completed. ` : "No completed sales yet. "}Contact details are shared only after a meeting is confirmed.</p></div>
                 <span className="product-seller-privacy"><LockKeyhole size={14} /> Private</span>
               </div>
               {!isOwnProduct && !isUnavailable && (

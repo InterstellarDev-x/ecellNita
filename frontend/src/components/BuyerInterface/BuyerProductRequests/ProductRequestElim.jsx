@@ -73,6 +73,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
           queryClient.invalidateQueries({ queryKey: ["buyer-requests"] }),
           queryClient.invalidateQueries({ queryKey: ["marketplace-products"] }),
           queryClient.invalidateQueries({ queryKey: ["marketplace-product", request.product._id] }),
+          queryClient.invalidateQueries({ queryKey: ["in-app-notifications"] }),
         ]);
         toast.success("Transaction completed successfully");
         otpTabCloseBtn.current.click();
