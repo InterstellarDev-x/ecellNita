@@ -9,20 +9,23 @@ import LandingStartApplying from '../components/CommonInterface/Landing/StartApp
 import LandingFooter from '../components/CommonInterface/Landing/LandingFooter/LandingFooter'
 import About from '../components/CommonInterface/Landing/About/About'
 import WhyJoinUs from '../components/CommonInterface/Landing/WhyJoinUs/WhyJoinUs'
+import './LandingPage.css'
 function LandingPage() {
   return (
-    <>
+    <div className="recycool-landing">
         <LandingNavbar/>
-        <LandingHero/>
-        <About/>
-        <LandingNumbers/>
-        <LandingHowHelps/>
-        <WhyJoinUs/>
-        <LandingReviews/>
-        <LandingFaqs/>
-        <LandingStartApplying/>
+        <main>
+          <LandingHero/>
+          <About/>
+          <LandingNumbers/>
+          <LandingHowHelps/>
+          <WhyJoinUs/>
+          <LandingReviews/>
+          <LandingFaqs/>
+          <LandingStartApplying/>
+        </main>
         <LandingFooter/>
-    </>
+    </div>
   )
 }
 

@@ -6,14 +6,14 @@ import { faqs } from './Faqs';
 function LandingFaqs() {
   const allFaqs = faqs;
   return (
-    <div className='landing-faqs'>
-      <h4>FAQs</h4>
+    <section className='landing-faqs'>
+      <div className="landing-section-heading faq-heading"><span className="landing-eyebrow">The useful details</span><h2>Questions, answered.</h2></div>
       {
         allFaqs.map((faq)=>{
           return <FaqBlocks key={faq.question} question={faq.question} answer={faq.answer}/>
         })
       }
-    </div>
+    </section>
   )
 }
 

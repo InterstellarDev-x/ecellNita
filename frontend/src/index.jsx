@@ -9,6 +9,8 @@ import router from "./router/router";
 import { cssTransition, ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import OfflineFallback from "./components/CommonInterface/OfflineFallback/OfflineFallback";
+// Keep the product theme last so it consistently overrides legacy component styles.
+import "./application-theme.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({

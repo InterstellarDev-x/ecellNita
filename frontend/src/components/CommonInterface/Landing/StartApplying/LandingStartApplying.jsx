@@ -1,15 +1,19 @@
 import React from 'react'
 import './LandingStartApplying.css'
 import { useNavigate } from 'react-router-dom'
+import { ArrowRight, Recycle } from 'lucide-react'
 
 function LandingStartApplying() {
   const navigate = useNavigate();
+
   return (
-    <div className='landing-start-applying'>
-        <h2>Start exchanging on campus today</h2>
-        <p className='landing-start-applying-signup'>Join Campus Recycle</p>
-        <button className='landing-start-applying-btn' onClick={()=>navigate('/student-signup')}>Create account</button>
-    </div>
+    <section className='landing-start-applying'>
+      <div className="cta-loop"><Recycle size={30}/></div>
+      <span>YOUR UNUSED COULD BE SOMEONE ELSE'S FIND</span>
+      <h2>Ready to put good stuff<br/>back in the loop?</h2>
+      <p>Join NITA's student marketplace. List free, discover locally, reuse more.</p>
+      <button className='landing-start-applying-btn' onClick={() => navigate('/student-signup')}>Join recyCool <ArrowRight size={18}/></button>
+    </section>
   )
 }
 

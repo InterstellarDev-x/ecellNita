@@ -16,33 +16,26 @@ function LandingNumbers() {
   })
   const stats = statsQuery.data
   const display = (value) => statsQuery.isLoading ? '…' : Number.isFinite(value) ? value.toLocaleString('en-IN') : '—'
+
   return (
-    <div className='landing-numbers'>
-        <div>
-            <div className='landing-numbers-element'>
-                <p className='landing-numbers-element-number'>{display(stats?.members)}</p>
-                <p className='landing-numbers-element-subject'>Student Members</p>
-                <div className='landing-numbers-element-underline'></div>
-            </div>
-            <div className='landing-numbers-element'>
-                <p className='landing-numbers-element-number'>{display(stats?.products)}</p>
-                <p className='landing-numbers-element-subject'>Products</p>
-                <div className='landing-numbers-element-underline'></div>
-            </div>
-        </div>
-        <div>
-            <div className='landing-numbers-element'>
-                <p className='landing-numbers-element-number'>{display(stats?.reviews)}</p>
-                <p className='landing-numbers-element-subject'>Reviews</p>
-                <div className='landing-numbers-element-underline'></div>
-            </div>
-            <div className='landing-numbers-element'>
-                <p className='landing-numbers-element-number'>{display(stats?.categories)}</p>
-                <p className='landing-numbers-element-subject'>Categories</p>
-                <div className='landing-numbers-element-underline'></div>
-            </div>
-        </div>
-    </div>
+    <section className='landing-numbers' aria-label="Campus Recycle marketplace statistics">
+      <div className='landing-numbers-element'>
+        <p className='landing-numbers-element-number'>{display(stats?.members)}</p>
+        <p className='landing-numbers-element-subject'>student members</p>
+      </div>
+      <div className='landing-numbers-element'>
+        <p className='landing-numbers-element-number'>{display(stats?.products)}</p>
+        <p className='landing-numbers-element-subject'>products in the loop</p>
+      </div>
+      <div className='landing-numbers-element'>
+        <p className='landing-numbers-element-number'>{display(stats?.reviews)}</p>
+        <p className='landing-numbers-element-subject'>community reviews</p>
+      </div>
+      <div className='landing-numbers-element'>
+        <p className='landing-numbers-element-number'>{display(stats?.categories)}</p>
+        <p className='landing-numbers-element-subject'>useful categories</p>
+      </div>
+    </section>
   )
 }
 

@@ -8,13 +8,15 @@ import AboutBenifits from '../components/About/AboutBenifits'
 
 function AboutMotive() {
   return (
-    <>
+    <div className="recycool-landing recycool-about-page">
         <LandingNavbar/>
-        <AboutHero/>
-        <AboutContent/>
-        <AboutBenifits/>
+        <main>
+          <AboutHero/>
+          <AboutContent/>
+          <AboutBenifits/>
+        </main>
         <LandingFooter/>
-    </>
+    </div>
   )
 }
 
