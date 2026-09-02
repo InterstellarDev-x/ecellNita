@@ -1,6 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "./StudentprofileView.css";
-import { AlertCircle, Camera, CheckCircle2, Pencil, Save, X } from "lucide-react";
+import {
+  AlertCircle,
+  BadgeCheck,
+  Camera,
+  CheckCircle2,
+  GraduationCap,
+  Hash,
+  Leaf,
+  Mail,
+  Pencil,
+  Phone,
+  Save,
+  Sparkles,
+  UserRound,
+  X,
+} from "lucide-react";
 import SmallLoader from "../SmallLoader/SmallLoader";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
@@ -182,33 +197,66 @@ function StudentprofileView() {
 
   const YEAR_LABELS = { '1': '1st Year', '2': '2nd Year', '3': '3rd Year', '4': '4th Year' };
   const profileDetails = getProfileDetails(userDetails);
+  const profileCompletionFields = [
+    userDetails?.firstname,
+    userDetails?.lastname,
+    profileDetails.gender,
+    profileDetails.enrollmentno,
+    profileDetails.contactno,
+    profileDetails.graduationyr,
+    profileDetails.about,
+  ];
+  const profileCompletion = Math.round(
+    (profileCompletionFields.filter((value) => String(value || "").trim()).length / profileCompletionFields.length) * 100
+  );
 
   return (
-    <div className="profile-view">
-      <div className="top" />
+    <div className={`profile-view${isEditing ? " is-editing" : ""}`}>
+      <main className="profile-shell">
+        <aside className="profile-identity-card" aria-label="Student identity summary">
+          <div className="profile-identity-topline">
+            <span><Leaf size={14} /> Campus identity</span>
+            <strong>NITA</strong>
+          </div>
 
-      <div className="profile-avatar-wrap">
-        <img
-          src={profileImagePreview || userDetails?.image || DEFAULT_PROFILE_IMAGE}
-          alt="Profile"
-          className="profile-avatar"
-        />
-      </div>
+          <div className="profile-avatar-wrap">
+            <img
+              src={profileImagePreview || userDetails?.image || DEFAULT_PROFILE_IMAGE}
+              alt="Profile"
+              className="profile-avatar"
+            />
+            <span className="profile-avatar-status" aria-label="Campus member"><BadgeCheck size={17} /></span>
+          </div>
 
-      <div className="profile-details">
-        <div>
-          <h4>{userDetails ? `${userDetails.firstname} ${userDetails.lastname}` : '—'}</h4>
-          <p>{userDetails?.email}</p>
-        </div>
-        {!isEditing && (
-          <button className="profile-edit-btn" onClick={startEditing}>
-            <Pencil size={15} />
-            Edit Profile
-          </button>
-        )}
-      </div>
+          <div className="profile-details">
+            <span className="profile-member-label">Student member</span>
+            <h4>{userDetails ? `${userDetails.firstname} ${userDetails.lastname}` : '—'}</h4>
+            <p><Mail size={14} /> {userDetails?.email || 'Email not added'}</p>
+          </div>
 
-      <div className="edit-profile-section">
+          <div className="profile-identity-meta">
+            <span><GraduationCap size={17} /> {YEAR_LABELS[profileDetails.graduationyr] || profileDetails.graduationyr || 'Year not added'}</span>
+            <span><Hash size={17} /> {profileDetails.enrollmentno || 'Enrollment pending'}</span>
+          </div>
+
+          <div className="profile-completion">
+            <div><span>Profile readiness</span><strong>{profileCompletion}%</strong></div>
+            <div className="profile-completion-track" aria-label={`${profileCompletion}% profile complete`}>
+              <span style={{ width: `${profileCompletion}%` }} />
+            </div>
+          </div>
+
+          {!isEditing && (
+            <button className="profile-edit-btn" onClick={startEditing}>
+              <Pencil size={15} />
+              Edit Profile
+            </button>
+          )}
+
+          <p className="profile-identity-note"><Sparkles size={14} /> A complete profile builds trust before every campus exchange.</p>
+        </aside>
+
+        <section className="profile-workspace">
         {statusMessage.message && !isEditing && (
           <div className={`profile-alert profile-alert-${statusMessage.type}`}>
             {statusMessage.type === "success" ? <CheckCircle2 size={17} /> : <AlertCircle size={17} />}
@@ -218,35 +266,40 @@ function StudentprofileView() {
 
         {!isEditing ? (
           <>
+          <header className="profile-workspace-heading">
+            <span>Profile record · {profileCompletion}% ready</span>
+            <h1>Your campus profile</h1>
+            <p>These details help other students recognize and connect with you safely.</p>
+          </header>
           <div className="profile-info-card">
             <div className="profile-info-grid">
               <div className="profile-info-item">
-                <span className="info-label">First Name</span>
+                <span className="info-label"><UserRound size={14} /> First Name</span>
                 <span className="info-value">{userDetails?.firstname || '—'}</span>
               </div>
               <div className="profile-info-item">
-                <span className="info-label">Last Name</span>
+                <span className="info-label"><UserRound size={14} /> Last Name</span>
                 <span className="info-value">{userDetails?.lastname || '—'}</span>
               </div>
               <div className="profile-info-item">
-                <span className="info-label">Gender</span>
+                <span className="info-label"><UserRound size={14} /> Gender</span>
                 <span className="info-value">{profileDetails.gender || '—'}</span>
               </div>
               <div className="profile-info-item">
-                <span className="info-label">Enrollment No.</span>
+                <span className="info-label"><Hash size={14} /> Enrollment No.</span>
                 <span className="info-value">{profileDetails.enrollmentno || '—'}</span>
               </div>
               <div className="profile-info-item">
-                <span className="info-label">Contact No.</span>
+                <span className="info-label"><Phone size={14} /> Contact No.</span>
                 <span className="info-value">{profileDetails.contactno || '—'}</span>
               </div>
               <div className="profile-info-item">
-                <span className="info-label">Graduation Year</span>
+                <span className="info-label"><GraduationCap size={14} /> Graduation Year</span>
                 <span className="info-value">{YEAR_LABELS[profileDetails.graduationyr] || profileDetails.graduationyr || '—'}</span>
               </div>
               {profileDetails.about && (
                 <div className="profile-info-item full-width">
-                  <span className="info-label">About</span>
+                  <span className="info-label"><Sparkles size={14} /> About</span>
                   <span className="info-value">{profileDetails.about}</span>
                 </div>
               )}
@@ -356,7 +409,8 @@ function StudentprofileView() {
             </form>
           </div>
         )}
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

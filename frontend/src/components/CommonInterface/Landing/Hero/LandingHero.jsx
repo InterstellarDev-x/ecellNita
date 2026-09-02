@@ -20,7 +20,7 @@ function LandingHero() {
           </p>
           <div className="landing-hero-actions">
             <button className="landing-hero-btn" onClick={() => navigate('/student-signup')}>
-              Start swapping <ArrowRight size={18} />
+              Start selling <ArrowRight size={18} />
             </button>
             <button className="landing-hero-btn-secondary" onClick={() => navigate('/student-login')}>
               I have an account

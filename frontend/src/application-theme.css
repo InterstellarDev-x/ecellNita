@@ -569,7 +569,49 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (max-width: 768px) {
   .product-search-filter { padding: 12px 0 8px; }
   .product-search-filter-container { gap: 8px; padding: 10px; border-radius: 20px; }
-  .product-list { padding: 30px 16px 95px; }
+  .product-list { padding: 26px 0 95px; }
+  .product-list-header { margin-bottom: 14px; }
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; }
+  .product-grid .product-card {
+    border-radius: 15px;
+    box-shadow: 0 5px 14px rgba(11,47,36,.065);
+  }
+  .product-grid .product-card:hover,
+  .product-grid .product-card:focus-visible {
+    transform: none;
+    border-color: rgba(21,154,99,.34);
+    box-shadow: 0 7px 18px rgba(11,47,36,.1);
+  }
+  .product-grid .product-card-image { height: auto; aspect-ratio: 1.08; }
+  .product-grid .product-category-badge {
+    top: 7px;
+    left: 7px;
+    max-width: calc(100% - 48px);
+    padding: 4px 6px;
+    font-size: .56rem;
+  }
+  .product-grid .product-save-btn {
+    top: 7px;
+    right: 7px;
+    width: 32px;
+    height: 32px;
+  }
+  .product-grid .product-card-details { gap: 5px; padding: 10px; }
+  .product-grid .product-card-title-row { flex-direction: column; gap: 5px; }
+  .product-grid .product-card-details h4 {
+    min-height: 2.35em;
+    font-size: .79rem;
+    line-height: 1.18;
+  }
+  .product-grid .product-card-details-price { font-size: 1rem; }
+  .product-grid .product-card-description,
+  .product-grid .product-card-seller-rating > small,
+  .product-grid .product-card-footer strong { display: none; }
+  .product-grid .product-card-seller-rating { min-height: 18px; font-size: .63rem; }
+  .product-grid .product-card-footer { margin-top: 3px; padding-top: 8px; font-size: .61rem; }
+  .product-grid .product-card-footer span { gap: 3px; }
+  .product-grid .product-card-footer svg { width: 12px; height: 12px; }
+  .product-grid .product-card-skeleton { height: 265px; border-radius: 15px; }
   .buyer-product-view { min-height: calc(100vh - 64px); }
   .buyer-page-header { grid-template-columns: minmax(0, 1fr); gap: 14px; min-height: 0; padding: 20px; border-radius: 19px; }
   .buyer-page-header__main { align-items: flex-start; }
@@ -661,18 +703,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .forgot-pass-success-msg { padding: 20px; border-radius: 15px; color: var(--rc-forest-900); background: rgba(199,245,66,.22); font-weight: 700; }
 
 /* Student profile */
-.profile-view { min-height: calc(100vh - 72px); padding-bottom: 80px; color: var(--rc-ink); background: var(--rc-cream); }
-.profile-view > .top { height: 185px; background: radial-gradient(circle at 78% 20%, rgba(199,245,66,.2), transparent 200px), linear-gradient(125deg, var(--rc-forest-950), var(--rc-forest-700)); }
-.profile-avatar-wrap { border-color: var(--rc-lime); background: var(--rc-paper); box-shadow: 0 10px 28px rgba(11,47,36,.18); }
-.profile-details { max-width: 980px; }
-.profile-details h4 { color: var(--rc-forest-950); font-family: var(--font-display); font-weight: 400; letter-spacing: -.04em; }
-.profile-details p { color: var(--rc-muted); }
-.profile-edit-btn { border-color: var(--rc-forest-900); border-radius: 999px; color: #fff; background: var(--rc-forest-900); font-weight: 800; }
-.profile-edit-btn:hover { color: var(--rc-forest-950); background: var(--rc-lime); border-color: var(--rc-lime); transform: translateY(-2px); }
-.edit-profile-section { max-width: 980px; }
+.profile-view { min-height: calc(100vh - 72px); color: var(--rc-ink); }
+.profile-identity-card .profile-avatar-wrap { border: 0; background: transparent; box-shadow: none; }
+.profile-identity-card .profile-details { max-width: none; }
+.profile-identity-card .profile-details h4 { color: #fff; font-family: var(--font-display); font-weight: 400; letter-spacing: -.05em; }
+.profile-identity-card .profile-details p { color: #b8ccc1; }
+.profile-identity-card .profile-edit-btn { border: 0; border-radius: 999px; color: var(--rc-forest-950); background: var(--rc-lime); font-weight: 800; }
+.profile-identity-card .profile-edit-btn:hover { color: var(--rc-forest-950); background: #fff; transform: translateY(-2px); }
 .profile-info-card,
-.edit-profile-form { border: 1px solid rgba(11,47,36,.12); border-radius: 22px; background: var(--rc-paper); box-shadow: var(--rc-shadow); }
-.profile-info-item { border-color: var(--rc-line); background: #fbfcf8; }
+.profile-reputation-card,
+.edit-profile-form { border-color: rgba(11,47,36,.12); background: var(--rc-paper); }
+.profile-info-item { border-color: var(--rc-line); }
 .info-label { color: var(--rc-muted); font-size: .7rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .info-value { color: var(--rc-forest-950); font-weight: 700; }
 .edit-form-title { color: var(--rc-forest-950); font-family: var(--font-display); font-weight: 400; letter-spacing: -.04em; }
@@ -681,7 +722,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .edit-profile-form textarea { border-color: var(--rc-line); border-radius: 11px; color: var(--rc-ink); background: #fbfcf8; }
 .edit-profile-form input:focus,
 .edit-profile-form select:focus,
-.edit-profile-form textarea:focus { border-color: var(--rc-green-600); box-shadow: 0 0 0 4px rgba(21,154,99,.10); }
+.edit-profile-form textarea:focus,
+.edit-profile-form input:focus-visible,
+.edit-profile-form select:focus-visible,
+.edit-profile-form textarea:focus-visible { border-color: var(--rc-green-600); outline: 0; box-shadow: 0 0 0 4px rgba(21,154,99,.10); }
 .profile-image-upload { border-color: var(--rc-line); border-radius: 16px; background: var(--rc-cream); }
 .profile-image-upload-btn { border-radius: 999px; color: var(--rc-forest-900); background: var(--rc-lime); font-weight: 800; }
 .btn-cancel, .btn-save { min-height: 46px; border-radius: 999px; font-weight: 800; }
