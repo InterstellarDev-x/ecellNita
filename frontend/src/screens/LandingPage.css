@@ -40,9 +40,9 @@
 .recycool-landing .landing-navbar-left,
 .recycool-landing .landing-navbar-right,
 .recycool-landing .landing-navbar-right-btn-sec { display: flex; align-items: center; }
-.recycool-landing .landing-navbar-left { gap: clamp(24px, 4vw, 62px); }
-.recycool-landing .landing-navbar-right { gap: 28px; }
-.recycool-landing .landing-navbar-right-btn-sec { gap: 6px; }
+.recycool-landing .landing-navbar-left { width: auto; min-width: 0; gap: clamp(24px, 4vw, 62px); }
+.recycool-landing .landing-navbar-right { width: auto; flex: 0 0 auto; gap: 28px; }
+.recycool-landing .landing-navbar-right-btn-sec { width: auto; flex: 0 0 auto; gap: 6px; }
 
 .recycool-landing .landing-navbar-left-logo { display: flex; align-items: center; gap: 9px; cursor: pointer; }
 .recycool-landing .landing-navbar-left-logo img { width: 116px; height: auto; mix-blend-mode: multiply; }
@@ -59,9 +59,9 @@
   transform: rotate(-3deg);
 }
 
-.recycool-landing .landing-navbar-left-explore { display: flex; align-items: center; gap: 26px; }
+.recycool-landing .landing-navbar-left-explore { display: flex; flex: 0 0 auto; align-items: center; gap: 26px; }
 .recycool-landing .landing-navbar-left-explore a,
-.recycool-landing .dropbtn { color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 700; transition: color .2s ease; }
+.recycool-landing .dropbtn { color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 700; white-space: nowrap; transition: color .2s ease; }
 .recycool-landing .landing-navbar-left-explore a:hover, .recycool-landing .dropbtn:hover { color: var(--green-600); }
 .recycool-landing .dropdown { position: relative; }
 .recycool-landing .dropbtn { display: flex; align-items: center; gap: 4px; padding: 10px 0; background: transparent; border: 0; }
@@ -79,6 +79,7 @@
 .recycool-landing .dropdown-content a:hover { background: rgba(199, 245, 66, .38); }
 
 .recycool-landing .landing-navbar-right-btn-sec button {
+  width: auto;
   min-height: 43px;
   padding: 0 17px;
   border-radius: 999px;
@@ -93,6 +94,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  margin-left: 0;
   padding-inline: 20px;
   color: #fff;
   background: var(--forest-900);

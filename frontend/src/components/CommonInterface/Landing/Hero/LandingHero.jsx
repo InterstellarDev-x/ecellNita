@@ -11,7 +11,6 @@ function LandingHero() {
     <section className='landing-hero'>
       <div className="landing-hero-left">
         <div className="landing-hero-copy">
-          <div className="landing-eyebrow"> NITA's student marketplace</div>
           <h1 className='landing-hero-left-heading'>
             Good stuff deserves a <span className='green'>second semester.</span>
           </h1>
