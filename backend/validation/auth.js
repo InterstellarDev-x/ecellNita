@@ -22,10 +22,18 @@ const passwordSchema = z
     .regex(/[A-Z]/, "Password must include an uppercase letter")
     .regex(/\d/, "Password must include a number");
 
+const enrollmentNumberSchema = z
+    .string()
+    .trim()
+    .min(3, "Enrollment number must be at least 3 characters")
+    .max(30, "Enrollment number must be at most 30 characters")
+    .regex(/^[A-Za-z0-9][A-Za-z0-9/-]*$/, "Use letters, numbers, hyphens, or slashes only");
+
 const signupFields = z.object({
     firstname: nameSchema,
     lastname: nameSchema,
     email: emailSchema,
+    enrollmentno: enrollmentNumberSchema,
     password: passwordSchema,
     confirmpassword: z.string(),
     accounttype: z.literal("Buyer"),
@@ -56,4 +64,4 @@ const resetPasswordSchema = withMatchingPasswords(z.object({
 
 const getValidationErrors = (error) => error.flatten().fieldErrors;
 
-module.exports = { signupSchema, sendOtpSchema, resetPasswordSchema, getValidationErrors };
+module.exports = { signupSchema, sendOtpSchema, resetPasswordSchema, enrollmentNumberSchema, getValidationErrors };

@@ -44,6 +44,7 @@ function SellerTopNavbar() {
     });
     localStorage.removeItem("campusrecycletoken");
     localStorage.removeItem("campusrecycleuser");
+    window.dispatchEvent(new Event("campusrecycle-auth-changed"));
     setTimeout(() => navigate("/"), 3000);
   };
 

@@ -36,6 +36,7 @@ export const authroutes={
     ,ADMIN_USERS:BASE_URL+"/admin/users"
     ,ADMIN_SUBMISSIONS:BASE_URL+"/admin/submissions"
     ,ADMIN_SETTINGS:BASE_URL+"/admin/settings"
+    ,CHATS:BASE_URL+"/chats"
     ,QUESTIONS:BASE_URL+"/questions"
     ,NOTIFICATIONS:BASE_URL+"/notifications"
     ,ADMIN_CONTENT_REPORTS:BASE_URL+"/admin/content-reports"

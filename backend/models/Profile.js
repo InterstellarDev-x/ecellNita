@@ -9,7 +9,9 @@ const profileschema=new mongoose.Schema({
     enrollmentno:{
         type:String,
         trim:true,
+        minlength:3,
         maxlength:30,
+        match:/^[A-Za-z0-9][A-Za-z0-9/-]*$/,
     },
     about:{
         type:String,

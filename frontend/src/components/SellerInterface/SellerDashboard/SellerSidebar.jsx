@@ -19,6 +19,7 @@ function SellerSidebar({ open }) {
     });
     localStorage.removeItem('campusrecycletoken');
     localStorage.removeItem('campusrecycleuser');
+    window.dispatchEvent(new Event("campusrecycle-auth-changed"));
     setTimeout(() => {
       navigate('/');
     }, 3000); // Delay to allow the toast message to be visible
@@ -64,7 +65,7 @@ function SellerSidebar({ open }) {
             </Link>
             <Link to='/seller/questions'>
               <MessageCircle size={20}/>
-              <span>Buyer Questions</span>
+              <span>Buyer Messages</span>
             </Link>
             <Link to='/feature-request'>
               <PackagePlus size={20}/>

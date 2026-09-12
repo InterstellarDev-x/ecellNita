@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { chatUserId } from "./useChatQueries";
 import { authroutes } from "../apis/apis";
 import { apiConnector } from "../utils/Apiconnecter";
 
@@ -17,7 +18,7 @@ const questionKeys = {
 
 export function useBuyerQuestions(enabled = true) {
   return useQuery({
-    queryKey: questionKeys.buyer,
+    queryKey: [...questionKeys.buyer, chatUserId()],
     queryFn: async () => read(await apiConnector("GET", `${authroutes.QUESTIONS}/buyer`, null, headers()), "Could not load your questions."),
     staleTime: 30 * 1000,
     enabled,
@@ -26,7 +27,7 @@ export function useBuyerQuestions(enabled = true) {
 
 export function useSellerQuestions(enabled = true) {
   return useQuery({
-    queryKey: questionKeys.seller,
+    queryKey: [...questionKeys.seller, chatUserId()],
     queryFn: async () => read(await apiConnector("GET", `${authroutes.QUESTIONS}/seller`, null, headers()), "Could not load buyer questions."),
     staleTime: 30 * 1000,
     enabled,
@@ -74,10 +75,10 @@ export function useReportProductQuestion() {
 
 export function useNotifications() {
   return useQuery({
-    queryKey: questionKeys.notifications,
+    queryKey: [...questionKeys.notifications, chatUserId()],
     queryFn: async () => read(await apiConnector("GET", authroutes.NOTIFICATIONS, null, headers()), "Could not load notifications."),
     staleTime: 20 * 1000,
-    refetchInterval: 15 * 1000,
+
     refetchOnWindowFocus: "always",
   });
 }

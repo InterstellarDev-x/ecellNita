@@ -15,6 +15,7 @@ import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import { formatProductStatus } from "../../../utils/productStatus";
 import { getOptimizedImageUrl, productThumbnailImageProps } from "../../../utils/cloudinaryImage";
+import { getProfileCompletion } from "../../../utils/profileCompletion";
 
 const YEAR_LABELS = { "1": "1st Year", "2": "2nd Year", "3": "3rd Year", "4": "4th Year" };
 const DEFAULT_PROFILE_IMAGE = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
@@ -113,8 +114,7 @@ function SellerOverview() {
     { label: "Graduation Year", value: YEAR_LABELS[profileInfo.graduationyr] || profileInfo.graduationyr || "—" },
   ];
 
-  const completedProfileFields = profileItems.filter((item) => item.value !== "—").length + (profileInfo.about ? 1 : 0);
-  const profileCompletion = Math.round((completedProfileFields / 7) * 100);
+  const { percentage: profileCompletion, isComplete: isProfileComplete } = getProfileCompletion(user);
 
   return (
     <div className="seller-overview">
@@ -126,7 +126,9 @@ function SellerOverview() {
           <div>
            
             <h2>Welcome back, {sellerName}! 👋</h2>
-            <p>Track your listings, requests, and profile readiness from one place.</p>
+            <p>{isProfileComplete
+              ? "Track your listings, requests, and sales from one place."
+              : "Track your listings, requests, and profile readiness from one place."}</p>
           </div>
         </div>
         <div className="seller-hero-actions">
@@ -236,7 +238,7 @@ function SellerOverview() {
       </section>
 
       <section className="seller-dashboard-grid bottom-grid">
-        {profileCompletion < 100 && (
+        {!isProfileComplete && (
           <div className="seller-panel seller-profile-panel">
             <div className="seller-panel-header">
               <div>
@@ -292,11 +294,13 @@ function SellerOverview() {
               <span>Respond to buyer requests</span>
               <ArrowRight size={16} />
             </Link>
-            <Link to="/student-profile">
-              <UserRound size={18} />
-              <span>Complete your seller profile</span>
-              <ArrowRight size={16} />
-            </Link>
+            {!isProfileComplete && (
+              <Link to="/student-profile">
+                <UserRound size={18} />
+                <span>Complete your seller profile</span>
+                <ArrowRight size={16} />
+              </Link>
+            )}
           </div>
         </div>
       </section>

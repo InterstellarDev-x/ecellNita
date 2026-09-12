@@ -12,6 +12,7 @@ import {
   X
 } from "lucide-react";
 import { useMarketplaceCategories, useMarketplaceProducts } from "../hooks/useBuyerQueries";
+import "./MarketplaceGlass.css";
 
 const EMPTY_PRODUCT_PAGES = [];
 
@@ -86,11 +87,9 @@ function ProductListing() {
   }, [isFilter, maxProductPrice]);
 
   return (
-    <>
+    <div className="marketplace-glass">
       <BuyerNavbar />
       <main className="buyer-product-page">
-
-
         <section className="product-search-filter">
           <div className="product-search-filter-container">
             <div className="product-search-input-wrap">
@@ -210,6 +209,7 @@ function ProductListing() {
         <ProductList
           products={visibleProducts}
           totalProducts={totalProducts}
+          hideHeader
           isLoading={productsLoading}
           isLoadingMore={productsQuery.isFetchingNextPage}
           hasMore={Boolean(productsQuery.hasNextPage)}
@@ -218,7 +218,7 @@ function ProductListing() {
           onResetFilters={resetFilters}
         />
       </main>
-    </>
+    </div>
   );
 }
 

@@ -45,6 +45,7 @@ function BuyerNavbar() {
     });
     localStorage.removeItem('campusrecycletoken');
     localStorage.removeItem('campusrecycleuser');
+    window.dispatchEvent(new Event("campusrecycle-auth-changed"));
     setActiveLink('logout');
     setTimeout(() => navigate('/'), 3000);
   };
@@ -78,7 +79,7 @@ function BuyerNavbar() {
             Wishlist
           </Link>
           <Link to="/buyer/questions" className={`buyer-navbar-options-item ${location.pathname === "/buyer/questions" ? "active" : ""}`}>
-            Questions
+            Messages
           </Link>
         </div>
 
@@ -120,7 +121,7 @@ function BuyerNavbar() {
         </Link>
         <Link to="/buyer/questions" className={location.pathname === "/buyer/questions" ? "active" : ""}>
           <MessageCircle size={20} />
-          <span>Questions</span>
+          <span>Messages</span>
         </Link>
       </nav>
     </>

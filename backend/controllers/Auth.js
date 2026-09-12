@@ -79,7 +79,7 @@ exports.signup=async (req,res)=>{
                 errors:getValidationErrors(validation.error),
             });
         }
-        const {firstname,lastname,email,password,confirmpassword,accounttype,otp}=validation.data;
+        const {firstname,lastname,email,enrollmentno,password,confirmpassword,accounttype,otp}=validation.data;
         logger.debug("signup attempt for email: %s", email)
         const checkuser=await User.findOne({email});
         if(checkuser){
@@ -115,7 +115,7 @@ exports.signup=async (req,res)=>{
 
         const profiledetails=await Profile.create({
             gender:null,
-            enrollmentno:null,
+            enrollmentno,
             about:null,
             contactno:null,
             graduationyr:null

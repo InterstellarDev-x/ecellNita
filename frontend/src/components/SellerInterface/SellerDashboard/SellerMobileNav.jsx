@@ -8,7 +8,7 @@ const items = [
   ["/seller/add-product", "Add", PackagePlus],
   ["/seller/view-product", "Listings", PackageSearch],
   ["/seller/product-requests", "Requests", ClipboardList],
-  ["/seller/questions", "Questions", MessageCircle],
+  ["/seller/questions", "Messages", MessageCircle],
 ];
 
 function SellerMobileNav() {

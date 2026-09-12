@@ -6,6 +6,7 @@ import "./NotificationBell.css";
 import ReviewPrompt from "../Reviews/ReviewPrompt";
 
 export const notificationDestination = (notification, audience) => {
+  if (notification.chat) return `/${(notification.audience || audience) === "seller" ? "seller" : "buyer"}/questions?chat=${notification.chat}`;
   if (notification.type === "meeting_proposed") {
     return audience === "seller" ? "/seller/product-requests" : "/buyer/product-requests";
   }

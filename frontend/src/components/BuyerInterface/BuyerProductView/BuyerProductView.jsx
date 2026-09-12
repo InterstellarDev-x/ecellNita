@@ -11,15 +11,14 @@ import {
   Minus,
   PackageCheck,
   Plus,
-  Send,
   ShieldCheck,
 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
 import PageLoader from "../../CommonInterface/PageLoader/PageLoader";
 import { useBuyerRequests, useCreateBuyerRequest, useMarketplaceProduct } from "../../../hooks/useBuyerQueries";
-import { useCreateProductQuestion } from "../../../hooks/useQuestionQueries";
+import { useStartChat } from "../../../hooks/useChatQueries";
 import { formatProductStatus } from "../../../utils/productStatus";
 import { getOptimizedImageUrl, productDetailImageProps, productThumbnailImageProps } from "../../../utils/cloudinaryImage";
 
@@ -32,9 +31,9 @@ function BuyerProductView() {
   const product = productQuery.data;
   const requests = requestsQuery.data || [];
   const createRequest = useCreateBuyerRequest();
-  const createQuestion = useCreateProductQuestion();
+  const startChat = useStartChat();
+  const navigate = useNavigate();
   const [productQuantity, setProductQuantity] = useState(0);
-  const [question, setQuestion] = useState("");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [failedImages, setFailedImages] = useState({});
 
@@ -68,15 +67,13 @@ function BuyerProductView() {
     }
   };
 
-  const handleQuestionSubmit = async (event) => {
-    event.preventDefault();
-    if (!question.trim() || isOwnProduct || isUnavailable) return;
+  const handleStartChat = async () => {
+    if (isOwnProduct || isUnavailable) return;
     try {
-      await createQuestion.mutateAsync({ productid: product._id, question: question.trim() });
-      setQuestion("");
-      toast.success("Your private question was sent to the seller.");
+      const thread = await startChat.mutateAsync(product._id);
+      navigate(`/buyer/questions?chat=${thread._id}`);
     } catch (error) {
-      toast.error(error.message || "Could not send your question.");
+      toast.error(error?.response?.data?.message || error.message || "Could not start chat.");
     }
   };
 
@@ -162,11 +159,10 @@ function BuyerProductView() {
                 <span className="product-seller-privacy"><LockKeyhole size={14} /> Private</span>
               </div>
               {!isOwnProduct && !isUnavailable && (
-                <form className="buyer-product-question" onSubmit={handleQuestionSubmit}>
-                  <div className="buyer-product-question__heading"><span className="buyer-product-question__icon"><MessageCircle size={18} /></span><span><strong>Ask the seller privately</strong><small>Only you and the seller can see this question.</small></span></div>
-                  <textarea aria-label="Question for the seller" value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={1000} placeholder="Ask about condition, pickup, or product details…" />
-                  <div className="buyer-product-question__footer"><small>{question.length}/1000</small><button type="submit" disabled={!question.trim() || createQuestion.isPending}><Send size={15} /> {createQuestion.isPending ? "Sending…" : "Send question"}</button></div>
-                </form>
+                <section className="buyer-product-question">
+                  <div className="buyer-product-question__heading"><span className="buyer-product-question__icon"><MessageCircle size={18} /></span><span><strong>Chat with the seller</strong><small>Ask questions, make a price offer, and agree on the details privately.</small></span></div>
+                  <div className="buyer-product-question__footer"><small>Messages and price offers</small><button type="button" onClick={handleStartChat} disabled={startChat.isPending}><MessageCircle size={15} /> {startChat.isPending ? "Opening…" : "Chat with seller"}</button></div>
+                </section>
               )}
             </section>
           </div>

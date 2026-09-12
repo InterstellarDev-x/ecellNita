@@ -47,7 +47,7 @@ const router = createBrowserRouter([
   },
   { 
     path: '/buyer',
-    element: <PrivateRoute><div><Outlet /></div></PrivateRoute>,
+    element: <PrivateRoute><div className="app-glass-theme"><Outlet /></div></PrivateRoute>,
     children: [
       { path: 'productlist', element: <ProductListing /> },
       { path: 'products/:productid', element: <ProductView /> },
@@ -58,7 +58,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/seller',
-    element: <PrivateRoute><div><Outlet /></div></PrivateRoute>,
+    element: <PrivateRoute><div className="app-glass-theme"><Outlet /></div></PrivateRoute>,
     children: [
       { path: 'welcome', element: <SellerWelcome /> },
       { path: 'seller-dashboard', element: <SellerDashboard /> },
@@ -72,7 +72,7 @@ const router = createBrowserRouter([
     path: '/admin',
     element: <PrivateRoute><AdminRoute><AdminPanel /></AdminRoute></PrivateRoute>
   },
-  { path: '*', element: <NotFound /> }
+  { path: '*', element: <div className="app-glass-theme"><NotFound /></div> }
 ]);
 
 export default router;

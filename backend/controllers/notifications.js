@@ -3,7 +3,7 @@ const Notification = require("../models/Notification");
 exports.listNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find({ recipient: req.user.id }).sort({ createdAt: -1 }).limit(50).lean();
-        const unreadCount = notifications.filter((item) => !item.readAt).length;
+        const unreadCount = await Notification.countDocuments({ recipient: req.user.id, readAt: null });
         return res.json({ success: true, data: { notifications, unreadCount } });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Could not load notifications" });

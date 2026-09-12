@@ -18,7 +18,7 @@ function ActivitySection() {
   const [verificationStage, setVerificationStage] = useState(false);
 
   const [signUpDetails, setSignUpDetails] = useState({
-    email: "", firstname: "", lastname: "",
+    email: "", firstname: "", lastname: "", enrollmentno: "",
     password: "", confirmpassword: "", otp: "", accounttype: "Buyer",
   });
   const [loginDetails, setLoginDetails] = useState({ email: "", password: "" });
@@ -106,6 +106,7 @@ function ActivitySection() {
       if (res.data.success) {
         localStorage.setItem("campusrecycletoken", res.data.token);
         localStorage.setItem("campusrecycleuser", JSON.stringify(res.data.data));
+        window.dispatchEvent(new Event("campusrecycle-auth-changed"));
         setLoading(false);
         navigate("/buyer/productlist");
       } else {
@@ -212,6 +213,13 @@ function ActivitySection() {
                 value={signUpDetails.email} onChange={handleOnchangeSignup} required aria-invalid={Boolean(signupErrors.email)} />
               {signupErrors.email?.[0] && <span className="auth-error">{signupErrors.email[0]}</span>}
               {errorMsg.type === "email already exists" && <span className="auth-error">{errorMsg.msg}</span>}
+            </div>
+
+            <div className="auth-field">
+              <label htmlFor="signup-enrollment">Enrollment Number</label>
+              <input id="signup-enrollment" type="text" placeholder="For example, 23UEC123" name="enrollmentno" autoComplete="off"
+                value={signUpDetails.enrollmentno} onChange={handleOnchangeSignup} minLength="3" maxLength="30" required aria-invalid={Boolean(signupErrors.enrollmentno)} />
+              {signupErrors.enrollmentno?.[0] && <span className="auth-error">{signupErrors.enrollmentno[0]}</span>}
             </div>
 
             <div className="auth-field">

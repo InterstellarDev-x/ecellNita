@@ -26,6 +26,7 @@ const validSignup = {
     firstname: "Aditi",
     lastname: "Sharma",
     email: "ADITI@NITA.AC.IN",
+    enrollmentno: "23UEC123",
     password: "Campus123",
     confirmpassword: "Campus123",
     accounttype: "Buyer",
@@ -36,6 +37,13 @@ test("signup validation normalizes email and accepts a strong matching password"
     const result = signupSchema.safeParse(validSignup);
     assert.equal(result.success, true);
     assert.equal(result.data.email, "aditi@nita.ac.in");
+    assert.equal(result.data.enrollmentno, "23UEC123");
+});
+
+test("signup requires a valid enrollment number", () => {
+    assert.equal(signupSchema.safeParse({ ...validSignup, enrollmentno: "" }).success, false);
+    assert.equal(signupSchema.safeParse({ ...validSignup, enrollmentno: "23 UEC 123" }).success, false);
+    assert.equal(signupSchema.safeParse({ ...validSignup, enrollmentno: "23UEC/123-A" }).success, true);
 });
 
 test("signup and reset validation reject weak or mismatched passwords", () => {
@@ -71,8 +79,9 @@ test("listing quantity validation accepts bounded integers and rejects extreme v
 });
 
 test("profile schema rejects invalid contact numbers and graduation years", () => {
-    assert.equal(new Profile({ contactno: 9876543210, graduationyr: 4 }).validateSync(), undefined);
+    assert.equal(new Profile({ enrollmentno: "23UEC123", contactno: 9876543210, graduationyr: 4 }).validateSync(), undefined);
     assert.ok(new Profile({ contactno: 123, graduationyr: 9 }).validateSync());
+    assert.ok(new Profile({ enrollmentno: "23 UEC 123" }).validateSync());
 });
 
 test("authentication fields are excluded from user queries by default", () => {

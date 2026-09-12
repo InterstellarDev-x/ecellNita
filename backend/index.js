@@ -1,5 +1,6 @@
 const express=require("express");
 const app=express();
+const httpServer = require("http").createServer(app);
 require("dotenv").config();
 const logger=require("./utils/logger");
 const PORT= process.env.PORT ?? 4000
@@ -88,6 +89,7 @@ app.use("/api/v1/ratingandreviews", ratingandreviewsroutes);
 app.use("/api/v1/wishlist", wishlistroutes);
 app.use("/api/v1/admin", adminroutes);
 app.use("/api/v1/questions", questionroutes);
+app.use("/api/v1/chats", require("./routes/chat"));
 app.use("/api/v1/notifications", notificationroutes);
 app.use("/api/v1/feature-requests", featureRequestroutes);
 
@@ -122,7 +124,8 @@ app.use((error,_req,res,_next)=>{
 
 databaseConnect().then(()=> {
             cloudinaryConnect()
-            app.listen(PORT,async ()=>{
+            require("./realtime/server").attachRealtime(httpServer, { cors: corsOptions, allowedOrigins });
+            httpServer.listen(PORT,async ()=>{
             logger.info("server running on port %d", PORT);
             })
         

@@ -8,9 +8,12 @@ import { RouterProvider } from "react-router-dom";
 import router from "./router/router";
 import { cssTransition, ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RealtimeProvider } from "./realtime/RealtimeProvider";
 import OfflineFallback from "./components/CommonInterface/OfflineFallback/OfflineFallback";
+import ApplicationHaptics from "./haptics/ApplicationHaptics";
 // Keep the product theme last so it consistently overrides legacy component styles.
 import "./application-theme.css";
+import "./glass-application.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({
@@ -31,9 +34,12 @@ const smoothToastTransition = cssTransition({
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
+      <ApplicationHaptics />
+      <RealtimeProvider>
       <OfflineFallback>
         <RouterProvider router={router} />
       </OfflineFallback>
+      </RealtimeProvider>
       <ToastContainer
         position="top-right"
         autoClose={1200}

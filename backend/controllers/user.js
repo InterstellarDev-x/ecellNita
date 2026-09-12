@@ -19,8 +19,8 @@ exports.updateprofile=async (req,res)=>{
             if(gender!==undefined && gender!=="" && !["Male","Female"].includes(gender)){
                 return res.status(400).json({success:false,message:"Select a valid gender"});
             }
-            if(enrollmentno!==undefined && enrollmentno.length>30){
-                return res.status(400).json({success:false,message:"Enrollment number is too long"});
+            if(enrollmentno!==undefined && !/^[A-Za-z0-9][A-Za-z0-9/-]{2,29}$/.test(enrollmentno)){
+                return res.status(400).json({success:false,message:"Enrollment number must be 3–30 characters using letters, numbers, hyphens, or slashes"});
             }
             if(contactno!==undefined && contactno!=="" && !/^\d{10}$/.test(contactno)){
                 return res.status(400).json({success:false,message:"Contact number must contain 10 digits"});
@@ -169,6 +169,4 @@ exports.updateuser=async (req,res)=>{
         if(imagefile?.tempFilePath) await fs.unlink(imagefile.tempFilePath).catch(()=>undefined);
     }
 }
-
-
 

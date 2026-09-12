@@ -15,10 +15,18 @@ const passwordSchema = z
   .regex(/[A-Z]/, "Include an uppercase letter")
   .regex(/\d/, "Include a number");
 
+export const enrollmentNumberSchema = z
+  .string()
+  .trim()
+  .min(3, "Enrollment number must be at least 3 characters")
+  .max(30, "Enrollment number must be at most 30 characters")
+  .regex(/^[A-Za-z0-9][A-Za-z0-9/-]*$/, "Use letters, numbers, hyphens, or slashes only");
+
 const signupFields = z.object({
   firstname: nameSchema,
   lastname: nameSchema,
   email: z.string().trim().max(254, "Email is too long").email("Enter a valid email address"),
+  enrollmentno: enrollmentNumberSchema,
   password: passwordSchema,
   confirmpassword: z.string(),
   accounttype: z.literal("Buyer"),

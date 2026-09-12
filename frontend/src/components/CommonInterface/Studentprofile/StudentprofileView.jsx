@@ -20,6 +20,8 @@ import SmallLoader from "../SmallLoader/SmallLoader";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import ReputationPanel from "../Reviews/ReputationPanel";
+import { enrollmentNumberSchema } from "../../../validation/auth";
+import { getProfileCompletion } from "../../../utils/profileCompletion";
 
 const getProfileDetails = (user) => user?.additionaldetails || {};
 const DEFAULT_PROFILE_IMAGE = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
@@ -156,6 +158,12 @@ function StudentprofileView() {
       return;
     }
 
+    const enrollmentValidation = enrollmentNumberSchema.safeParse(updateProfileFormdata.enrollmentno);
+    if (!enrollmentValidation.success) {
+      setStatusMessage({ type: "error", message: enrollmentValidation.error.issues[0].message });
+      return;
+    }
+
     setLoading(true);
     setStatusMessage({ type: "", message: "" });
     try {
@@ -197,18 +205,7 @@ function StudentprofileView() {
 
   const YEAR_LABELS = { '1': '1st Year', '2': '2nd Year', '3': '3rd Year', '4': '4th Year' };
   const profileDetails = getProfileDetails(userDetails);
-  const profileCompletionFields = [
-    userDetails?.firstname,
-    userDetails?.lastname,
-    profileDetails.gender,
-    profileDetails.enrollmentno,
-    profileDetails.contactno,
-    profileDetails.graduationyr,
-    profileDetails.about,
-  ];
-  const profileCompletion = Math.round(
-    (profileCompletionFields.filter((value) => String(value || "").trim()).length / profileCompletionFields.length) * 100
-  );
+  const { percentage: profileCompletion, isComplete: isProfileComplete } = getProfileCompletion(userDetails);
 
   return (
     <div className={`profile-view${isEditing ? " is-editing" : ""}`}>
@@ -239,12 +236,14 @@ function StudentprofileView() {
             <span><Hash size={17} /> {profileDetails.enrollmentno || 'Enrollment pending'}</span>
           </div>
 
-          <div className="profile-completion">
-            <div><span>Profile readiness</span><strong>{profileCompletion}%</strong></div>
-            <div className="profile-completion-track" aria-label={`${profileCompletion}% profile complete`}>
-              <span style={{ width: `${profileCompletion}%` }} />
+          {!isProfileComplete && (
+            <div className="profile-completion">
+              <div><span>Profile readiness</span><strong>{profileCompletion}%</strong></div>
+              <div className="profile-completion-track" aria-label={`${profileCompletion}% profile complete`}>
+                <span style={{ width: `${profileCompletion}%` }} />
+              </div>
             </div>
-          </div>
+          )}
 
           {!isEditing && (
             <button className="profile-edit-btn" onClick={startEditing}>
@@ -253,7 +252,7 @@ function StudentprofileView() {
             </button>
           )}
 
-          <p className="profile-identity-note"><Sparkles size={14} /> A complete profile builds trust before every campus exchange.</p>
+          {!isProfileComplete && <p className="profile-identity-note"><Sparkles size={14} /> A complete profile builds trust before every campus exchange.</p>}
         </aside>
 
         <section className="profile-workspace">
@@ -267,7 +266,7 @@ function StudentprofileView() {
         {!isEditing ? (
           <>
           <header className="profile-workspace-heading">
-            <span>Profile record · {profileCompletion}% ready</span>
+            <span>{isProfileComplete ? "Profile record" : `Profile record · ${profileCompletion}% ready`}</span>
             <h1>Your campus profile</h1>
             <p>These details help other students recognize and connect with you safely.</p>
           </header>
@@ -382,7 +381,7 @@ function StudentprofileView() {
 
                 <div>
                   <label htmlFor="enrollmentno">Enrollment No.</label>
-                  <input type="text" id="enrollmentno" name="enrollmentno" value={updateProfileFormdata.enrollmentno} onChange={updateProfileFormdataOnchange} disabled={loading} required />
+                  <input type="text" id="enrollmentno" name="enrollmentno" value={updateProfileFormdata.enrollmentno} onChange={updateProfileFormdataOnchange} disabled={loading} minLength={3} maxLength={30} title="Use 3–30 letters, numbers, hyphens, or slashes" required />
                 </div>
 
                 <div>

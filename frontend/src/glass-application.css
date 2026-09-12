@@ -1,0 +1,344 @@
+.app-glass-theme {
+  --app-glass-surface: rgba(255, 254, 249, 0.64);
+  --app-glass-surface-strong: rgba(255, 254, 249, 0.84);
+  --app-glass-surface-soft: rgba(247, 245, 236, 0.52);
+  --app-glass-border: rgba(255, 255, 255, 0.82);
+  --app-glass-line: rgba(20, 108, 71, 0.14);
+  --app-glass-shadow: 0 20px 55px rgba(11, 47, 36, 0.11);
+  --app-glass-shadow-soft: 0 10px 30px rgba(11, 47, 36, 0.08);
+  --app-glass-blur: blur(24px) saturate(145%);
+  min-height: 100vh;
+  color: var(--rc-ink);
+  background:
+    radial-gradient(circle at 8% 7%, rgba(21, 154, 99, 0.14), transparent 30rem),
+    radial-gradient(circle at 90% 17%, rgba(199, 245, 66, 0.17), transparent 29rem),
+    radial-gradient(circle at 72% 78%, rgba(20, 108, 71, 0.09), transparent 34rem),
+    linear-gradient(145deg, var(--rc-cream), var(--rc-paper) 48%, #eef3e9);
+  background-attachment: fixed;
+}
+
+.app-glass-theme :where(
+    .buyer-product-view,
+    .buyer-page-shell,
+    .profile-view,
+    .feature-request-page,
+    .seller-dashboard-container,
+    .seller-dashboard-main,
+    .seller-dashboard-content,
+    .seller-overview,
+    .seller-product-list-page,
+    .seller-welcome-page,
+    .add-product-page,
+    .all-product-requests,
+    .campus-chat,
+    .forgot-pass-main-contanier,
+    .update-pass-main-contanier,
+    .not-found-page,
+    .recycool-landing,
+    .about,
+    .landing-how-helps,
+    .landing-reviews,
+    .landing-faqs
+  ) {
+  background: transparent;
+}
+
+.app-glass-theme :where(.buyer-navbar, .seller-top-navbar, .landing-navbar) {
+  background: rgba(255, 254, 249, 0.7);
+  border-bottom: 1px solid var(--app-glass-border);
+  box-shadow: 0 10px 30px rgba(11, 47, 36, 0.07);
+  -webkit-backdrop-filter: var(--app-glass-blur);
+  backdrop-filter: var(--app-glass-blur);
+}
+
+.app-glass-theme :where(.buyer-mobile-nav, .seller-mobile-nav) {
+  background: rgba(255, 254, 249, 0.76);
+  border: 1px solid var(--app-glass-border);
+  box-shadow: 0 18px 45px rgba(11, 47, 36, 0.16);
+  -webkit-backdrop-filter: var(--app-glass-blur);
+  backdrop-filter: var(--app-glass-blur);
+}
+
+.app-glass-theme :where(
+    .buyer-page-header,
+    .buyer-page-shell__content,
+    .requested-product-item,
+    .buyer-request-empty,
+    .product-detail-empty,
+    .product-detail-gallery,
+    .product-detail-panel,
+    .product-price-card,
+    .product-request-steps article,
+    .buyer-product-question,
+    .product-card,
+    .meeting-planner-status,
+    .meeting-planner-form,
+    .campus-chat__layout,
+    .campus-chat__inbox,
+    .campus-chat__header,
+    .campus-chat__composer,
+    .private-questions__card,
+    .profile-identity-card,
+    .profile-workspace,
+    .profile-info-card,
+    .edit-profile-form,
+    .profile-info-item,
+    .feature-request-page__topbar,
+    .feature-request-page__intro,
+    .feature-request-page__form,
+    .seller-hero-card,
+    .seller-stat-card,
+    .seller-panel,
+    .seller-product-row,
+    .add-product-intro,
+    .add-product-card,
+    .listing-preview-card,
+    .tips-card,
+    .image-dropzone,
+    .image-preview-card,
+    .seller-products-stats button,
+    .seller-products-search,
+    .seller-product-card,
+    .seller-products-empty,
+    .seller-pending-reviews,
+    .seller-welcome-page-container,
+    .seller-empty-state,
+    .seller-profile-item,
+    .seller-action-list a,
+    .all-product-requests .empty-state,
+    .modal-content,
+    .hero-product-card,
+    .hero-floating-note,
+    .hero-impact-card,
+    .help-card,
+    .why-join-us-points,
+    .review,
+    .faq-blocks,
+    .about-hero .content,
+    .about-content,
+    .about-benifits > div
+  ) {
+  background: var(--app-glass-surface);
+  border-color: var(--app-glass-border);
+  box-shadow: var(--app-glass-shadow);
+  -webkit-backdrop-filter: var(--app-glass-blur);
+  backdrop-filter: var(--app-glass-blur);
+}
+
+.app-glass-theme :where(
+    .buyer-page-header,
+    .feature-request-page__topbar,
+    .feature-request-page__intro,
+    .add-product-intro
+  ) {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 254, 249, 0.78),
+    rgba(235, 246, 229, 0.58)
+  );
+}
+
+.app-glass-theme .seller-hero-card {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(199, 245, 66, 0.18), transparent 25rem),
+    linear-gradient(135deg, rgba(11, 47, 36, 0.94), rgba(20, 108, 71, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--rc-paper);
+  box-shadow: 0 22px 55px rgba(11, 47, 36, 0.2);
+}
+
+.app-glass-theme :where(.campus-chat__bubble, .message-bubble) {
+  background: rgba(255, 254, 249, 0.78);
+  border: 1px solid var(--app-glass-border);
+  box-shadow: var(--app-glass-shadow-soft);
+}
+
+/* The chat owns its rounded surface; an additional content-rail pane creates a
+   square frame around it, especially on narrow screens. */
+.app-glass-theme .buyer-page-shell__content--chat {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.app-glass-theme .campus-chat__layout {
+  background: rgba(255, 254, 249, 0.68);
+  border-color: var(--app-glass-border);
+  box-shadow: var(--app-glass-shadow);
+}
+
+.app-glass-theme :where(.campus-chat__inbox, .campus-chat__header, .campus-chat__composer) {
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.app-glass-theme .campus-chat__messages,
+.app-glass-theme .campus-chat__typing {
+  background: rgba(247, 245, 236, 0.34);
+}
+
+.app-glass-theme :where(
+    .auth-page,
+    .auth-left,
+    .auth-right,
+    .forgot-pass-main-contanier,
+    .update-pass-main-contanier
+  ) {
+  background: transparent;
+}
+
+.app-glass-theme :where(.auth-left, .auth-right, .auth-form, .form-body, .access-account, .accessLogin) {
+  background: var(--app-glass-surface);
+  border: 1px solid var(--app-glass-border);
+  box-shadow: var(--app-glass-shadow);
+  -webkit-backdrop-filter: var(--app-glass-blur);
+  backdrop-filter: var(--app-glass-blur);
+}
+
+.app-glass-theme .auth-left {
+  background:
+    radial-gradient(circle at 78% 22%, rgba(199, 245, 66, 0.18), transparent 18rem),
+    linear-gradient(145deg, rgba(11, 47, 36, 0.95), rgba(20, 108, 71, 0.88));
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 18px 0 55px rgba(11, 47, 36, 0.13);
+}
+
+.app-glass-theme .auth-left::before {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.app-glass-theme .auth-left::after {
+  background: rgba(199, 245, 66, 0.16);
+}
+
+.app-glass-theme :where(
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select,
+    .search-bar,
+    .search-input,
+    .filter-select
+  ) {
+  background-color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(20, 108, 71, 0.18);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+  backdrop-filter: blur(12px) saturate(125%);
+}
+
+.app-glass-theme :where(
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select
+  ):focus {
+  border-color: var(--rc-green-600);
+  box-shadow: 0 0 0 3px rgba(21, 154, 99, 0.13);
+}
+
+.app-glass-theme :where(.seller-sidebar, .landing-why-join-us) {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(199, 245, 66, 0.13), transparent 22rem),
+    rgba(11, 47, 36, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 18px 0 45px rgba(11, 47, 36, 0.13);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
+  backdrop-filter: blur(24px) saturate(135%);
+}
+
+.app-glass-theme .recycool-landing .hero-orbit-one,
+.app-glass-theme .recycool-landing .hero-floating-note,
+.app-glass-theme .recycool-landing .about-pillars article:nth-child(3) svg,
+.app-glass-theme .recycool-landing .help-card:nth-child(3) .help-card-icon,
+.app-glass-theme .recycool-landing .landing-numbers-element:nth-child(3),
+.app-glass-theme .recycool-landing .review.review-blue {
+  background: var(--rc-green-600);
+}
+
+.app-glass-theme .recycool-landing .landing-hero-left-heading .green::after {
+  border-color: var(--rc-green-600);
+}
+
+.app-glass-theme .recycool-landing :where(button, a):focus-visible {
+  outline-color: var(--rc-green-600);
+}
+
+.app-glass-theme .seller-stat-icon.blue {
+  color: var(--rc-forest-700);
+  background: rgba(20, 108, 71, 0.12);
+}
+
+.app-glass-theme .seller-stat-icon.purple {
+  color: var(--rc-green-600);
+  background: rgba(199, 245, 66, 0.24);
+}
+
+.app-glass-theme :where(.faq-blocks.is-open, .profile-info-item:hover, .seller-product-row:hover) {
+  background: var(--app-glass-surface-strong);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .app-glass-theme :where(
+      .buyer-navbar,
+      .seller-top-navbar,
+      .landing-navbar,
+      .buyer-mobile-nav,
+      .seller-mobile-nav,
+      .buyer-page-header,
+      .buyer-page-shell__content,
+      .requested-product-item,
+      .product-detail-gallery,
+      .product-detail-empty,
+      .product-detail-panel,
+      .product-price-card,
+      .product-card,
+      .profile-identity-card,
+      .profile-workspace,
+      .profile-info-card,
+      .feature-request-page__form,
+      .seller-hero-card,
+      .seller-stat-card,
+      .seller-panel,
+      .add-product-card,
+      .seller-product-card,
+      .seller-welcome-page-container,
+      .auth-right,
+      .auth-form,
+      .form-body
+    ) {
+    background: rgba(255, 254, 249, 0.96);
+  }
+
+  .app-glass-theme :where(.auth-left, .seller-hero-card) {
+    background: var(--rc-forest-900);
+  }
+}
+
+@media (max-width: 768px) {
+  .app-glass-theme {
+    --app-glass-blur: blur(18px) saturate(135%);
+    background:
+      radial-gradient(circle at 5% 5%, rgba(21, 154, 99, 0.13), transparent 21rem),
+      radial-gradient(circle at 95% 18%, rgba(199, 245, 66, 0.16), transparent 20rem),
+      linear-gradient(155deg, var(--rc-cream), #f3f6ec 52%, var(--rc-paper));
+    background-attachment: scroll;
+  }
+
+  .app-glass-theme :where(.buyer-mobile-nav, .seller-mobile-nav) {
+    left: 16px;
+    right: 16px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    width: auto;
+    border-radius: 28px;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app-glass-theme {
+    --app-glass-surface: rgba(255, 254, 249, 0.96);
+    --app-glass-surface-strong: rgba(255, 254, 249, 0.99);
+    --app-glass-blur: none;
+  }
+}

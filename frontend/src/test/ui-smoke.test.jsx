@@ -84,4 +84,10 @@ describe("account entry UI", () => {
     expect(password).toHaveAttribute("type", "text");
   });
 
+  it("requires an enrollment number during signup", () => {
+    window.history.pushState({}, "", "/student-signup");
+    render(<MemoryRouter><ActivitySection /></MemoryRouter>);
+    expect(screen.getByLabelText("Enrollment Number")).toBeRequired();
+  });
+
 });

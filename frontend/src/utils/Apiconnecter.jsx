@@ -15,6 +15,7 @@ axiosInstance.interceptors.response.use(
     ) {
       localStorage.removeItem("campusrecycletoken");
       localStorage.removeItem("campusrecycleuser");
+    window.dispatchEvent(new Event("campusrecycle-auth-changed"));
       window.location.href = "/student-login";
     }
     return Promise.reject(error);

@@ -114,6 +114,7 @@ exports.updateUserStatus = async (req, res) => {
         const before = user.accountStatus;
         user.accountStatus = req.body.accountStatus;
         await user.save();
+        if (user.accountStatus !== "active") require("../realtime/events").disconnectUser(user._id);
         await logAction(req.user.id, "user_status_updated", "User", user._id, { accountStatus: before }, { accountStatus: user.accountStatus });
         return res.json({ success: true, data: user });
     } catch (error) { return res.status(500).json({ success: false, message: "Could not update user" }); }
