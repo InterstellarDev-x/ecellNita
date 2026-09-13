@@ -1,5 +1,5 @@
 import React from "react";
-import { ClipboardList, LayoutDashboard, PackagePlus, PackageSearch, MessageCircle } from "lucide-react";
+import { ClipboardList, LayoutDashboard, PackagePlus, PackageSearch } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import "./SellerMobileNav.css";
 
@@ -8,7 +8,6 @@ const items = [
   ["/seller/add-product", "Add", PackagePlus],
   ["/seller/view-product", "Listings", PackageSearch],
   ["/seller/product-requests", "Requests", ClipboardList],
-  ["/seller/questions", "Messages", MessageCircle],
 ];
 
 function SellerMobileNav() {

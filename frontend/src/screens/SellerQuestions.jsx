@@ -6,5 +6,5 @@ import PrivateQuestions from "../components/CommonInterface/Questions/PrivateQue
 import "./SellerDashboard.css";
 
 export default function SellerQuestions() {
-  return <div className="seller-dashboard-container"><SellerSidebar /><div className="seller-dashboard-main"><SellerTopNavbar /><div className="seller-dashboard-content"><PrivateQuestions audience="seller" /></div></div><SellerMobileNav /></div>;
+  return <div className="seller-dashboard-container"><SellerSidebar /><div className="seller-dashboard-main"><SellerTopNavbar /><main className="seller-dashboard-content messages-page-shell"><PrivateQuestions audience="seller" embedded /></main></div><SellerMobileNav /></div>;
 }

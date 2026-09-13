@@ -1,0 +1,38 @@
+.message-shortcut {
+  position: relative;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(20, 108, 71, .14);
+  border-radius: 12px;
+  color: var(--rc-forest-700, #146c47);
+  background: rgba(255, 255, 255, .72);
+  text-decoration: none;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.message-shortcut:hover,
+.message-shortcut.is-active {
+  border-color: rgba(20, 108, 71, .3);
+  background: rgba(199, 245, 66, .2);
+}
+
+.message-shortcut:active { transform: scale(.95); }
+.message-shortcut:focus-visible { outline: 3px solid rgba(199, 245, 66, .8); outline-offset: 2px; }
+.message-shortcut > span {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  background: #c83c26;
+  font-size: .6rem;
+  font-weight: 850;
+}

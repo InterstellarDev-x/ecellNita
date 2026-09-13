@@ -123,8 +123,7 @@
     .seller-top-navbar-brand {
         display: flex;
         position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 18px;
         align-items: center;
     }
 

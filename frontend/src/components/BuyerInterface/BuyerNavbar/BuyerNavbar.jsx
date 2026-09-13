@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./BuyerNavbar.css";
-import { ClipboardList, Heart, Package, MessageCircle } from "lucide-react";
+import { ClipboardList, Heart, Package } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 import NotificationBell from "../../CommonInterface/Notifications/NotificationBell";
+import MessageShortcut from "../../CommonInterface/Questions/MessageShortcut";
 
 function BuyerNavbar() {
   const [profilePicture, setProfilePicture] = useState(null);
@@ -78,12 +79,10 @@ function BuyerNavbar() {
           <Link to="/buyer/wishlist" className={`buyer-navbar-options-item ${location.pathname === "/buyer/wishlist" ? "active" : ""}`}>
             Wishlist
           </Link>
-          <Link to="/buyer/questions" className={`buyer-navbar-options-item ${location.pathname === "/buyer/questions" ? "active" : ""}`}>
-            Messages
-          </Link>
         </div>
 
         <div className="buyer-navbar-right">
+          <MessageShortcut audience="buyer" />
           <NotificationBell audience="buyer" />
           {/* Profile dropdown */}
           <div className="buyer-navbar-accounts" ref={dropdownRef}>
@@ -118,10 +117,6 @@ function BuyerNavbar() {
         <Link to="/buyer/wishlist" className={location.pathname === "/buyer/wishlist" ? "active" : ""}>
           <Heart size={20} />
           <span>Wishlist</span>
-        </Link>
-        <Link to="/buyer/questions" className={location.pathname === "/buyer/questions" ? "active" : ""}>
-          <MessageCircle size={20} />
-          <span>Messages</span>
         </Link>
       </nav>
     </>

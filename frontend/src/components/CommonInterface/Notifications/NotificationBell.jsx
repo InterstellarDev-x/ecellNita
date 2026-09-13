@@ -70,7 +70,7 @@ function NotificationBell({ audience }) {
             {isLoading ? <p className="notification-bell__empty">Loading…</p> : notifications.length === 0 ? <p className="notification-bell__empty">No notifications yet.</p> : notifications.map((notification) => (
               <article key={notification._id} className={`notification-bell__item ${notification.readAt ? "" : "is-unread"}`}>
                 <button type="button" className="notification-bell__content" onClick={() => openNotification(notification)}>
-                  {notification.type === "review_requested" ? <Star size={17} /> : notification.type === "meeting_proposed" ? <CalendarDays size={17} /> : <MessageCircle size={17} />}
+                  {notification.type === "review_requested" ? <Star size={17} /> : ["meeting_proposed", "meetup_changed"].includes(notification.type) ? <CalendarDays size={17} /> : <MessageCircle size={17} />}
                   <span><strong>{notification.title}</strong><small>{notification.message}</small></span>
                 </button>
                 {!notification.readAt && (

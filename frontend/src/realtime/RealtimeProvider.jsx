@@ -31,6 +31,7 @@ export function RealtimeProvider({ children }) {
     live.on("disconnect", () => setConnected(false));
     live.on("connect_error", () => setConnected(false));
     live.on("chat:changed", chatChanged);
+    live.on("chat:presence", chatChanged);
     live.on("notifications:changed", notificationsChanged);
     const refresh = () => {
       if (document.visibilityState === "visible") { if (!live.connected) live.connect(); chatChanged(); notificationsChanged(); }

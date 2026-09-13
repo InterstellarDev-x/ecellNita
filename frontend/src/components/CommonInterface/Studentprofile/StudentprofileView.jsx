@@ -3,12 +3,14 @@ import "./StudentprofileView.css";
 import {
   AlertCircle,
   BadgeCheck,
+  Building2,
   Camera,
   CheckCircle2,
   GraduationCap,
   Hash,
   Leaf,
   Mail,
+  MapPin,
   Pencil,
   Phone,
   Save,
@@ -38,6 +40,8 @@ const buildProfileFormData = (user) => {
     contactno: profile.contactno || user?.contactno || '',
     about: profile.about || user?.about || '',
     graduationyr: profile.graduationyr || user?.graduationyr || '',
+    department: profile.department || '',
+    hostel: profile.hostel || '',
   };
 };
 
@@ -56,6 +60,8 @@ function StudentprofileView() {
     contactno: '',
     about: '',
     graduationyr: '',
+    department: '',
+    hostel: '',
   });
 
   useEffect(() => {
@@ -177,6 +183,8 @@ function StudentprofileView() {
         contactno: String(updateProfileFormdata.contactno || "").trim(),
         about: String(updateProfileFormdata.about || "").trim(),
         graduationyr: updateProfileFormdata.graduationyr,
+        department: String(updateProfileFormdata.department || "").trim(),
+        hostel: String(updateProfileFormdata.hostel || "").trim(),
       };
       const responseObj = await apiConnector("POST", authroutes.UPDATE_PROFILE, profilePayload, api_header);
       if (!responseObj.data.success) {
@@ -296,6 +304,14 @@ function StudentprofileView() {
                 <span className="info-label"><GraduationCap size={14} /> Graduation Year</span>
                 <span className="info-value">{YEAR_LABELS[profileDetails.graduationyr] || profileDetails.graduationyr || '—'}</span>
               </div>
+              <div className="profile-info-item">
+                <span className="info-label"><Building2 size={14} /> Department</span>
+                <span className="info-value">{profileDetails.department || '—'}</span>
+              </div>
+              <div className="profile-info-item">
+                <span className="info-label"><MapPin size={14} /> Hostel</span>
+                <span className="info-value">{profileDetails.hostel || '—'}</span>
+              </div>
               {profileDetails.about && (
                 <div className="profile-info-item full-width">
                   <span className="info-label"><Sparkles size={14} /> About</span>
@@ -387,6 +403,17 @@ function StudentprofileView() {
                 <div>
                   <label htmlFor="contactno">Contact No.</label>
                   <input type="tel" id="contactno" name="contactno" value={updateProfileFormdata.contactno} onChange={updateProfileFormdataOnchange} disabled={loading} pattern="[0-9]{10}" title="Enter a 10 digit contact number" required />
+                </div>
+
+                <div className="form-row">
+                  <div>
+                    <label htmlFor="department">Department</label>
+                    <input type="text" id="department" name="department" value={updateProfileFormdata.department} onChange={updateProfileFormdataOnchange} disabled={loading} maxLength={80} placeholder="For example, Computer Science" />
+                  </div>
+                  <div>
+                    <label htmlFor="hostel">Hostel</label>
+                    <input type="text" id="hostel" name="hostel" value={updateProfileFormdata.hostel} onChange={updateProfileFormdataOnchange} disabled={loading} maxLength={80} placeholder="For example, Hostel 7" />
+                  </div>
                 </div>
 
                 <div>

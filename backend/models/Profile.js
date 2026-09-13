@@ -27,6 +27,16 @@ const profileschema=new mongoose.Schema({
         type:Number,
         enum:[1,2,3,4],
     },
+    department:{
+        type:String,
+        trim:true,
+        maxlength:80,
+    },
+    hostel:{
+        type:String,
+        trim:true,
+        maxlength:80,
+    },
     
 });
 

@@ -50,8 +50,7 @@
 
   .buyer-navbar-logo {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 18px;
   }
 
   .buyer-navbar-logo img { height: 27px; }
@@ -67,7 +66,7 @@
     left: 0;
     z-index: 150;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     min-height: calc(68px + env(safe-area-inset-bottom));
     padding: 7px 12px calc(7px + env(safe-area-inset-bottom));
     border-top: 1px solid #d9dfd9;

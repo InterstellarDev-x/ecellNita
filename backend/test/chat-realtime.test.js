@@ -15,6 +15,7 @@ const Product = require("../models/Product");
 const ChatThread = require("../models/ChatThread");
 const ChatMessage = require("../models/ChatMessage");
 const Notification = require("../models/Notification");
+const MeetingLocation = require("../models/MeetingLocation");
 const chat = require("../services/chat");
 const { attachRealtime } = require("../realtime/server");
 
@@ -29,6 +30,7 @@ let seller;
 let stranger;
 let product;
 let thread;
+let meetingLocation;
 const clients = new Set();
 
 const tokenFor = (user) => jwt.sign({ id: String(user._id), email: user.email }, process.env.JWT_SECRET, { expiresIn: "10m" });
@@ -71,7 +73,7 @@ const waitFor = async (predicate, message, timeout = 4000) => {
 test.before(async () => {
   memoryServer = await MongoMemoryServer.create();
   await mongoose.connect(memoryServer.getUri());
-  await Promise.all([User.init(), Product.init(), ChatThread.init(), ChatMessage.init(), Notification.init()]);
+  await Promise.all([User.init(), Product.init(), ChatThread.init(), ChatMessage.init(), Notification.init(), MeetingLocation.init()]);
 
   [buyer, seller, stranger] = await User.create([
     { firstname: "Buyer", lastname: "Student", email: "buyer@nita.ac.in", hashedpassword: "fixture-hash" },
@@ -86,6 +88,7 @@ test.before(async () => {
     owner: seller._id,
   });
   thread = await chat.startThread(String(buyer._id), String(product._id));
+  meetingLocation = await MeetingLocation.create({ name: "Student Activity Centre", address: "Main campus", startTime: "00:00", endTime: "23:59", active: true });
 
   const app = express();
   app.use(express.json());
@@ -99,6 +102,74 @@ test.before(async () => {
   await new Promise((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
   const address = httpServer.address();
   baseUrl = `http://127.0.0.1:${address.port}`;
+});
+
+test("offer lifecycle, meetup lifecycle, unified filters, and presence remain participant-scoped", async () => {
+  const threadId = String(thread._id);
+  const buyerSocket = await connect(tokenFor(buyer));
+  const sellerSocket = await connect(tokenFor(seller));
+  const strangerSocket = await connect(tokenFor(stranger));
+
+  const offer = await emitAck(buyerSocket, "chat:send", { threadId, clientId: crypto.randomUUID(), kind: "offer", amount: 450, body: "" });
+  assert.equal(offer.success, true);
+  assert.ok(new Date(offer.data.offerExpiresAt) > new Date());
+  let storedThread = await ChatThread.findById(threadId).lean();
+  assert.equal(String(storedThread.activeOffer), String(offer.data._id));
+
+  const blockedSecond = await emitAck(sellerSocket, "chat:send", { threadId, clientId: crypto.randomUUID(), kind: "offer", amount: 475, body: "" });
+  assert.equal(blockedSecond.success, false);
+  assert.match(blockedSecond.message, /active offer|revise or withdraw/i);
+
+  const revisionClientId = crypto.randomUUID();
+  const revision = await emitAck(buyerSocket, "chat:offer-revise", { threadId, messageId: String(offer.data._id), clientId: revisionClientId, amount: 440 });
+  const repeatedRevision = await emitAck(buyerSocket, "chat:offer-revise", { threadId, messageId: String(offer.data._id), clientId: revisionClientId, amount: 440 });
+  assert.equal(revision.success, true);
+  assert.equal(String(repeatedRevision.data._id), String(revision.data._id));
+  assert.equal((await ChatMessage.findById(offer.data._id).lean()).offerStatus, "revised");
+
+  const unauthorizedWithdraw = await emitAck(strangerSocket, "chat:offer-withdraw", { threadId, messageId: String(revision.data._id) });
+  assert.equal(unauthorizedWithdraw.success, false);
+  const withdrawn = await emitAck(buyerSocket, "chat:offer-withdraw", { threadId, messageId: String(revision.data._id) });
+  assert.equal(withdrawn.success, true);
+  assert.equal(withdrawn.data.offerStatus, "withdrawn");
+  storedThread = await ChatThread.findById(threadId).lean();
+  assert.equal(storedThread.activeOffer, undefined);
+
+  const expiring = await emitAck(buyerSocket, "chat:send", { threadId, clientId: crypto.randomUUID(), kind: "offer", amount: 430, body: "" });
+  await ChatMessage.updateOne({ _id: expiring.data._id }, { $set: { offerExpiresAt: new Date(Date.now() - 1000) } });
+  assert.equal(await chat.expirePendingOffers({ threadId }), 1);
+  assert.equal((await ChatMessage.findById(expiring.data._id).lean()).offerStatus, "expired");
+  const acceptExpired = await emitAck(sellerSocket, "chat:offer-response", { threadId, messageId: String(expiring.data._id), decision: "accepted" });
+  assert.equal(acceptExpired.success, false);
+  assert.match(acceptExpired.message, /expired/i);
+
+  const meetupAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+  const meetup = await emitAck(buyerSocket, "chat:meetup-propose", { threadId, clientId: crypto.randomUUID(), locationId: String(meetingLocation._id), meetupAt });
+  assert.equal(meetup.success, true);
+  assert.equal(meetup.data.meetupStatus, "proposed");
+  const ownMeetupResponse = await emitAck(buyerSocket, "chat:meetup-response", { threadId, messageId: String(meetup.data._id), decision: "accepted" });
+  assert.equal(ownMeetupResponse.success, false);
+  const acceptedMeetup = await emitAck(sellerSocket, "chat:meetup-response", { threadId, messageId: String(meetup.data._id), decision: "accepted" });
+  assert.equal(acceptedMeetup.success, true);
+  const changedMeetup = await emitAck(sellerSocket, "chat:meetup-change", { threadId, messageId: String(meetup.data._id), clientId: crypto.randomUUID(), locationId: String(meetingLocation._id), meetupAt });
+  assert.equal(changedMeetup.success, true);
+  assert.equal((await ChatMessage.findById(meetup.data._id).lean()).meetupStatus, "changed");
+  const declinedMeetup = await emitAck(buyerSocket, "chat:meetup-response", { threadId, messageId: String(changedMeetup.data._id), decision: "declined" });
+  assert.equal(declinedMeetup.success, true);
+
+  const presence = await emitAck(buyerSocket, "chat:presence-get", { threadId });
+  assert.equal(presence.success, true);
+  assert.equal(presence.data.userId, String(seller._id));
+  assert.equal(presence.data.online, true);
+
+  const unifiedResponse = await fetch(`${baseUrl}/api/v1/chats?mode=all&search=desk`, { headers: { Authorization: `Bearer ${tokenFor(buyer)}` } });
+  const unified = await unifiedResponse.json();
+  assert.equal(unifiedResponse.status, 200);
+  assert.ok(Array.isArray(unified.data));
+  assert.equal(String(unified.data[0]._id), threadId);
+  const pendingResponse = await fetch(`${baseUrl}/api/v1/chats?mode=offers_pending`, { headers: { Authorization: `Bearer ${tokenFor(buyer)}` } });
+  assert.deepEqual((await pendingResponse.json()).data, []);
+  assert.ok(await ChatMessage.exists({ thread: threadId, kind: "system" }));
 });
 
 test.after(async () => {
@@ -213,6 +284,13 @@ test("chat authorization, idempotency, offer races, persistence, and private not
     threadId, clientId: crypto.randomUUID(), kind: "text", body: "This one should stay unread",
   });
   assert.equal(laterSend.success, true);
+  const inboxResponse = await fetch(`${baseUrl}/api/v1/chats?audience=buyer`, {
+    headers: { Authorization: `Bearer ${tokenFor(buyer)}` },
+  });
+  const inbox = await inboxResponse.json();
+  assert.equal(inboxResponse.status, 200);
+  assert.equal(inbox.data[0].lastMessage.body, "This one should stay unread");
+  assert.equal(String(inbox.data[0].lastMessage.sender), String(seller._id));
   const readResult = await emitAck(reconnectedBuyer, "chat:read", {
     threadId, throughId: String(offlineSend.data._id),
   });

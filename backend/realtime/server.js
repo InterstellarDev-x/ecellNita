@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { setServer, userRoom, emitToUsers } = require("./events");
 const chat = require("../services/chat");
+const ChatThread = require("../models/ChatThread");
+const presence = require("./presence");
 
 function attachRealtime(httpServer, { cors, allowedOrigins } = {}) {
     const io = new Server(httpServer, {
@@ -10,6 +12,8 @@ function attachRealtime(httpServer, { cors, allowedOrigins } = {}) {
         allowRequest: (req, done) => done(null, !req.headers.origin || !allowedOrigins || allowedOrigins.has(req.headers.origin.replace(/\/$/, ""))),
     });
     setServer(io);
+    const offerExpirySweep = setInterval(() => chat.expirePendingOffers().catch((error) => require("../utils/logger").error("Offer expiry sweep failed: %s", error.message)), 60000);
+    offerExpirySweep.unref();
     io.use(async (socket, next) => {
         try {
             const claims = jwt.verify(socket.handshake.auth?.token, process.env.JWT_SECRET);
@@ -23,6 +27,13 @@ function attachRealtime(httpServer, { cors, allowedOrigins } = {}) {
     io.on("connection", (socket) => {
         const userId = socket.data.userId;
         socket.join(userRoom(userId));
+        presence.connectUser(userId);
+        const broadcastPresence = async (state) => {
+            const threads = await ChatThread.find({ $or: [{ buyer: userId }, { seller: userId }] }).select("buyer seller").lean();
+            const peers = threads.map((thread) => String(thread.buyer) === userId ? thread.seller : thread.buyer);
+            emitToUsers(peers, "chat:presence", { userId, ...state });
+        };
+        broadcastPresence(presence.getPresence(userId)).catch(() => undefined);
         const expiration = setTimeout(() => socket.disconnect(true), Math.max(0, socket.data.expiresAt - Date.now()));
         expiration.unref();
         let windowStart = Date.now();
@@ -46,6 +57,16 @@ function attachRealtime(httpServer, { cors, allowedOrigins } = {}) {
         });
         handle("chat:send", chat.sendMessage);
         handle("chat:offer-response", chat.respondToOffer);
+        handle("chat:offer-withdraw", chat.withdrawOffer);
+        handle("chat:offer-revise", chat.reviseOffer);
+        handle("chat:meetup-propose", chat.proposeMeetup);
+        handle("chat:meetup-response", chat.respondToMeetup);
+        handle("chat:meetup-change", chat.changeMeetup);
+        handle("chat:presence-get", async (id, { threadId } = {}) => {
+            const thread = await chat.getThread(id, threadId);
+            const participantId = String(String(thread.buyer) === id ? thread.seller : thread.buyer);
+            return { userId: participantId, ...presence.getPresence(participantId) };
+        });
         handle("chat:read", chat.markRead);
         handle("chat:typing", async (id, { threadId, typing } = {}) => {
             const thread = await chat.getThread(id, threadId);
@@ -53,8 +74,13 @@ function attachRealtime(httpServer, { cors, allowedOrigins } = {}) {
             emitToUsers([other], "chat:typing", { threadId, typing: Boolean(typing) });
             return {};
         });
-        socket.on("disconnect", () => clearTimeout(expiration));
+        socket.on("disconnect", () => {
+            clearTimeout(expiration);
+            const state = presence.disconnectUser(userId);
+            if (!state.online) broadcastPresence(state).catch(() => undefined);
+        });
     });
+    io.on("close", () => clearInterval(offerExpirySweep));
     return io;
 }
 module.exports = { attachRealtime };

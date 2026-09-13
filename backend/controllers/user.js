@@ -9,13 +9,15 @@ require("dotenv").config()
 exports.updateprofile=async (req,res)=>{
         try{
             const {id}=req.user;
-            let {gender,enrollmentno,contactno,about,graduationyr}=req.body;
+            let {gender,enrollmentno,contactno,about,graduationyr,department,hostel}=req.body;
 
             gender=gender===undefined ? undefined : String(gender).trim();
             enrollmentno=enrollmentno===undefined ? undefined : String(enrollmentno).trim();
             contactno=contactno===undefined ? undefined : String(contactno).trim();
             about=about===undefined ? undefined : String(about).trim();
             graduationyr=graduationyr===undefined ? undefined : String(graduationyr).trim();
+            department=department===undefined ? undefined : String(department).trim();
+            hostel=hostel===undefined ? undefined : String(hostel).trim();
             if(gender!==undefined && gender!=="" && !["Male","Female"].includes(gender)){
                 return res.status(400).json({success:false,message:"Select a valid gender"});
             }
@@ -31,6 +33,9 @@ exports.updateprofile=async (req,res)=>{
             if(graduationyr!==undefined && graduationyr!=="" && !["1","2","3","4"].includes(graduationyr)){
                 return res.status(400).json({success:false,message:"Select a valid graduation year"});
             }
+            const validCampusLabel=(value)=>value==="" || (/^[\p{L}\p{N}][\p{L}\p{N} .&()'/-]*$/u.test(value) && value.length<=80);
+            if(department!==undefined && !validCampusLabel(department)) return res.status(400).json({success:false,message:"Enter a valid department"});
+            if(hostel!==undefined && !validCampusLabel(hostel)) return res.status(400).json({success:false,message:"Enter a valid hostel"});
             if(gender==="") gender=null;
 
             const user=await User.findById(id).populate("additionaldetails").exec();
@@ -62,13 +67,17 @@ exports.updateprofile=async (req,res)=>{
             if(about===undefined){
                 about=user.additionaldetails.about;
             }
+            if(department===undefined) department=user.additionaldetails.department;
+            if(hostel===undefined) hostel=user.additionaldetails.hostel;
             logger.debug("userdata: %s", user?._id);
             const profile=await Profile.findByIdAndUpdate(user.additionaldetails,{
                 gender,
                 enrollmentno,
                 about,
                 contactno:contactno==="" ? null : contactno,
-                graduationyr:graduationyr==="" ? null : graduationyr
+                graduationyr:graduationyr==="" ? null : graduationyr,
+                department:department==="" ? null : department,
+                hostel:hostel==="" ? null : hostel
             },{new:true,runValidators:true})
             
             logger.debug("profile data: %s", profile?._id);
@@ -169,4 +178,3 @@ exports.updateuser=async (req,res)=>{
         if(imagefile?.tempFilePath) await fs.unlink(imagefile.tempFilePath).catch(()=>undefined);
     }
 }
-

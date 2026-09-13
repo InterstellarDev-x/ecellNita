@@ -3,6 +3,7 @@ import "./SellerTopNavbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import NotificationBell from "../../CommonInterface/Notifications/NotificationBell";
+import MessageShortcut from "../../CommonInterface/Questions/MessageShortcut";
 
 function SellerTopNavbar() {
   const [userDetails, setUserDetails] = useState(null);
@@ -55,6 +56,7 @@ function SellerTopNavbar() {
       </div>
 
       <div className="seller-top-navbar-actions">
+      <MessageShortcut audience="seller" />
       <NotificationBell audience="seller" />
       <div className="profile" onClick={() => setProfileDrop(o => !o)} ref={dropdownRef}>
         <img

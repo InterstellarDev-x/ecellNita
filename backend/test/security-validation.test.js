@@ -2,6 +2,9 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
+const fs = require("node:fs/promises");
+const os = require("node:os");
+const path = require("node:path");
 const mongoose = require("mongoose");
 const { signupSchema, resetPasswordSchema } = require("../validation/auth");
 const { MAX_LISTING_QUANTITY, listingQuantitySchema } = require("../validation/product");
@@ -21,6 +24,7 @@ const conversationController = require("../controllers/conversation");
 const productController = require("../controllers/product");
 const { PRODUCT_IMAGE_TRANSFORMATION, productImageUploadOptions } = require("../utils/productImageUpload");
 const { REVIEW_TAGS } = require("../controllers/transactionReviews");
+const { CHAT_IMAGE_MAX_BYTES, CHAT_IMAGE_TRANSFORMATION, validateChatImage, validateChatImageContent } = require("../utils/chatImageUpload");
 
 const validSignup = {
     firstname: "Aditi",
@@ -68,6 +72,26 @@ test("Cloudinary product uploads cap dimensions and use automatic quality", () =
         transformation: PRODUCT_IMAGE_TRANSFORMATION,
         type: "authenticated",
     });
+});
+
+test("chat image uploads accept one bounded raster image and use authenticated delivery transforms", () => {
+    const image = { mimetype: "image/webp", size: 1024, tempFilePath: "/tmp/chat.webp" };
+    assert.equal(validateChatImage(image), image);
+    assert.throws(() => validateChatImage([image, image]), /exactly one/i);
+    assert.throws(() => validateChatImage({ ...image, mimetype: "image/svg+xml" }), /JPG, PNG, or WebP/);
+    assert.throws(() => validateChatImage({ ...image, size: CHAT_IMAGE_MAX_BYTES + 1 }), /smaller than 3MB/);
+    assert.deepEqual(CHAT_IMAGE_TRANSFORMATION, [{ width: 1600, height: 1600, crop: "limit", quality: "auto:good" }]);
+});
+
+test("chat image uploads reject files whose bytes do not match the declared image type", async () => {
+    const folder = await fs.mkdtemp(path.join(os.tmpdir(), "chat-image-test-"));
+    const validPath = path.join(folder, "valid.png");
+    const invalidPath = path.join(folder, "invalid.png");
+    await fs.writeFile(validPath, Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]));
+    await fs.writeFile(invalidPath, "<html>not an image</html>");
+    await validateChatImageContent({ mimetype: "image/png", tempFilePath: validPath });
+    await assert.rejects(validateChatImageContent({ mimetype: "image/png", tempFilePath: invalidPath }), /does not match/i);
+    await fs.rm(folder, { recursive: true, force: true });
 });
 
 test("listing quantity validation accepts bounded integers and rejects extreme values", () => {
