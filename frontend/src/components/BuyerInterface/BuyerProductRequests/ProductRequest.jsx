@@ -25,7 +25,7 @@ function ProductRequest() {
             title="Product requests"
             description="Track seller responses, meeting details, and your pending pickups."
             count={`${requests.length} active`}
-            accent="blue"
+            accent="green"
         />
         <div className="buyer-page-shell__content buyer-product-request-container">
             {loading ? <PageLoader /> : requests.length > 0 &&

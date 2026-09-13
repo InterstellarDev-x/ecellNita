@@ -20,6 +20,7 @@
 .app-glass-theme :where(
     .buyer-product-view,
     .buyer-page-shell,
+    .buyer-page-shell__content,
     .profile-view,
     .feature-request-page,
     .seller-dashboard-container,
@@ -44,11 +45,40 @@
 }
 
 .app-glass-theme :where(.buyer-navbar, .seller-top-navbar, .landing-navbar) {
-  background: rgba(255, 254, 249, 0.7);
+  background: rgba(250, 252, 249, 0.65);
   border-bottom: 1px solid var(--app-glass-border);
   box-shadow: 0 10px 30px rgba(11, 47, 36, 0.07);
   -webkit-backdrop-filter: var(--app-glass-blur);
   backdrop-filter: var(--app-glass-blur);
+}
+
+.app-glass-theme .buyer-navbar-options {
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.38);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.app-glass-theme .buyer-navbar-options-item {
+  color: #64716a;
+  font-weight: 700;
+}
+
+.app-glass-theme .buyer-navbar-options-item:hover,
+.app-glass-theme .buyer-navbar-options-item.active {
+  color: #fff;
+  background: var(--rc-forest-900);
+  box-shadow: 0 4px 14px rgba(31, 65, 49, 0.08);
+}
+
+.app-glass-theme .buyer-navbar-accounts .toggle,
+.app-glass-theme .buyer-navbar-accounts .dropdown {
+  border-color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 28px rgba(30, 54, 42, 0.1), inset 0 1px 0 #fff;
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
 }
 
 .app-glass-theme :where(.buyer-mobile-nav, .seller-mobile-nav) {
@@ -60,8 +90,6 @@
 }
 
 .app-glass-theme :where(
-    .buyer-page-header,
-    .buyer-page-shell__content,
     .requested-product-item,
     .buyer-request-empty,
     .product-detail-empty,
@@ -126,7 +154,6 @@
 }
 
 .app-glass-theme :where(
-    .buyer-page-header,
     .feature-request-page__topbar,
     .feature-request-page__intro,
     .add-product-intro
@@ -138,6 +165,40 @@
   );
 }
 
+.app-glass-theme .buyer-page-header {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(199, 245, 66, 0.18), transparent 25rem),
+    linear-gradient(135deg, rgba(11, 47, 36, 0.94), rgba(20, 108, 71, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  box-shadow: 0 22px 55px rgba(11, 47, 36, 0.2);
+  -webkit-backdrop-filter: var(--app-glass-blur);
+  backdrop-filter: var(--app-glass-blur);
+}
+
+.app-glass-theme .buyer-page-header h1 {
+  color: #fff;
+}
+
+.app-glass-theme .buyer-page-header p {
+  color: #b8ccc1;
+}
+
+.app-glass-theme .buyer-page-header__icon {
+  color: var(--rc-forest-950);
+  background: var(--rc-lime);
+}
+
+.app-glass-theme .buyer-page-header__kicker {
+  color: var(--rc-lime);
+}
+
+.app-glass-theme .buyer-page-header__count {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
 .app-glass-theme .seller-hero-card {
   background:
     radial-gradient(circle at 12% 18%, rgba(199, 245, 66, 0.18), transparent 25rem),
@@ -145,6 +206,133 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--rc-paper);
   box-shadow: 0 22px 55px rgba(11, 47, 36, 0.2);
+}
+
+.app-glass-theme :where(.buyer-page-shell__content, .buyer-page-header) {
+  max-width: 1380px;
+}
+
+.app-glass-theme .product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 24px);
+}
+
+@media (max-width: 1200px) {
+  .app-glass-theme .product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .app-glass-theme .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 8px;
+  }
+
+  .app-glass-theme .product-grid .product-card {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.54);
+    box-shadow: 0 10px 25px rgba(35, 60, 48, 0.09), inset 0 1px 0 #fff;
+  }
+
+  .app-glass-theme .product-grid .product-card-image {
+    width: auto;
+    height: auto;
+    margin: 7px 7px 0;
+    aspect-ratio: 1.08;
+    border-radius: 15px;
+  }
+
+  .app-glass-theme .product-grid .product-card-details {
+    padding: 11px 11px 13px;
+  }
+}
+
+.app-glass-theme .product-card {
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 16px 38px rgba(35, 60, 48, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.app-glass-theme .product-card:hover,
+.app-glass-theme .product-card:focus-visible {
+  border-color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 28px 55px rgba(28, 59, 43, 0.16), inset 0 1px 0 #fff;
+  transform: translateY(-7px);
+}
+
+.app-glass-theme .product-card-image {
+  height: 198px;
+  margin: 9px 9px 0;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 21px;
+  background: rgba(235, 241, 236, 0.56);
+}
+
+.app-glass-theme .product-category-badge,
+.app-glass-theme .product-save-btn {
+  border: 1px solid rgba(255, 255, 255, 0.84);
+  color: var(--rc-forest-900);
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 6px 18px rgba(25, 48, 37, 0.12), inset 0 1px 0 #fff;
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.app-glass-theme .product-save-btn--saved {
+  color: #fff;
+  background: rgba(8, 123, 68, 0.86);
+}
+
+.app-glass-theme .product-card-details {
+  padding: 18px;
+}
+
+.app-glass-theme .product-card-details h4,
+.app-glass-theme .product-card-details-price {
+  color: var(--rc-ink);
+}
+
+.app-glass-theme .product-card-details-price {
+  font-weight: 750;
+}
+
+.app-glass-theme .product-card-footer {
+  border-color: rgba(35, 70, 52, 0.1);
+}
+
+.app-glass-theme .product-card-footer strong {
+  color: var(--rc-forest-900);
+  background: rgba(199, 245, 66, 0.45);
+}
+
+.app-glass-theme .product-list .empty-state {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 16px 40px rgba(35, 60, 48, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.app-glass-theme .requested-product-item {
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 16px 38px rgba(35, 60, 48, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+}
+
+.app-glass-theme .requested-product-item:hover {
+  border-color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 50px rgba(28, 59, 43, 0.14), inset 0 1px 0 #fff;
+  transform: translateY(-4px);
 }
 
 .app-glass-theme :where(.campus-chat__bubble, .message-bubble) {
@@ -286,8 +474,6 @@
       .landing-navbar,
       .buyer-mobile-nav,
       .seller-mobile-nav,
-      .buyer-page-header,
-      .buyer-page-shell__content,
       .requested-product-item,
       .product-detail-gallery,
       .product-detail-empty,
@@ -311,7 +497,7 @@
     background: rgba(255, 254, 249, 0.96);
   }
 
-  .app-glass-theme :where(.auth-left, .seller-hero-card) {
+  .app-glass-theme :where(.auth-left, .seller-hero-card, .buyer-page-header) {
     background: var(--rc-forest-900);
   }
 }

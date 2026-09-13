@@ -4,12 +4,13 @@ import BuyerNavbar from "../components/BuyerInterface/BuyerNavbar/BuyerNavbar";
 import BuyerPageHeader from "../components/BuyerInterface/BuyerPageHeader/BuyerPageHeader";
 import ProductList from "../components/BuyerInterface/ProductListing/ProductList";
 import { useWishlist } from "../hooks/useBuyerQueries";
+import "./MarketplaceGlass.css";
 
 function Wishlist() {
   const { data: wishlistProducts = [], isLoading } = useWishlist();
 
   return (
-    <>
+    <div className="marketplace-glass">
       <BuyerNavbar />
       <main className="buyer-page-shell">
         <BuyerPageHeader
@@ -18,7 +19,7 @@ function Wishlist() {
           title="Wishlist"
           description="Keep listings you want to revisit in one place."
           count={`${wishlistProducts.length} saved`}
-          accent="red"
+          accent="green"
         />
         <div className="buyer-page-shell__content">
           <ProductList
@@ -32,7 +33,7 @@ function Wishlist() {
           />
         </div>
       </main>
-    </>
+    </div>
   );
 }
 
