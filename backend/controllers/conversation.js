@@ -9,6 +9,7 @@ const {shedulevenue}=require("../mailtemplates/Shedule");
 const mongoose=require("mongoose");
 const MeetingLocation=require("../models/MeetingLocation");
 const Notification=require("../models/Notification");
+const chat=require("../services/chat");
 const {isTimeWithinRange}=require("./meetingLocations");
 require("dotenv").config();
 
@@ -169,6 +170,7 @@ exports.shedulemeet=async (req,res)=>{
         },{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
 
         const recipient=isBuyer ? requestdata.seller?._id : requestdata.buyer?._id;
+        await chat.recordScheduleUpdate(requestdata,id,saveshedule,"proposed");
         const proposerRole=isBuyer ? "The buyer" : "The seller";
         try{
             await Notification.create({
@@ -218,6 +220,7 @@ exports.accept_shedule=async (req,res)=>{
             confirmedAt:new Date(),
         },{new:true,runValidators:true});
         if(!schedule) return res.status(409).json({success:false,message:"The proposal changed. Review the latest details before accepting"});
+        await chat.recordScheduleUpdate(requestdata,id,schedule,"confirmed");
 
         const buyername=`${requestdata.buyer.firstname} ${requestdata.buyer.lastname}`;
         const sellername=`${requestdata.seller.firstname} ${requestdata.seller.lastname}`;
@@ -432,9 +435,10 @@ exports.delete_shedule_data=async (req,res)=>{
             })
         }
 
-        await Shedule.findOneAndDelete({
+        const deletedSchedule=await Shedule.findOneAndDelete({
             requestid: requestid
         })
+        if(deletedSchedule) await chat.recordScheduleUpdate(reqdata,id,deletedSchedule,"cancelled");
         await Notification.deleteMany({request:requestid,type:"meeting_proposed"});
 
         res.json({

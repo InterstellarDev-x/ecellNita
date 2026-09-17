@@ -168,7 +168,9 @@ test("meeting plans require agreement before they are confirmed", () => {
     assert.ok(proposal.validateSync());
 });
 
-test("meeting proposals notify the other participant", async () => {
+test("meeting proposals notify the other participant", async (t) => {
+    const updates = [];
+    t.mock.method(require("../services/chat"), "recordScheduleUpdate", async (...args) => updates.push(args));
     const buyerId = new mongoose.Types.ObjectId();
     const sellerId = new mongoose.Types.ObjectId();
     const requestId = new mongoose.Types.ObjectId();
@@ -229,6 +231,9 @@ test("meeting proposals notify the other participant", async () => {
         assert.equal(String(notification.request), String(requestId));
         assert.equal(String(notification.product), String(productId));
         assert.match(notification.message, /Library entrance/);
+        assert.equal(updates.length, 1);
+        assert.equal(updates[0][1], String(buyerId));
+        assert.equal(updates[0][3], "proposed");
     } finally {
         Request.findById = originals.requestFindById;
         MeetingLocation.findOne = originals.locationFindOne;
