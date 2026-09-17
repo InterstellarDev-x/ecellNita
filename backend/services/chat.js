@@ -47,6 +47,19 @@ const requireAvailableProduct = async (productId, message) => {
     const product = await Product.findById(productId).select("status publicationStatus").lean();
     if (!product || product.status !== "Forsale" || product.publicationStatus !== "published") fail(message, 409);
 };
+// Request-based planners share the product's buyer/seller conversation.
+const recordScheduleUpdate = async (request, actor, schedule, action) => {
+    const key = { product: request.product?._id || request.product, buyer: request.buyer?._id || request.buyer, seller: request.seller?._id || request.seller };
+    if (![key.buyer, key.seller].some((participant) => String(participant) === String(actor))) fail("Conversation not found", 404);
+    let thread;
+    try { thread = await ChatThread.findOneAndUpdate(key, { $setOnInsert: key }, { upsert: true, new: true }).lean(); }
+    catch (error) { if (error.code !== 11000) throw error; thread = await ChatThread.findOne(key).lean(); }
+    const role = String(key.buyer) === String(actor) ? "Buyer" : "Seller";
+    const location = schedule.locationSnapshot?.name || schedule.venue;
+    const message = await systemMessage(thread, actor, `${role} ${action} the meeting at ${location} on ${schedule.date} at ${schedule.time}.${action === "proposed" ? " Awaiting the other participant’s acceptance." : ""}`);
+    notifyThread(thread);
+    return message;
+};
 const expirePendingOffers = async ({ threadId } = {}) => {
     const filter = { kind: "offer", offerStatus: "pending", offerExpiresAt: { $lte: new Date() } };
     if (threadId) filter.thread = threadId;
@@ -250,4 +263,4 @@ const continueQuestion = async (userId, questionId) => {
     notifyThread(thread); return thread;
 };
 
-module.exports = { OFFER_LIFETIME_MS, getThread, startThread, continueQuestion, sendMessage, sendImage, respondToOffer, withdrawOffer, reviseOffer, expirePendingOffers, proposeMeetup, respondToMeetup, changeMeetup, markRead, sendSchema };
+module.exports = { recordScheduleUpdate, OFFER_LIFETIME_MS, getThread, startThread, continueQuestion, sendMessage, sendImage, respondToOffer, withdrawOffer, reviseOffer, expirePendingOffers, proposeMeetup, respondToMeetup, changeMeetup, markRead, sendSchema };
