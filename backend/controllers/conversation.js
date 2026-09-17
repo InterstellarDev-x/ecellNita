@@ -74,7 +74,7 @@ exports.productrequest=async (req,res)=>{
         sendEmailWithRetry(
             sellerdata.email,
             "Request to Sell",
-            requestproduct(req.user.email, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, productid, requestedQuantity)
+            requestproduct(req.user.email, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, requestedQuantity)
         ).catch((mailError) => {
             logger.error("failed to queue product request email: %s", mailError.message);
         });
@@ -224,10 +224,27 @@ exports.accept_shedule=async (req,res)=>{
 
         const buyername=`${requestdata.buyer.firstname} ${requestdata.buyer.lastname}`;
         const sellername=`${requestdata.seller.firstname} ${requestdata.seller.lastname}`;
-        const emailBody=shedulevenue(buyername,sellername,requestdata.product?.productname || "Product",requestdata.product?._id,schedule.locationSnapshot?.name || schedule.venue,schedule.date,schedule.time,requestdata.quantity);
         await Promise.allSettled([
-            sendEmailWithRetry(requestdata.buyer.email,"Meeting confirmed",emailBody),
-            sendEmailWithRetry(requestdata.seller.email,"Meeting confirmed",emailBody),
+            sendEmailWithRetry(requestdata.buyer.email,"Pickup confirmed",shedulevenue({
+                recipientName:buyername,
+                counterpartName:sellername,
+                productname:requestdata.product?.productname || "Your item",
+                venue:schedule.locationSnapshot?.name || schedule.venue,
+                date:schedule.date,
+                time:schedule.time,
+                quantity:requestdata.quantity,
+                recipientRole:"purchase",
+            })),
+            sendEmailWithRetry(requestdata.seller.email,"Pickup confirmed",shedulevenue({
+                recipientName:sellername,
+                counterpartName:buyername,
+                productname:requestdata.product?.productname || "Your item",
+                venue:schedule.locationSnapshot?.name || schedule.venue,
+                date:schedule.date,
+                time:schedule.time,
+                quantity:requestdata.quantity,
+                recipientRole:"sale",
+            })),
         ]);
         return res.json({success:true,message:"Meeting confirmed",data:schedule});
     }catch(err){

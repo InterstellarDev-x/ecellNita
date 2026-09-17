@@ -4,7 +4,8 @@
     align-items: stretch;
     justify-content: start;
     width: 100%;
-    max-width: 1180px;
+    /* Match the shared buyer-page rail so request cards line up with the hero. */
+    max-width: 1380px;
     margin: 0 auto;
     gap: 12px;
 }

@@ -1,22 +1,11 @@
-exports.forgotpasswordtemplate=(email,link)=>{
-    return `<DOCTYPE html>
-    <html>
-        <head>
+const { button, emailLayout, escapeHtml } = require("./emailLayout");
 
-        <meta charset="UTF-8">
-		<title>OTP Verification Email</title>
-        <style>
-            
-        </style>
-        </head>
-
-
-        <body>
-            <div class='head'>This is forgot password email</div>
-            <div class='sugg'>forgot password link is requested from email id ${email}</div>
-            <div class='otp'>click on the link to set new password </div>
-            <a href=${link}>click here ${link}</a>
-        </body>
-    </html>
-    `
-}
+exports.forgotpasswordtemplate = (email, link) => emailLayout({
+    title: "Reset your password",
+    preview: "Use this secure link to set a new RecyCool password.",
+    eyebrow: "ACCOUNT SECURITY",
+    content: `<p style="margin-top:0;">We received a password-reset request for <strong>${escapeHtml(email)}</strong>.</p>
+      <p>Use the button below to choose a new password. This secure link expires in <strong>5 minutes</strong>.</p>
+      <p style="margin-bottom:0;">If you did not request this, you can safely ignore this email.</p>`,
+    action: button(link, "Reset password"),
+});
