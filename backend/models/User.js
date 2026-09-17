@@ -11,6 +11,11 @@ const userschema=new mongoose.Schema({
         required:true,
         trim:true,
     },
+    nameVisibility:{
+        type:String,
+        enum:["private","public"],
+        default:"private",
+    },
     email:{
         type:String,
         required:true,

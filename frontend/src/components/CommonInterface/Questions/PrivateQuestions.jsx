@@ -6,7 +6,6 @@ import { useActiveMeetingLocations } from "../../../hooks/useBuyerQueries";
 import { useNotifications } from "../../../hooks/useQuestionQueries";
 import { chatUserId, useChatMessages, useChats, useChatThread, useUploadChatImage } from "../../../hooks/useChatQueries";
 import { emitAcknowledged, useRealtime } from "../../../realtime/RealtimeProvider";
-import LegacyQuestions from "./LegacyQuestions";
 import "./Chat.css";
 
 const QUICK_REPLIES = ["Is this still available?", "Is the price negotiable?", "Where can we meet?"];
@@ -186,7 +185,7 @@ function ChatConversation({ thread, routeAudience, onBack }) {
 
 export default function PrivateQuestions({ audience, embedded = false }) {
   const [params, setParams] = useSearchParams(); const query = useChats("all"); const threads = query.data || []; const selectedId = params.get("chat"); const listedThread = threads.find((item) => item._id === selectedId); const detail = useChatThread(selectedId, !listedThread); const thread = listedThread || detail.data; const userId = chatUserId();
-  const [legacy, setLegacy] = useState(false); const [search, setSearch] = useState(""); const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState(""); const [filter, setFilter] = useState("all");
   const counts = useMemo(() => ({ all: threads.length, buying: threads.filter((item) => roleFor(item, userId) === "buyer").length, selling: threads.filter((item) => roleFor(item, userId) === "seller").length, pending: threads.filter((item) => Boolean(offerFor(item))).length }), [threads, userId]);
   const visibleThreads = useMemo(() => {
     const needle = search.trim().toLocaleLowerCase();
@@ -202,6 +201,5 @@ export default function PrivateQuestions({ audience, embedded = false }) {
       {thread ? <ChatConversation key={thread._id} thread={thread} routeAudience={audience} onBack={() => select(null)} /> : <section className="campus-chat__placeholder"><MessageCircle size={42} /><h2>{selectedId ? "Conversation unavailable" : "A good deal starts with a conversation"}</h2><p>{selectedId ? "Choose a conversation from your inbox." : "Select a chat to send messages, make an offer, and plan a safe meetup."}</p><span><ImageIcon size={15} /> Photos and price offers stay with the conversation.</span></section>}
     </div>
     <div className="campus-chat__safety"><ShieldCheck size={18} /><p><strong>Campus handoff tip</strong> Meet at an approved public location and inspect the item before sharing a transaction OTP.</p></div>
-    <details className="campus-chat__legacy" onToggle={(event) => setLegacy(event.currentTarget.open)}><summary>Previous questions & replies</summary>{legacy && <LegacyQuestions audience={audience} embedded />}</details>
   </div>;
 }
