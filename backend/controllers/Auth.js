@@ -47,7 +47,7 @@ exports.sendotp=async (req,res)=>{
                 const {otptemplate} = require("../mailtemplates/VerificationOtp");
                 
                 logger.info("Adding OTP email to queue for: %s", email);
-                await sendEmailWithRetry(email, "Verification Email From NITASPACE", otptemplate(otp));
+                await sendEmailWithRetry(email, "Verify your RecyCool email", otptemplate(otp));
                 
             } catch (emailError) {
                 logger.error("Failed to queue OTP email: %s", emailError.message);
@@ -137,7 +137,7 @@ exports.signup=async (req,res)=>{
             throw createError;
         }
         await Otp.deleteMany({email});
-        sendEmailWithRetry(email,"Signup Successful",signuptemplate(accounttype)).catch((mailError)=>{
+        sendEmailWithRetry(email,"Welcome to RecyCool",signuptemplate(accounttype)).catch((mailError)=>{
             logger.error("Could not queue signup email: %s",mailError.message);
         });
         const safeUser=userdata.toObject();
@@ -253,7 +253,7 @@ exports.forgotpasswordtoken=async (req,res)=>{
     })
     const frontendHost=(process.env.HOST || "http://localhost:3000").split(",")[0].trim().replace(/\/$/,"");
     const link=`${frontendHost}/updatepassword/${token}`;
-    await mailsender(normalizedEmail,"Forgot Password Email",forgotpasswordtemplate(normalizedEmail,link));
+    await mailsender(normalizedEmail,"Reset your RecyCool password",forgotpasswordtemplate(normalizedEmail,link));
 
     res.json({
         success:true,
