@@ -107,10 +107,9 @@
     .campus-chat__composer,
     .private-questions__card,
     .profile-identity-card,
-    .profile-workspace,
     .profile-info-card,
+    .profile-reputation-card,
     .edit-profile-form,
-    .profile-info-item,
     .feature-request-page__topbar,
     .feature-request-page__intro,
     .feature-request-page__form,
@@ -463,7 +462,7 @@
   background: rgba(199, 245, 66, 0.24);
 }
 
-.app-glass-theme :where(.faq-blocks.is-open, .profile-info-item:hover, .seller-product-row:hover) {
+.app-glass-theme :where(.faq-blocks.is-open, .seller-product-row:hover) {
   background: var(--app-glass-surface-strong);
 }
 
@@ -481,8 +480,8 @@
       .product-price-card,
       .product-card,
       .profile-identity-card,
-      .profile-workspace,
       .profile-info-card,
+      .profile-reputation-card,
       .feature-request-page__form,
       .seller-hero-card,
       .seller-stat-card,
@@ -527,4 +526,59 @@
     --app-glass-surface-strong: rgba(255, 254, 249, 0.99);
     --app-glass-blur: none;
   }
+}
+
+/* Pair the profile's light glass surfaces with the application's dark text. */
+.app-glass-theme .profile-identity-card {
+  color: var(--rc-ink);
+  border-color: var(--app-glass-line);
+}
+
+.app-glass-theme .profile-identity-card .profile-details h4 {
+  color: var(--rc-forest-950);
+  line-height: 1.2;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+
+.app-glass-theme .profile-identity-card :is(
+  .profile-details p, .profile-member-label, .profile-identity-note,
+  .profile-completion > div:first-child
+) {
+  color: var(--rc-muted);
+}
+
+.app-glass-theme .profile-identity-card :is(
+  .profile-identity-topline span, .profile-identity-meta svg,
+  .profile-identity-note svg, .profile-completion > div:first-child strong
+) {
+  color: var(--rc-forest-700);
+}
+
+.app-glass-theme .profile-identity-topline strong,
+.app-glass-theme .profile-identity-meta span {
+  color: var(--rc-forest-900);
+  border-color: var(--app-glass-line);
+  background: var(--app-glass-surface-soft);
+}
+
+.app-glass-theme .profile-completion-track {
+  background: var(--rc-line);
+}
+
+.app-glass-theme .profile-completion-track span {
+  background: var(--rc-green-600);
+}
+
+.app-glass-theme .profile-avatar {
+  transform: none;
+}
+
+/* Only cards have a surface; the workspace and field grid stay flat. */
+.app-glass-theme .profile-workspace,
+.app-glass-theme .profile-info-item {
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
