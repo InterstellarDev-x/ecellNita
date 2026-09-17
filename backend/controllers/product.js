@@ -20,6 +20,8 @@ const marketplaceProduct = (product, reputation) => ({
     ...product,
     owner: product.owner ? {
         _id: product.owner._id || product.owner,
+        nameVisibility: product.owner.nameVisibility === "public" ? "public" : "private",
+        ...(product.owner.nameVisibility === "public" ? {firstname:product.owner.firstname,lastname:product.owner.lastname} : {}),
         sellerReputation: reputation?.seller || {average:0,count:0,completedTransactions:0},
     } : null,
 });
@@ -347,6 +349,7 @@ exports.getproductpagedetails=async (req,res)=>{
             ],
         })
             .populate("category","name")
+            .populate("owner","firstname lastname nameVisibility")
             .lean();
         if(!productpage){
             return res.json({
@@ -354,11 +357,12 @@ exports.getproductpagedetails=async (req,res)=>{
                 message:"Product not found"
             })
         }
-        const reputationMap=await getReputationMap([productpage.owner]);
+        const ownerId=productpage.owner?._id || productpage.owner;
+        const reputationMap=await getReputationMap([ownerId]);
         res.json({
             success:true,
             message:"Product details fetched successfully",
-            data:marketplaceProduct(productpage,reputationMap.get(String(productpage.owner)))
+            data:marketplaceProduct(productpage,reputationMap.get(String(ownerId)))
         })
     }
     catch(err){
@@ -416,17 +420,18 @@ exports.getallproduct=async (req,res)=>{
                 .skip((page-1)*limit)
                 .limit(limit)
                 .populate("category","name")
+                .populate("owner","firstname lastname nameVisibility")
                 .lean(),
             Product.countDocuments(filter),
             Product.findOne(baseMarketplaceFilter).select("price").sort({price:-1}).lean(),
         ]);
-        const reputationMap=await getReputationMap(products.map((product)=>product.owner));
+        const reputationMap=await getReputationMap(products.map((product)=>product.owner?._id || product.owner));
         const totalPages=Math.ceil(totalProducts/limit);
         res.json({
             success:true,
             message:"All Products fetched successfully",
             data:{
-                products:products.map((product)=>marketplaceProduct(product,reputationMap.get(String(product.owner)))),
+                products:products.map((product)=>marketplaceProduct(product,reputationMap.get(String(product.owner?._id || product.owner)))),
                 page,
                 limit,
                 totalProducts,

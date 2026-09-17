@@ -102,8 +102,12 @@ exports.updateprofile=async (req,res)=>{
 exports.updateuser=async (req,res)=>{
     const imagefile=req?.files?.userimage;
     try{
-        let {firstname,lastname}=req.body;
+        let {firstname,lastname,nameVisibility}=req.body;
         const id=req.user.id
+
+        if(nameVisibility!==undefined && !["private","public"].includes(nameVisibility)){
+            return res.status(400).json({success:false,message:"Choose public or private name visibility"});
+        }
 
         const validName=(value)=>typeof value==="string" && /^[\p{L}]+(?:[ '-][\p{L}]+)*$/u.test(value.trim()) && value.trim().length>=2 && value.trim().length<=50;
         if(firstname!==undefined && !validName(firstname)){
@@ -151,7 +155,8 @@ exports.updateuser=async (req,res)=>{
         
         user=await User.findByIdAndUpdate(id,
             {
-                firstname,lastname,image
+                firstname,lastname,image,
+                ...(nameVisibility!==undefined ? {nameVisibility} : {}),
             },{new:true,runValidators:true})
             .select("-hashedpassword -forgotpasswordlink -forgotpasswordlinkexpires")
             .populate('additionaldetails').exec();

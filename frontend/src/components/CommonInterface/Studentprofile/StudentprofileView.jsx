@@ -18,6 +18,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import SmallLoader from "../SmallLoader/SmallLoader";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
@@ -35,6 +36,7 @@ const buildProfileFormData = (user) => {
   return {
     firstname: user?.firstname || '',
     lastname: user?.lastname || '',
+    nameVisibility: user?.nameVisibility === 'public' ? 'public' : 'private',
     gender: profile.gender || user?.gender || '',
     enrollmentno: profile.enrollmentno || user?.enrollmentno || '',
     contactno: profile.contactno || user?.contactno || '',
@@ -46,6 +48,7 @@ const buildProfileFormData = (user) => {
 };
 
 function StudentprofileView() {
+  const queryClient = useQueryClient();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -55,6 +58,7 @@ function StudentprofileView() {
   const [updateProfileFormdata, setUpdateProfileFormdata] = useState({
     firstname: '',
     lastname: '',
+    nameVisibility: 'private',
     gender: '',
     enrollmentno: '',
     contactno: '',
@@ -142,6 +146,7 @@ function StudentprofileView() {
     const userFormData = new FormData();
     userFormData.append("firstname", updateProfileFormdata.firstname.trim());
     userFormData.append("lastname", updateProfileFormdata.lastname.trim());
+    userFormData.append("nameVisibility", updateProfileFormdata.nameVisibility);
     if (profileImageFile) {
       userFormData.append("userimage", profileImageFile);
     }
@@ -195,6 +200,7 @@ function StudentprofileView() {
       localStorage.setItem('campusrecycleuser', JSON.stringify(updatedUser));
       window.dispatchEvent(new Event("campusrecycleuser-updated"));
       setUserDetails(updatedUser);
+      ["marketplace-product", "marketplace-products", "chats"].forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }));
       setUpdateProfileFormdata(buildProfileFormData(updatedUser));
       if (profileImagePreview) {
         URL.revokeObjectURL(profileImagePreview);
@@ -280,6 +286,10 @@ function StudentprofileView() {
           </header>
           <div className="profile-info-card">
             <div className="profile-info-grid">
+              <div className="profile-info-item full-width">
+                <span className="info-label"><UserRound size={14} /> Name visibility</span>
+                <span className="info-value">{userDetails?.nameVisibility === "public" ? "Public · Your name is shown on listings" : "Private · Your name is hidden on listings"}</span>
+              </div>
               <div className="profile-info-item">
                 <span className="info-label"><UserRound size={14} /> First Name</span>
                 <span className="info-value">{userDetails?.firstname || '—'}</span>
@@ -372,6 +382,15 @@ function StudentprofileView() {
                     <label htmlFor="lastname">Last Name</label>
                     <input type="text" id="lastname" name="lastname" value={updateProfileFormdata.lastname} onChange={updateProfileFormdataOnchange} disabled={loading} required />
                   </div>
+                </div>
+
+                <div>
+                  <label htmlFor="nameVisibility">Name visibility</label>
+                  <select id="nameVisibility" name="nameVisibility" value={updateProfileFormdata.nameVisibility} onChange={updateProfileFormdataOnchange} disabled={loading} aria-describedby="name-visibility-help">
+                    <option value="private">Private — hide my name on listings</option>
+                    <option value="public">Public — show my name on listings</option>
+                  </select>
+                  <span id="name-visibility-help" className="field-hint">This controls your name on marketplace listings. People you chat with can still see your name. Phone and email sharing stays the same.</span>
                 </div>
 
                 <div className="form-row">
