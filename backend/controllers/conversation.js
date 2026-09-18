@@ -9,6 +9,7 @@ const {shedulevenue}=require("../mailtemplates/Shedule");
 const mongoose=require("mongoose");
 const MeetingLocation=require("../models/MeetingLocation");
 const Notification=require("../models/Notification");
+const chat=require("../services/chat");
 const {isTimeWithinRange}=require("./meetingLocations");
 require("dotenv").config();
 
@@ -73,7 +74,7 @@ exports.productrequest=async (req,res)=>{
         sendEmailWithRetry(
             sellerdata.email,
             "Request to Sell",
-            requestproduct(req.user.email, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, productid, requestedQuantity)
+            requestproduct(req.user.email, sellerdata.firstname + " " + sellerdata.lastname, productdata.productname, requestedQuantity)
         ).catch((mailError) => {
             logger.error("failed to queue product request email: %s", mailError.message);
         });
@@ -169,6 +170,7 @@ exports.shedulemeet=async (req,res)=>{
         },{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
 
         const recipient=isBuyer ? requestdata.seller?._id : requestdata.buyer?._id;
+        await chat.recordScheduleUpdate(requestdata,id,saveshedule,"proposed");
         const proposerRole=isBuyer ? "The buyer" : "The seller";
         try{
             await Notification.create({
@@ -218,13 +220,31 @@ exports.accept_shedule=async (req,res)=>{
             confirmedAt:new Date(),
         },{new:true,runValidators:true});
         if(!schedule) return res.status(409).json({success:false,message:"The proposal changed. Review the latest details before accepting"});
+        await chat.recordScheduleUpdate(requestdata,id,schedule,"confirmed");
 
         const buyername=`${requestdata.buyer.firstname} ${requestdata.buyer.lastname}`;
         const sellername=`${requestdata.seller.firstname} ${requestdata.seller.lastname}`;
-        const emailBody=shedulevenue(buyername,sellername,requestdata.product?.productname || "Product",requestdata.product?._id,schedule.locationSnapshot?.name || schedule.venue,schedule.date,schedule.time,requestdata.quantity);
         await Promise.allSettled([
-            sendEmailWithRetry(requestdata.buyer.email,"Meeting confirmed",emailBody),
-            sendEmailWithRetry(requestdata.seller.email,"Meeting confirmed",emailBody),
+            sendEmailWithRetry(requestdata.buyer.email,"Pickup confirmed",shedulevenue({
+                recipientName:buyername,
+                counterpartName:sellername,
+                productname:requestdata.product?.productname || "Your item",
+                venue:schedule.locationSnapshot?.name || schedule.venue,
+                date:schedule.date,
+                time:schedule.time,
+                quantity:requestdata.quantity,
+                recipientRole:"purchase",
+            })),
+            sendEmailWithRetry(requestdata.seller.email,"Pickup confirmed",shedulevenue({
+                recipientName:sellername,
+                counterpartName:buyername,
+                productname:requestdata.product?.productname || "Your item",
+                venue:schedule.locationSnapshot?.name || schedule.venue,
+                date:schedule.date,
+                time:schedule.time,
+                quantity:requestdata.quantity,
+                recipientRole:"sale",
+            })),
         ]);
         return res.json({success:true,message:"Meeting confirmed",data:schedule});
     }catch(err){
@@ -432,9 +452,10 @@ exports.delete_shedule_data=async (req,res)=>{
             })
         }
 
-        await Shedule.findOneAndDelete({
+        const deletedSchedule=await Shedule.findOneAndDelete({
             requestid: requestid
         })
+        if(deletedSchedule) await chat.recordScheduleUpdate(reqdata,id,deletedSchedule,"cancelled");
         await Notification.deleteMany({request:requestid,type:"meeting_proposed"});
 
         res.json({

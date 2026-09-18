@@ -224,6 +224,20 @@
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }
 
+/* Bootstrap modals are fixed-positioned. Keep an open modal out of the card's
+   hover transform/clip context so it stays above its backdrop and centers in
+   the viewport rather than inside the product card. */
+.seller-product-card:has(.modal.show) {
+  overflow: visible;
+  transform: none;
+}
+
+body:has(.modal.show .seller-product-modal) .modal-backdrop.show {
+  background-color: #0b2f24;
+  opacity: 0.28;
+  backdrop-filter: blur(2px);
+}
+
 .seller-product-image-wrap {
   position: relative;
   height: 205px;

@@ -333,3 +333,45 @@ test("chat authorization, idempotency, offer races, persistence, and private not
   assert.equal(sellerEvents.length, 0);
   assert.equal(strangerEvents.length, 0);
 });
+
+
+test("request meeting changes persist in chat and reach both participants", async (t) => {
+  t.mock.method(require("../utils/EmailQueue"), "sendEmailWithRetry", async () => undefined);
+  const controller = require("../controllers/conversation");
+  const Request = require("../models/Request");
+  const request = await Request.create({ buyer: buyer._id, seller: seller._id, product: product._id, quantity: 1 });
+  const buyerSocket = await connect(tokenFor(buyer));
+  const sellerSocket = await connect(tokenFor(seller));
+  const strangerSocket = await connect(tokenFor(stranger));
+  const events = { buyer: [], seller: [], stranger: [] };
+  buyerSocket.on("chat:changed", (event) => events.buyer.push(event));
+  sellerSocket.on("chat:changed", (event) => events.seller.push(event));
+  strangerSocket.on("chat:changed", (event) => events.stranger.push(event));
+  const invoke = async (handler, user, fields = {}) => {
+    const res = { status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } };
+    await handler({ user: { id: String(user._id) }, body: { requestid: String(request._id), ...fields } }, res);
+    return res.body;
+  };
+  const baseline = await ChatMessage.countDocuments({ thread: thread._id, kind: "system" });
+  for (const [proposer, responder, date] of [[buyer, seller, "2099-09-01"], [seller, buyer, "2099-09-02"]]) {
+    assert.equal((await invoke(controller.shedulemeet, proposer, { locationId: String(meetingLocation._id), date, time: "14:00" })).success, true);
+    assert.equal((await invoke(controller.accept_shedule, proposer)).success, false);
+    assert.equal((await invoke(controller.accept_shedule, responder)).success, true);
+    assert.equal((await invoke(controller.accept_shedule, responder)).success, true);
+  }
+  assert.equal((await invoke(controller.delete_shedule_data, stranger)).success, false);
+  assert.equal((await invoke(controller.delete_shedule_data, buyer)).success, true);
+  assert.equal((await invoke(controller.delete_shedule_data, buyer)).success, true);
+  const history = await ChatMessage.find({ thread: thread._id, kind: "system" }).sort({ _id: 1 }).skip(baseline).lean();
+  assert.equal(history.length, 5, "Repeated confirmation/cancellation must not duplicate updates");
+  assert.match(history[0].body, /Buyer proposed.*2099-09-01.*14:00/);
+  assert.match(history[1].body, /Seller confirmed/);
+  assert.match(history[2].body, /Seller proposed.*2099-09-02/);
+  assert.match(history[3].body, /Buyer confirmed/);
+  assert.match(history[4].body, /Buyer cancelled/);
+  assert.equal(String(history[1].recipient), String(buyer._id));
+  assert.equal(String(history[3].recipient), String(seller._id));
+  await waitFor(() => events.buyer.length >= 5 && events.seller.length >= 5, "Meeting updates did not reach both participants");
+  assert.ok(events.buyer.every((event) => event.threadId === String(thread._id)));
+  assert.equal(events.stranger.length, 0);
+});

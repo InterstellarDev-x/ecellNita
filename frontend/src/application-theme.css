@@ -480,7 +480,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* Secondary buyer pages share one content rail instead of inheriting marketplace padding. */
 .buyer-page-shell__content > .product-list { width: 100%; max-width: none; margin: 0; padding: 0; }
-.buyer-product-request .buyer-product-request-container { max-width: 1240px; }
+.buyer-product-request .buyer-product-request-container { max-width: 1380px; }
 
 .buyer-product-view { min-height: calc(100vh - 72px); }
 .buyer-product-view-container { max-width: 1240px; }
