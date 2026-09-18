@@ -304,6 +304,126 @@
     font-size: small;
 }
 
+/* Transaction confirmation follows the buyer workspace visual language. */
+.complete-transaction-modal {
+    overflow: hidden;
+    border: 1px solid rgba(11, 47, 36, 0.14);
+    border-radius: 22px;
+    background: var(--rc-paper);
+    box-shadow: 0 30px 80px rgba(11, 47, 36, 0.25);
+}
+
+.complete-transaction-modal__header {
+    padding: 19px 22px;
+    border-bottom: 0;
+    color: #fff;
+    background:
+        radial-gradient(circle at 88% 10%, rgba(199, 245, 66, 0.22), transparent 115px),
+        var(--rc-forest-950);
+}
+
+.complete-transaction-modal__header .modal-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+}
+
+.complete-transaction-modal__header .modal-title svg {
+    width: 21px;
+    height: 21px;
+    padding: 4px;
+    border-radius: 7px;
+    color: var(--rc-forest-950);
+    background: var(--rc-lime);
+}
+
+.complete-transaction-modal__header .btn-close {
+    opacity: 0.9;
+    filter: brightness(0) invert(1);
+}
+
+.complete-transaction-modal .modal-body {
+    padding: 22px;
+}
+
+.complete-transaction-modal__hint {
+    max-width: 390px;
+    margin: 0 auto 18px;
+    color: var(--rc-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    text-align: center;
+}
+
+.complete-transaction-modal .complete-transaction-container {
+    gap: clamp(6px, 1.8vw, 12px);
+    padding: 0;
+}
+
+.complete-transaction-modal .otp-input {
+    width: clamp(38px, 10vw, 48px);
+    height: clamp(46px, 11vw, 54px);
+    padding: 0;
+    border: 1px solid var(--rc-line);
+    border-radius: 13px;
+    color: var(--rc-forest-950);
+    background: var(--rc-cream);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.complete-transaction-modal .otp-input:focus {
+    border-color: var(--rc-green-600);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(21, 154, 99, 0.14);
+}
+
+.complete-transaction-modal .complete-transaction-footer-err-box {
+    min-height: 20px;
+    margin-top: 12px;
+    color: var(--rc-danger);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.complete-transaction-modal .complete-transaction-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.complete-transaction-modal .complete-transaction-footer button {
+    min-width: 190px;
+    margin-top: 7px;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--rc-green-600);
+    box-shadow: 0 5px 0 var(--rc-forest-950);
+    font-weight: 800;
+}
+
+.complete-transaction-modal .complete-transaction-footer button:hover:not(:disabled) {
+    background: var(--rc-forest-700);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 var(--rc-forest-950);
+}
+
+.complete-transaction-modal .complete-transaction-footer button:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+    box-shadow: none;
+}
+
 .modal-body .report-container {
     display: grid;
     gap: 8px;

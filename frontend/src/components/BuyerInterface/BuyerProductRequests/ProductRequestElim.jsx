@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Trash2, Flag, CalendarDays, UserRound } from "lucide-react";
+import { Trash2, Flag, CalendarDays, ShieldCheck, UserRound } from "lucide-react";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import { useRequestSchedule } from "../../../hooks/useBuyerQueries";
@@ -250,11 +250,11 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content complete-transaction-modal">
+            <div className="modal-header complete-transaction-modal__header">
               <h5 className="modal-title" id="exampleModalLabel">
-                Complete Transaction
+                <ShieldCheck aria-hidden="true" /> Complete Transaction
               </h5>
               <button
                 type="button"
@@ -265,6 +265,7 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
               ></button>
             </div>
             <div className="modal-body">
+              <p className="complete-transaction-modal__hint">Enter the six-digit code shared by the seller to confirm this handover.</p>
               <div className="complete-transaction-container">
                 {otp.map((digit, index) => (
                   <input
@@ -293,11 +294,11 @@ function ProductRequestElim({ request, handleDeleteProductRequest }) {
                   />
                 ))} */}
               </div>
-              <div className="complete-transaction-footer-err-box">
+              <div className="complete-transaction-footer-err-box" role="alert">
                 {otpError}
               </div>
               <div className="complete-transaction-footer">
-                <button onClick={submitCompleteOTP} disabled={otp.some((digit) => !digit)}>Submit</button>
+                <button type="button" onClick={submitCompleteOTP} disabled={otp.some((digit) => !digit)}>Verify & Complete</button>
               </div>
             </div>
           </div>
