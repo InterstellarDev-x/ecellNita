@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { apiConnector } from "../../../utils/Apiconnecter";
 import { authroutes } from "../../../apis/apis";
 import SmallLoader from "../../CommonInterface/SmallLoader/SmallLoader";
@@ -171,6 +172,7 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
   const deleteModalId = `delete_product_modal-${product._id}`;
 
   return (
+    <>
     <div className="seller-product-card">
       <div className="seller-product-image-wrap">
         <img {...productCardImageProps(product.images?.[0] || DEFAULT_PRODUCT_IMAGE)} alt={product.productname} />
@@ -198,7 +200,10 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
           <Trash2 size={15} /> Delete
         </button>
       </div>
+    </div>
 
+    {createPortal(
+      <>
       <div className="modal fade" id={modalId} tabIndex="-1" aria-hidden="true" ref={editModalRef}>
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content seller-product-modal">
@@ -292,7 +297,10 @@ function SellerProductCard({ product, handleDeleteProduct, onProductUpdated, onR
           </div>
         </div>
       </div>
-    </div>
+      </>,
+      document.body
+    )}
+    </>
   );
 }
 
